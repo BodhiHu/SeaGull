@@ -24,7 +24,7 @@ public class GeneralAdapter extends ArrayAdapter<GeneralAdapter.Item> {
     }
 
     public interface DefaultViewInterface {
-        View getDefaultView(int position, View convertView, ViewGroup parent);
+        View getDefaultView(Item item, int position, View convertView, ViewGroup parent);
     }
     public interface ItemViewInterface {
         View getView(View convertView, ViewGroup parent);
@@ -34,17 +34,20 @@ public class GeneralAdapter extends ArrayAdapter<GeneralAdapter.Item> {
     public View getView(int position, View convertView, ViewGroup parent) {
         Item i = getItem(position);
         if (i.mResource == null) {
-            return mInterface.getDefaultView(position, convertView, parent);
+            return mInterface.getDefaultView(this.getItem(position), position, convertView, parent);
         }
         return i.mInterface.getView(convertView, parent);
     }
 
     public class Item {
-        private Integer mResource;
-        private Object  mTarget;
-        private ItemViewInterface mInterface;
+        public Integer mResource;
+        public Object  mTarget;
+        public ItemViewInterface mInterface;
 
         public Item(Object target) {
+            if (target == null) {
+                throw new InvalidParameterException();
+            }
             this.mTarget = target;
         }
         public Item(Integer resource, Object target, ItemViewInterface i) {
