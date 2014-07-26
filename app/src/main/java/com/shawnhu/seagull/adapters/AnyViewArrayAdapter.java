@@ -4,10 +4,12 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 
 import java.security.InvalidParameterException;
 import java.util.List;
+
+import android.widget.ArrayAdapter;
+
 
 /**
  * Created by shawn on 14-7-23.

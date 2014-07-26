@@ -28,7 +28,7 @@ public class Seagull {
     public static final String DRAWER_MENU_DRFS = "Drafts";
     public static final String DRAWER_MENU_STNS = "Settins";
 
-    static AvatarCard aC = new AvatarCard();
+    static AvatarCard aC = new AvatarCard(null, "Seagull", "@Seagull");
     public static AnyViewArrayAdapterItem mSeagullDrawerItems[] = {
             new AnyViewArrayAdapterItem(R.layout.layout_avatar, aC, aC, ProfileFragment.class),
 

@@ -13,7 +13,7 @@ import com.shawnhu.seagull.adapters.AnyViewArrayAdapterItem;
 /**
  * Created by shawn on 14-7-25.
  */
-public class AvatarCard implements AnyViewArrayAdapterItem.ItemViewInterface{
+public class AvatarCard implements AnyViewArrayAdapterItem.ItemViewInterface {
     Drawable mAvatar;
     String   mName;
     String   mAtName;
@@ -44,11 +44,18 @@ public class AvatarCard implements AnyViewArrayAdapterItem.ItemViewInterface{
         }
 
         ImageView iv = (ImageView) v.findViewById(R.id.avatarImage);
-        iv.setImageDrawable(mAvatar);
         TextView  nameText = (TextView) v.findViewById(R.id.nameText);
-        nameText.setText(mName);
         TextView  atNameText = (TextView) v.findViewById(R.id.atNameText);
-        atNameText.setText(mAtName);
+
+        if (mAvatar != null) {
+            iv.setImageDrawable(mAvatar);
+        }
+        if (mName != null) {
+            nameText.setText(mName);
+        }
+        if (mAtName != null) {
+            atNameText.setText(mAtName);
+        }
 
         return v;
     }

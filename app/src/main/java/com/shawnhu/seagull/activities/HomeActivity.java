@@ -1,11 +1,13 @@
 package com.shawnhu.seagull.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,8 +20,10 @@ import com.shawnhu.seagull.adapters.AnyViewArrayAdapterItem;
 import com.shawnhu.seagull.fragments.NavigationDrawerFragment;
 import com.shawnhu.seagull.R;
 
+import java.lang.reflect.Method;
 
-public class HomeActivity extends ActionBarActivity
+
+public abstract class HomeActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**
@@ -46,11 +50,22 @@ public class HomeActivity extends ActionBarActivity
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
 
+
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout),
                 mDrawerListArrayAdapter);
+    }
+    @Override
+    protected void onDestroy() {
+    /*
+     * NOTE: When pressing back button, activity will be destroyed, so will its fragments.
+     *       But system will cache app, so, clear user data, and reload when calling onCreate.
+     */
+        //clear data
+        mDrawerListArrayAdapter.clear();
+        super.onDestroy();
     }
 
     @Override
@@ -58,7 +73,30 @@ public class HomeActivity extends ActionBarActivity
         AnyViewArrayAdapterItem i = mDrawerListArrayAdapter.getItem(position);
         FragmentManager fragmentManager = getSupportFragmentManager();
 
-        Class targetAction = i.mActionClass;
+        Class targetClass = i.mActionClass;
+
+        if (targetClass != null) {
+            //TODO: targetClass(Fragment, Activity or whatever, might need args passed
+            //TODO: which might be put in the adapter
+            Class targetBaseClass = targetClass.getSuperclass();
+            if (targetBaseClass == Fragment.class) {
+                //Fragment, transmit to it
+                try {
+                    Method newFragmentInstance = targetClass.getMethod("newIntance", Bundle.class);
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.container, (Fragment) newFragmentInstance.invoke(null, null))
+                            .commit();
+                } catch(Exception e) {
+                    //TODO: log this error
+                }
+
+            } else if (targetBaseClass == Activity.class) {
+                //Activity, start it
+                startActivity(new Intent(this, targetClass));
+            } else {
+                //Other stuff, TODO
+            }
+        }
     }
 
     public void restoreActionBar() {
@@ -76,7 +114,7 @@ public class HomeActivity extends ActionBarActivity
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
             getMenuInflater().inflate(R.menu.home, menu);
-            //restoreActionBar();
+            restoreActionBar();
             return true;
         }
         return super.onCreateOptionsMenu(menu);
