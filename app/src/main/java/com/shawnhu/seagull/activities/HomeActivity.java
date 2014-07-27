@@ -76,11 +76,9 @@ public abstract class HomeActivity extends ActionBarActivity
         Class targetClass = i.mActionClass;
 
         if (targetClass != null) {
-            //TODO: targetClass(Fragment, Activity or whatever, might need args passed
-            //TODO: which might be put in the adapter
-            Class targetBaseClass = targetClass.getSuperclass();
-            if (targetBaseClass == Fragment.class) {
-                //Fragment, transmit to it
+            //TODO: targetClass(Fragment, Activity or whatever, might need args passed which might be put in the adapter
+            if (Fragment.class.isAssignableFrom(targetClass)) {
+                //Fragment, transform to it
                 try {
                     Method newFragmentInstance = targetClass.getMethod("newIntance", Bundle.class);
                     fragmentManager.beginTransaction()
@@ -90,7 +88,7 @@ public abstract class HomeActivity extends ActionBarActivity
                     //TODO: log this error
                 }
 
-            } else if (targetBaseClass == Activity.class) {
+            } else if (Activity.class.isAssignableFrom(targetClass)) {
                 //Activity, start it
                 startActivity(new Intent(this, targetClass));
             } else {

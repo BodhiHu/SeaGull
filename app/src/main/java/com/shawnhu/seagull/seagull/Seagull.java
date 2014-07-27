@@ -2,7 +2,7 @@ package com.shawnhu.seagull.seagull;
 
 
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.activities.SettingsActivity;
+import com.shawnhu.seagull.activities.AbstractPreferenceActivity;
 import com.shawnhu.seagull.adapters.AnyViewArrayAdapterItem;
 import com.shawnhu.seagull.fragments.DraftsFragment;
 import com.shawnhu.seagull.fragments.FollowersFragment;
@@ -39,7 +39,7 @@ public class Seagull {
             new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_info_details, DRAWER_MENU_FLIN), FollowingsFragment.class),
             new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_info_details, DRAWER_MENU_FLRS), FollowersFragment.class),
             new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_edit,         DRAWER_MENU_DRFS), DraftsFragment.class),
-            new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_preferences,  DRAWER_MENU_STNS), SettingsActivity.class),
+            new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_preferences,  DRAWER_MENU_STNS), AbstractPreferenceActivity.class),
     };
 
 

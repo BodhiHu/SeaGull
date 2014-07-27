@@ -1,11 +1,6 @@
 package com.shawnhu.seagull.seagull.activities;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,25 +9,13 @@ import android.widget.TextView;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.HomeActivity;
-import com.shawnhu.seagull.activities.SettingsActivity;
 import com.shawnhu.seagull.adapters.AnyViewArrayAdapter;
 import com.shawnhu.seagull.adapters.AnyViewArrayAdapterItem;
-import com.shawnhu.seagull.fragments.DraftsFragment;
-import com.shawnhu.seagull.fragments.FollowersFragment;
-import com.shawnhu.seagull.fragments.FollowingsFragment;
-import com.shawnhu.seagull.fragments.HomeFragment;
-import com.shawnhu.seagull.fragments.NotificationsFragment;
-import com.shawnhu.seagull.fragments.ProfileFragment;
-import com.shawnhu.seagull.fragments.SearchFragment;
-import com.shawnhu.seagull.fragments.TweetsFragment;
 import com.shawnhu.seagull.misc.IconicItem;
 import com.shawnhu.seagull.seagull.Seagull;
-import com.shawnhu.seagull.views.AvatarCard;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 /**
