@@ -15,18 +15,19 @@ public class AnyViewArrayAdapterItem {
     public Integer mResource;
     public Object  mTarget;
     public ItemViewInterface mInterface;
+    public String mName;
 
     public interface ItemViewInterface {
         View getView(LayoutInflater lI, View convertView, ViewGroup parent);
     }
 
-    public AnyViewArrayAdapterItem(Object target) {
-        this(null, target, null, null);
+    public AnyViewArrayAdapterItem(Object target, String name) {
+        this(null, target, null, null, name);
     }
-    public AnyViewArrayAdapterItem(Object target, Class actionClass) {
-        this(null, target, null, actionClass);
+    public AnyViewArrayAdapterItem(Object target, Class actionClass, String name) {
+        this(null, target, null, actionClass, name);
     }
-    public AnyViewArrayAdapterItem(Integer resource, Object target, ItemViewInterface i, Class actionClass) {
+    public AnyViewArrayAdapterItem(Integer resource, Object target, ItemViewInterface i, Class actionClass, String name) {
         if (target == null ||
                 (resource != null && i == null)) {
              throw new InvalidParameterException();
@@ -35,5 +36,6 @@ public class AnyViewArrayAdapterItem {
         this.mTarget = target;
         this.mInterface = i;
         this.mActionClass = actionClass;
+        this.mName = name;
     }
 }

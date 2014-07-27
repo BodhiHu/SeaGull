@@ -11,6 +11,7 @@ import com.shawnhu.seagull.activities.AbstractPreferenceActivity;
  * Created by shawnhu on 7/27/14.
  */
 public class SeagullPreferenceActivity extends AbstractPreferenceActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         mPreferenceResIds.add(R.xml.pref_general);
@@ -27,6 +28,6 @@ public class SeagullPreferenceActivity extends AbstractPreferenceActivity {
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         //TODO: handle preference changes
 
-        Toast.makeText(this, key + ": " + sharedPreferences.getString(key, ""), Toast.LENGTH_SHORT);
+        Toast.makeText(this, key + "'s value changed", Toast.LENGTH_SHORT).show();
     }
 }

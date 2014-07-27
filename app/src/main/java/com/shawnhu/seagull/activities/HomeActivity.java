@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.Toast;
 
 import com.shawnhu.seagull.adapters.AnyViewArrayAdapter;
 import com.shawnhu.seagull.adapters.AnyViewArrayAdapterItem;
@@ -30,6 +31,7 @@ public abstract class HomeActivity extends ActionBarActivity
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    private int mLastFragmentPosition = 0;
 
     /*
      *   Subclasses MUST provide these data.
@@ -39,7 +41,8 @@ public abstract class HomeActivity extends ActionBarActivity
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
-    private CharSequence mTitle;
+    private CharSequence mAppTitle;
+    private CharSequence mSubTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,8 +51,10 @@ public abstract class HomeActivity extends ActionBarActivity
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
+        mAppTitle = getTitle();
+        mSubTitle = getSupportActionBar().getSubtitle();
 
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_TITLE, ActionBar.DISPLAY_SHOW_TITLE);
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
@@ -61,7 +66,7 @@ public abstract class HomeActivity extends ActionBarActivity
     protected void onDestroy() {
     /*
      * NOTE: When pressing back button, activity will be destroyed, so will its fragments.
-     *       But system will cache app, so, clear user data, and reload when calling onCreate.
+     *       But system will cache app, so, clear init data.
      */
         //clear data
         mDrawerListArrayAdapter.clear();
@@ -76,20 +81,30 @@ public abstract class HomeActivity extends ActionBarActivity
         Class targetClass = i.mActionClass;
 
         if (targetClass != null) {
-            //TODO: targetClass(Fragment, Activity or whatever, might need args passed which might be put in the adapter
+            //TODO: Fragment, Activity or whatever, might need args passed which might be put in the adapter
             if (Fragment.class.isAssignableFrom(targetClass)) {
                 //Fragment, transform to it
                 try {
-                    Method newFragmentInstance = targetClass.getMethod("newIntance", Bundle.class);
+                    Method newFragmentInstance = targetClass.getMethod("newInstance", Bundle.class);
+                    //TODO: might need args
+                    Bundle args = new Bundle();
                     fragmentManager.beginTransaction()
-                            .replace(R.id.container, (Fragment) newFragmentInstance.invoke(null, null))
+                            .replace(R.id.container, (Fragment) newFragmentInstance.invoke(null, args))
                             .commit();
+
+                    if (i.mName != null && i.mName != "") {
+                        mSubTitle = i.mName;
+                        getSupportActionBar().setSubtitle(mSubTitle);
+                    }
+                    mLastFragmentPosition = position;
                 } catch(Exception e) {
+                    Log.e(HomeActivity.class.getSimpleName(), e.toString());
                     //TODO: log this error
                 }
 
             } else if (Activity.class.isAssignableFrom(targetClass)) {
                 //Activity, start it
+                mNavigationDrawerFragment.setCurrentPosition(mLastFragmentPosition);
                 startActivity(new Intent(this, targetClass));
             } else {
                 //Other stuff, TODO
@@ -101,7 +116,8 @@ public abstract class HomeActivity extends ActionBarActivity
         ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
+        actionBar.setTitle(mAppTitle);
+        actionBar.setSubtitle(mSubTitle);
     }
 
 

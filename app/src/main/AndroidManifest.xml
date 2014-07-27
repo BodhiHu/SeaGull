@@ -17,8 +17,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.AbstractPreferenceActivity"
-            android:label="@string/title_activity_settings"
+            android:name=".seagull.activities.SeagullPreferenceActivity"
+            android:label="@string/title_activity_preferences"
             android:parentActivityName=".seagull.activities.SeagullHomeActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

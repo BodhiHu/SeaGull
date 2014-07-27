@@ -28,12 +28,12 @@ import java.util.List;
 
 public abstract class AbstractPreferenceActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-/* Subclasses should provide these data */
+/* Subclass preference activity should provide these data **********************/
     // For (version < HONEYCOMB) OR simple single list
-    protected ArrayList<Integer> mPreferenceResIds;
+    protected ArrayList<Integer> mPreferenceResIds = new ArrayList<Integer>();
     // For (version >= HONEYCOMB) AND multi-panel
     protected int mPreferenceHeaderResId;
-/* */
+/* *****************************************************************************/
 
     /**
      * Determines whether to always show the simplified settings UI, where
@@ -41,7 +41,7 @@ public abstract class AbstractPreferenceActivity extends PreferenceActivity impl
      * as a master/detail two-pane view on tablets. When true, a single pane is
      * shown on tablets.
      */
-    private static final boolean ALWAYS_SIMPLE_PREFS = false;
+    protected static boolean ALWAYS_SIMPLE_PREFS = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +116,7 @@ public abstract class AbstractPreferenceActivity extends PreferenceActivity impl
      * Helper method to determine if the device has an extra-large screen. For
      * example, 10" tablets are extra-large.
      */
+    //TODO: this should go into utils
     private static boolean isXLargeTablet(Context context) {
         return (context.getResources().getConfiguration().screenLayout
         & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;

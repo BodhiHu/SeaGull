@@ -4,10 +4,10 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="com.shawnhu.seagull.activities.AbstractPreferenceActivity$GeneralPreferenceFragment"
+        android:fragment="com.shawnhu.seagull.seagull.preferences.GeneralPreferenceFragment"
         android:title="@string/pref_header_general" />
     <header
-        android:fragment="com.shawnhu.seagull.activities.AbstractPreferenceActivity$AccountPreferenceFragment"
+        android:fragment="com.shawnhu.seagull.seagull.preferences.AccountPreferenceFragment"
         android:title="@string/pref_header_account" />
 
 </preference-headers>

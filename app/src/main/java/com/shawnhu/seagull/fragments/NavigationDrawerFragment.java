@@ -26,6 +26,8 @@ import android.widget.Toast;
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.adapters.AnyViewArrayAdapter;
 
+import java.security.Key;
+
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
@@ -36,7 +38,7 @@ public class NavigationDrawerFragment extends Fragment {
     /**
      * Remember the position of the selected item.
      */
-    private static final String STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
+    private static final String KEY_STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
 
     /**
      * Per the design guidelines, you should show the drawer on launch until the user manually
@@ -74,9 +76,10 @@ public class NavigationDrawerFragment extends Fragment {
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
+        mCurrentSelectedPosition = sp.getInt(KEY_STATE_SELECTED_POSITION, 0);
 
         if (savedInstanceState != null) {
-            mCurrentSelectedPosition = savedInstanceState.getInt(STATE_SELECTED_POSITION);
+            mCurrentSelectedPosition = savedInstanceState.getInt(KEY_STATE_SELECTED_POSITION);
             mFromSavedInstanceState = true;
         }
 
@@ -202,6 +205,7 @@ public class NavigationDrawerFragment extends Fragment {
         if (mCallbacks != null) {
             mCallbacks.onNavigationDrawerItemSelected(position);
         }
+
     }
 
     @Override
@@ -223,7 +227,7 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
+        outState.putInt(KEY_STATE_SELECTED_POSITION, mCurrentSelectedPosition);
     }
 
     @Override
@@ -271,6 +275,14 @@ public class NavigationDrawerFragment extends Fragment {
 
     private ActionBar getActionBar() {
         return ((ActionBarActivity) getActivity()).getSupportActionBar();
+    }
+
+    public void setCurrentPosition(int p) {
+        if (p >= 0 && p < mDrawerListViewAdapter.getCount()) {
+
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            sp.edit().putInt(KEY_STATE_SELECTED_POSITION, p).commit();
+        }
     }
 
     /**
