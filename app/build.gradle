@@ -32,4 +32,7 @@ dependencies {
     // You must install or update the Support Repository through the SDK manager to use this dependency.
     compile 'com.android.support:support-v4:20.+'
     compile 'com.google.android.gms:play-services:4.2.42'
+
+    compile 'org.apache.commons:commons-lang3:3.+'
+    compile 'com.mcxiaoke.volley:library:1.0.+'
 }

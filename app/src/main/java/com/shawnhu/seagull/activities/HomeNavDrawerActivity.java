@@ -20,8 +20,10 @@ import com.shawnhu.seagull.R;
 import java.lang.reflect.Method;
 
 
-public abstract class HomeNavDrawerActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks, OnApplyThemeListener {
+public abstract class HomeNavDrawerActivity
+        extends     ActionBarActivity
+        implements  NavigationDrawerFragment.NavigationDrawerCallbacks,
+        ThemeInterface {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -140,6 +142,13 @@ public abstract class HomeNavDrawerActivity extends ActionBarActivity
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void applyTheme(int r) {
+        /* this should be called before any view is instantiated */
+        setTheme(r);
+        recreate();
     }
 
 }

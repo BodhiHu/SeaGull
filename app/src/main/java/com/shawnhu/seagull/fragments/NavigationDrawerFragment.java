@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.adapters.AnyViewArrayAdapter;
+import com.shawnhu.seagull.preferences.AppPreferences;
 
 import java.security.Key;
 
@@ -35,20 +36,6 @@ import java.security.Key;
  */
 public class NavigationDrawerFragment extends Fragment {
 
-    /**
-     * Remember the position of the selected item.
-     */
-    private static final String PREF_STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
-
-    /**
-     * Per the design guidelines, you should show the drawer on launch until the user manually
-     * expands it. This shared preference tracks this.
-     */
-    private static final String PREF_USER_LEARNED_DRAWER = "navigation_drawer_learned";
-
-    /**
-     * A pointer to the current callbacks instance (the Activity).
-     */
     private NavigationDrawerCallbacks mCallbacks;
 
     /**
@@ -61,9 +48,7 @@ public class NavigationDrawerFragment extends Fragment {
     private View mFragmentContainerView;
     private AnyViewArrayAdapter mDrawerListViewAdapter;
 
-    private int mCurrentSelectedPosition = 0;
     private boolean mFromSavedInstanceState;
-    private boolean mUserLearnedDrawer;
 
     public NavigationDrawerFragment() {
     }
@@ -75,11 +60,11 @@ public class NavigationDrawerFragment extends Fragment {
         // Read in the flag indicating whether or not the user has demonstrated awareness of the
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
-        mCurrentSelectedPosition = sp.getInt(PREF_STATE_SELECTED_POSITION, 0);
+        AppPreferences.mPrefUserLearnedDrawer = sp.getBoolean(AppPreferences.PREF_USER_LEARNED_DRAWER, false);
+        AppPreferences.mPrefHomeNavCurrentPosition = sp.getInt(AppPreferences.PREF_HOME_NAV_CURRENT_POSITION, 0);
 
         if (savedInstanceState != null) {
-            mCurrentSelectedPosition = savedInstanceState.getInt(PREF_STATE_SELECTED_POSITION);
+            AppPreferences.mPrefHomeNavCurrentPosition = savedInstanceState.getInt(AppPreferences.PREF_HOME_NAV_CURRENT_POSITION);
             mFromSavedInstanceState = true;
         }
 
@@ -127,7 +112,7 @@ public class NavigationDrawerFragment extends Fragment {
 
         if (mDrawerListView != null) {
             mDrawerListView.setAdapter(mDrawerListViewAdapter);
-            selectItem(mCurrentSelectedPosition);
+            selectItem(AppPreferences.mPrefHomeNavCurrentPosition);
         }
 
         // set a custom shadow that overlays the main content when the drawer opens
@@ -164,13 +149,13 @@ public class NavigationDrawerFragment extends Fragment {
                     return;
                 }
 
-                if (!mUserLearnedDrawer) {
+                if (!AppPreferences.mPrefUserLearnedDrawer) {
                     // The user manually opened the drawer; store this flag to prevent auto-showing
                     // the navigation drawer automatically in the future.
-                    mUserLearnedDrawer = true;
+                    AppPreferences.mPrefUserLearnedDrawer = true;
                     SharedPreferences sp = PreferenceManager
                             .getDefaultSharedPreferences(getActivity());
-                    sp.edit().putBoolean(PREF_USER_LEARNED_DRAWER, true).commit();
+                    sp.edit().putBoolean(AppPreferences.PREF_USER_LEARNED_DRAWER, true).commit();
                 }
 
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
@@ -179,7 +164,7 @@ public class NavigationDrawerFragment extends Fragment {
 
         // If the user hasn't 'learned' about the drawer, open it to introduce them to the drawer,
         // per the navigation drawer design guidelines.
-        if (!mUserLearnedDrawer && !mFromSavedInstanceState) {
+        if (!AppPreferences.mPrefUserLearnedDrawer && !mFromSavedInstanceState) {
             mDrawerLayout.openDrawer(mFragmentContainerView);
         }
 
@@ -195,7 +180,7 @@ public class NavigationDrawerFragment extends Fragment {
     }
 
     private void selectItem(int position) {
-        mCurrentSelectedPosition = position;
+        AppPreferences.mPrefHomeNavCurrentPosition = position;
         if (mDrawerListView != null) {
             mDrawerListView.setItemChecked(position, true);
         }
@@ -227,7 +212,8 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(PREF_STATE_SELECTED_POSITION, mCurrentSelectedPosition);
+        outState.putInt(AppPreferences.PREF_HOME_NAV_CURRENT_POSITION,
+                        AppPreferences.mPrefHomeNavCurrentPosition);
     }
 
     @Override
@@ -280,8 +266,11 @@ public class NavigationDrawerFragment extends Fragment {
     public void setCurrentPosition(int p) {
         if (p >= 0 && p < mDrawerListViewAdapter.getCount()) {
 
+            AppPreferences.mPrefHomeNavCurrentPosition = p;
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            sp.edit().putInt(PREF_STATE_SELECTED_POSITION, p).commit();
+            sp.edit().putInt(AppPreferences.PREF_HOME_NAV_CURRENT_POSITION,
+                             AppPreferences.mPrefHomeNavCurrentPosition)
+                     .commit();
         }
     }
 
