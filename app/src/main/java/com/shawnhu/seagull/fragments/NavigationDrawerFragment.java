@@ -38,7 +38,7 @@ public class NavigationDrawerFragment extends Fragment {
     /**
      * Remember the position of the selected item.
      */
-    private static final String KEY_STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
+    private static final String PREF_STATE_SELECTED_POSITION = "selected_navigation_drawer_position";
 
     /**
      * Per the design guidelines, you should show the drawer on launch until the user manually
@@ -76,10 +76,10 @@ public class NavigationDrawerFragment extends Fragment {
         // drawer. See PREF_USER_LEARNED_DRAWER for details.
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mUserLearnedDrawer = sp.getBoolean(PREF_USER_LEARNED_DRAWER, false);
-        mCurrentSelectedPosition = sp.getInt(KEY_STATE_SELECTED_POSITION, 0);
+        mCurrentSelectedPosition = sp.getInt(PREF_STATE_SELECTED_POSITION, 0);
 
         if (savedInstanceState != null) {
-            mCurrentSelectedPosition = savedInstanceState.getInt(KEY_STATE_SELECTED_POSITION);
+            mCurrentSelectedPosition = savedInstanceState.getInt(PREF_STATE_SELECTED_POSITION);
             mFromSavedInstanceState = true;
         }
 
@@ -227,7 +227,7 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(KEY_STATE_SELECTED_POSITION, mCurrentSelectedPosition);
+        outState.putInt(PREF_STATE_SELECTED_POSITION, mCurrentSelectedPosition);
     }
 
     @Override
@@ -281,7 +281,7 @@ public class NavigationDrawerFragment extends Fragment {
         if (p >= 0 && p < mDrawerListViewAdapter.getCount()) {
 
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            sp.edit().putInt(KEY_STATE_SELECTED_POSITION, p).commit();
+            sp.edit().putInt(PREF_STATE_SELECTED_POSITION, p).commit();
         }
     }
 

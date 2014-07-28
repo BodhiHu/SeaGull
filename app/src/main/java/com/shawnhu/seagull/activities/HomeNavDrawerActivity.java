@@ -8,13 +8,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
-import android.widget.Toast;
 
 import com.shawnhu.seagull.adapters.AnyViewArrayAdapter;
 import com.shawnhu.seagull.adapters.AnyViewArrayAdapterItem;
@@ -24,7 +20,7 @@ import com.shawnhu.seagull.R;
 import java.lang.reflect.Method;
 
 
-public abstract class HomeActivity extends ActionBarActivity
+public abstract class HomeNavDrawerActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**
@@ -98,7 +94,7 @@ public abstract class HomeActivity extends ActionBarActivity
                     }
                     mLastFragmentPosition = position;
                 } catch(Exception e) {
-                    Log.e(HomeActivity.class.getSimpleName(), e.toString());
+                    Log.e(HomeNavDrawerActivity.class.getSimpleName(), e.toString());
                     //TODO: log this error
                 }
 
