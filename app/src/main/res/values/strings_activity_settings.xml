@@ -15,7 +15,7 @@
     <string-array name="pref_seagull_theme_values">
         <item>0</item>
         <item>1</item>
-        <item>3</item>
+        <item>2</item>
     </string-array>
 
     <!-- Account settings -->

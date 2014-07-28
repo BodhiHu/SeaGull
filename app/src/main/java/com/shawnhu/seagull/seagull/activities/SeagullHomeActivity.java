@@ -69,9 +69,4 @@ public class SeagullHomeActivity extends HomeNavDrawerActivity {
         super.onCreate(savedInstanceState);
     }
 
-    @Override
-    public void applyTheme(int themeResId) {
-        setTheme(themeResId);
-    }
-
 }

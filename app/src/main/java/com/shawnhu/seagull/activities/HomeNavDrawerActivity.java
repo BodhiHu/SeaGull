@@ -2,6 +2,7 @@ package com.shawnhu.seagull.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -16,20 +17,28 @@ import com.shawnhu.seagull.adapters.AnyViewArrayAdapter;
 import com.shawnhu.seagull.adapters.AnyViewArrayAdapterItem;
 import com.shawnhu.seagull.fragments.NavigationDrawerFragment;
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.preferences.AppPreferences;
+import com.shawnhu.seagull.utils.ActivityUtils;
 
 import java.lang.reflect.Method;
 
 
+/* TODO: there should be a base HomeNavActivity which will:
+ *       1. hold & handle navigation data;
+ *       2. handle theme, .etc preferences changes
+ */
 public abstract class HomeNavDrawerActivity
         extends     ActionBarActivity
-        implements  NavigationDrawerFragment.NavigationDrawerCallbacks,
-        ThemeInterface {
+        implements  NavigationDrawerFragment.NavigationDrawerCallbacks
+{
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private int mLastFragmentPosition = 0;
+
+    static public HomeNavDrawerActivity mHomeActivity;
 
     /*
      *   Subclasses MUST provide these data.
@@ -45,6 +54,9 @@ public abstract class HomeNavDrawerActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setTheme(ActivityUtils.getTheme(this, AppPreferences.PREF_APP_THEME, R.style.Theme_Night));
+
         setContentView(R.layout.activity_home);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
@@ -144,11 +156,5 @@ public abstract class HomeNavDrawerActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void applyTheme(int r) {
-        /* this should be called before any view is instantiated */
-        setTheme(r);
-        recreate();
-    }
 
 }

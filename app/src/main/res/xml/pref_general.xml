@@ -4,7 +4,7 @@
         android:title="@string/pref_header_general">
 
         <ListPreference
-            android:key="seagull_theme"
+            android:key="PREF_APP_THEME"
             android:title="@string/pref_title_seagull_theme"
             android:entries="@array/pref_seagull_themes"
             android:entryValues="@array/pref_seagull_theme_values"
