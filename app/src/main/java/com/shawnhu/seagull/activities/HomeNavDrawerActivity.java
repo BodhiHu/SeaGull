@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
 
 
 public abstract class HomeNavDrawerActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, OnApplyThemeListener {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
