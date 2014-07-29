@@ -3,6 +3,7 @@ package com.shawnhu.seagull.seagull;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.adapters.AnyViewArrayAdapterItem;
+import com.shawnhu.seagull.app.SeagullApplication;
 import com.shawnhu.seagull.fragments.DraftsFragment;
 import com.shawnhu.seagull.fragments.FollowersFragment;
 import com.shawnhu.seagull.fragments.FollowingsFragment;
@@ -18,7 +19,11 @@ import com.shawnhu.seagull.views.AvatarCard;
 /**
  * Created by shawn on 14-7-23.
  */
-public class Seagull {
+public class Seagull extends SeagullApplication {
+
+    /**
+     * NAVIGATION MENU ITEMS
+     */
     public static final String DRAWER_MENU_PROF = "Profile";
     public static final String DRAWER_MENU_HOME = "Home";
     public static final String DRAWER_MENU_NOTI = "Notifications";
@@ -45,5 +50,19 @@ public class Seagull {
             new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_preferences,  DRAWER_MENU_PRFS), SeagullPreferenceActivity.class, DRAWER_MENU_PRFS),
     };
 
+    /**
+     * PREFERENCE KEYS
+     */
+    static public String PREF_SEAGULL_NOTIFICATION_ON;
+    static public String PREF_SEAGULL_NOTIFICATION_RINGTONE;
+    static public String PREF_SEAGULL_NOTIFICATION_VIRATE;
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        PREF_SEAGULL_NOTIFICATION_ON = getString(R.string.PREF_SEAGULL_NOTIFICATION_ON);
+        PREF_SEAGULL_NOTIFICATION_RINGTONE = getString(R.string.PREF_SEAGULL_NOTIFICATION_RINGTONE);
+        PREF_SEAGULL_NOTIFICATION_VIRATE = getString(R.string.PREF_SEAGULL_NOTIFICATION_VIRATE);
+    }
 }

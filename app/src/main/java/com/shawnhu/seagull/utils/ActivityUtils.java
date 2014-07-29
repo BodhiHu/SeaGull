@@ -1,9 +1,14 @@
 package com.shawnhu.seagull.utils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.util.Log;
+
+import com.shawnhu.seagull.activities.AbstractPreferenceActivity;
+import com.shawnhu.seagull.app.AppPreferences;
 
 /**
  * Created by shawn on 14-7-28.
@@ -20,21 +25,41 @@ public class ActivityUtils {
         }
     }
 
-    static public void applyTheme(Activity activity, String key, int themeResId) {
-        if (activity != null && key != null && key != "") {
-            PreferenceManager.getDefaultSharedPreferences(activity).edit()
-                    .putInt(key, themeResId)
-                    .commit();
-            ActivityUtils.recreate(activity);
+    static public void applyTheme(Activity activity) {
+        if (activity != null) {
+            recreate(activity);
         }
     }
 
-    static public int getTheme(Activity activity, String key, int def) {
-        if (activity != null && key != null && key != "") {
-            return PreferenceManager.getDefaultSharedPreferences(activity).getInt(key, def);
+    static public void saveTheme(Context context, String themeResIndexStr) {
+        if (context != null && themeResIndexStr != null && themeResIndexStr != "") {
+            PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putString(AppPreferences.PREF_APP_THEME, themeResIndexStr)
+                    .commit();
         }
+    }
 
-        return def;
+    static public int getTheme(Context context, int currentTheme) {
+        if (context != null) {
+            try {
+                int themeResIndex =
+                        Integer.getInteger(
+                                PreferenceManager.getDefaultSharedPreferences(context)
+                                .getString(AppPreferences.PREF_APP_THEME, ""));
+
+                return Integer.getInteger(
+                        AppPreferences.PREFERENCES_MAP
+                        .get(AppPreferences.PREF_APP_THEME)[themeResIndex]);
+            } catch(NullPointerException e) {
+
+            } catch(Exception e) {
+                Log.e(ActivityUtils.class.toString(), e.toString());
+            }
+
+            return currentTheme;
+        } else {
+            throw new NullPointerException("context can not be null");
+        }
     }
 
 }

@@ -13,12 +13,13 @@
         <item>Hacker</item>
     </string-array>
     <string-array name="pref_seagull_theme_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
+        <item>@string/INDEX_APP_THEME_DAY</item>
+        <item>@string/INDEX_APP_THEME_NIGHT</item>
+        <item>@string/INDEX_APP_THEME_HACKER</item>
     </string-array>
 
     <!-- Account settings -->
+
     <string name="pref_header_account">Account</string>
 
     <string name="pref_group_notification">Notifications</string>
@@ -26,4 +27,22 @@
     <string name="pref_title_ringtone">Ringtone</string>
     <string name="pref_ringtone_silent">Silent</string>
     <string name="pref_title_vibrate">Vibrate</string>
+
+    <!--
+        ALL THE __EXPORTED__ PREFERENCE KEYS
+        AND THEIR VALUES
+        TODO: key should be put into app's scope, as in app/?res..., while specific themes still in here
+    -->
+    <string name="PREF_APP_THEME">PREF_APP_THEME</string>
+    <string name="INDEX_APP_THEME_DAY">0</string>
+    <string name="INDEX_APP_THEME_NIGHT">1</string>
+    <string name="INDEX_APP_THEME_HACKER">2</string>
+
+    <!--
+        ALL THE APP SPECIFIC KEYS
+    -->
+    <string name="PREF_SEAGULL_NOTIFICATION_ON">PREF_SEAGULL_NOTIFICATION_ON</string>
+    <string name="PREF_SEAGULL_NOTIFICATION_RINGTONE">PREF_SEAGULL_NOTIFICATION_RINGTONE</string>
+    <string name="PREF_SEAGULL_NOTIFICATION_VIRATE">PREF_SEAGULL_NOTIFICATION_VIRATE</string>
+
 </resources>

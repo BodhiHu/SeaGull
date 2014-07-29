@@ -8,20 +8,20 @@
             android:title="@string/pref_group_notification">
 
             <CheckBoxPreference
-                android:key="notifications_new_message"
+                android:key="@string/PREF_SEAGULL_NOTIFICATION_ON"
                 android:title="@string/pref_title_new_message_notifications"
                 android:defaultValue="true" />
 
             <RingtonePreference
-                android:dependency="notifications_new_message"
-                android:key="notifications_new_message_ringtone"
+                android:dependency="@string/PREF_SEAGULL_NOTIFICATION_ON"
+                android:key="@string/PREF_SEAGULL_NOTIFICATION_RINGTONE"
                 android:title="@string/pref_title_ringtone"
                 android:ringtoneType="notification"
                 android:defaultValue="content://settings/system/notification_sound" />
 
             <CheckBoxPreference
-                android:dependency="notifications_new_message"
-                android:key="notifications_new_message_vibrate"
+                android:dependency="@string/PREF_SEAGULL_NOTIFICATION_ON"
+                android:key="@string/PREF_SEAGULL_NOTIFICATION_VIRATE"
                 android:title="@string/pref_title_vibrate"
                 android:defaultValue="true" />
         </PreferenceScreen>

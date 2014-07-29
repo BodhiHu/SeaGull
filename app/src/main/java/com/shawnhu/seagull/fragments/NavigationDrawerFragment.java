@@ -18,16 +18,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.adapters.AnyViewArrayAdapter;
-import com.shawnhu.seagull.preferences.AppPreferences;
-
-import java.security.Key;
+import com.shawnhu.seagull.app.AppPreferences;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.

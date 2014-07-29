@@ -17,13 +17,18 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 import android.widget.Toast;
 
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.app.AppPreferences;
+import com.shawnhu.seagull.utils.ActivityUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public abstract class AbstractPreferenceActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -33,7 +38,11 @@ public abstract class AbstractPreferenceActivity extends PreferenceActivity impl
     protected ArrayList<Integer> mPreferenceResIds = new ArrayList<Integer>();
     // For (version >= HONEYCOMB) AND multi-panel
     protected int mPreferenceHeaderResId;
+
+
 /* *****************************************************************************/
+
+    private int mCurrentTheme = AppPreferences.mDefaultAppTheme;
 
     /**
      * Determines whether to always show the simplified settings UI, where
@@ -46,7 +55,18 @@ public abstract class AbstractPreferenceActivity extends PreferenceActivity impl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mCurrentTheme = ActivityUtils.getTheme(this, mCurrentTheme);
+        setTheme(mCurrentTheme);
+
         setupActionBar();
+    }
+
+    @Override
+    protected void onResume() {
+        if (mCurrentTheme != ActivityUtils.getTheme(this, mCurrentTheme)) {
+            ActivityUtils.applyTheme(this);
+        }
     }
 
     /**
@@ -144,4 +164,21 @@ public abstract class AbstractPreferenceActivity extends PreferenceActivity impl
         }
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (sharedPreferences == null || key == null) {
+            return;
+        }
+
+        if (key == AppPreferences.PREF_APP_THEME) {
+            try {
+                String themeIndexStr = sharedPreferences.getString(AppPreferences.PREF_APP_THEME, "");
+
+                ActivityUtils.saveTheme(this, themeIndexStr);
+                ActivityUtils.applyTheme(this);
+            } catch(Exception e) {
+                Log.e(this.getLocalClassName(), e.toString());
+            }
+        }
+    }
 }

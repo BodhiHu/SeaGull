@@ -3,18 +3,33 @@ package com.shawnhu.seagull.seagull.activities;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
-import android.preference.PreferenceManager;
+import android.support.v4.util.ArrayMap;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.AbstractPreferenceActivity;
-import com.shawnhu.seagull.preferences.AppPreferences;
+import com.shawnhu.seagull.app.AppPreferences;
+import com.shawnhu.seagull.seagull.Seagull;
 import com.shawnhu.seagull.utils.ActivityUtils;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Created by shawnhu on 7/27/14.
  */
 public class SeagullPreferenceActivity extends AbstractPreferenceActivity {
+
+    static protected String SEAGULL_THEMES[] = {
+            Integer.toString(R.style.Theme_Day),
+            Integer.toString(R.style.Theme_Night),
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +38,8 @@ public class SeagullPreferenceActivity extends AbstractPreferenceActivity {
 
         mPreferenceHeaderResId = R.xml.pref_headers;
 
+        AppPreferences.PREFERENCES_MAP.put(AppPreferences.PREF_APP_THEME, SEAGULL_THEMES);
+
         super.onCreate(savedInstanceState);
     }
 
@@ -30,29 +47,22 @@ public class SeagullPreferenceActivity extends AbstractPreferenceActivity {
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        //TODO: handle preference changes
+        if (sharedPreferences == null || key == null) {
+            return;
+        }
 
+        //TODO: handle preference changes
         Toast.makeText(this, key + "'s value changed", Toast.LENGTH_SHORT).show();
 
-        if (key == AppPreferences.PREF_APP_THEME) {
-            int t = Integer.getInteger(((ListPreference) sharedPreferences).getValue());
-            int themeResId;
-            switch (t) {
-                case 0:
-                    themeResId = R.style.Theme_Day;
-                    break;
-                case 1:
-                    themeResId = R.style.Theme_Night;
-                    break;
-                //TODO: hacker theme
-                case 2:
-                    themeResId = R.style.Theme_Night;
-                    break;
-                default:
-                    themeResId = R.style.Theme_Night;
-                    break;
-            }
-            ActivityUtils.applyTheme(this, AppPreferences.PREF_APP_THEME, themeResId);
+
+        if (key == Seagull.PREF_SEAGULL_NOTIFICATION_ON) {
+
+        } else if (key == Seagull.PREF_SEAGULL_NOTIFICATION_RINGTONE) {
+
+        } else if (key == Seagull.PREF_SEAGULL_NOTIFICATION_VIRATE) {
+
+        } else {
+            super.onSharedPreferenceChanged(sharedPreferences, key);
         }
     }
 }
