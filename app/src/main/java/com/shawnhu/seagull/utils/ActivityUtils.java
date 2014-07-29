@@ -42,18 +42,17 @@ public class ActivityUtils {
     static public int getTheme(Context context, int currentTheme) {
         if (context != null) {
             try {
-                int themeResIndex =
-                        Integer.getInteger(
-                                PreferenceManager.getDefaultSharedPreferences(context)
-                                .getString(AppPreferences.PREF_APP_THEME, ""));
+                String iS = PreferenceManager.getDefaultSharedPreferences(context)
+                                .getString(AppPreferences.PREF_APP_THEME, "");
+                int i = Integer.parseInt(iS);
 
-                return Integer.getInteger(
+                return Integer.parseInt(
                         AppPreferences.PREFERENCES_MAP
-                        .get(AppPreferences.PREF_APP_THEME)[themeResIndex]);
-            } catch(NullPointerException e) {
-
+                                .get(AppPreferences.PREF_APP_THEME)[i]);
+                //else, Key's value was not set yet, return app's current theme
             } catch(Exception e) {
                 Log.e(ActivityUtils.class.toString(), e.toString());
+                e.printStackTrace();
             }
 
             return currentTheme;

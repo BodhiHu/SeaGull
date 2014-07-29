@@ -54,11 +54,11 @@ public abstract class AbstractPreferenceActivity extends PreferenceActivity impl
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
 
         mCurrentTheme = ActivityUtils.getTheme(this, mCurrentTheme);
         setTheme(mCurrentTheme);
 
+        super.onCreate(savedInstanceState);
         setupActionBar();
     }
 
@@ -67,6 +67,8 @@ public abstract class AbstractPreferenceActivity extends PreferenceActivity impl
         if (mCurrentTheme != ActivityUtils.getTheme(this, mCurrentTheme)) {
             ActivityUtils.applyTheme(this);
         }
+
+        super.onResume();
     }
 
     /**
@@ -175,6 +177,7 @@ public abstract class AbstractPreferenceActivity extends PreferenceActivity impl
                 String themeIndexStr = sharedPreferences.getString(AppPreferences.PREF_APP_THEME, "");
 
                 ActivityUtils.saveTheme(this, themeIndexStr);
+                ActivityUtils.getTheme(this, mCurrentTheme);
                 ActivityUtils.applyTheme(this);
             } catch(Exception e) {
                 Log.e(this.getLocalClassName(), e.toString());
