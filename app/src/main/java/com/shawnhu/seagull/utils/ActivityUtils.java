@@ -7,8 +7,6 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.activities.AbstractPreferenceActivity;
 import com.shawnhu.seagull.app.AppPreferences;
 
 /**
