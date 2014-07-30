@@ -7,6 +7,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.AbstractPreferenceActivity;
 import com.shawnhu.seagull.app.AppPreferences;
 
@@ -20,6 +21,10 @@ public class ActivityUtils {
                 activity.recreate();
             } else {
                 activity.startActivity(new Intent(activity, activity.getClass()));
+                /**
+                 * TODO : add animation
+                 *   activity.overridePendingTransition(...);
+                 */
                 activity.finish();
             }
         }
@@ -44,21 +49,25 @@ public class ActivityUtils {
             try {
                 String iS = PreferenceManager.getDefaultSharedPreferences(context)
                                 .getString(AppPreferences.PREF_APP_THEME, "");
-                int i = Integer.parseInt(iS);
+                if (iS != null && iS != "") {
+                    int i = Integer.parseInt(iS);
 
-                return Integer.parseInt(
-                        AppPreferences.PREFERENCES_MAP
-                                .get(AppPreferences.PREF_APP_THEME)[i]);
+                    return Integer.parseInt(
+                            AppPreferences.PREFERENCES_MAP
+                                    .get(AppPreferences.PREF_APP_THEME)[i]
+                    );
+                }
                 //else, Key's value was not set yet, return app's current theme
             } catch(Exception e) {
                 Log.e(ActivityUtils.class.toString(), e.toString());
                 e.printStackTrace();
             }
 
-            return currentTheme;
         } else {
             throw new NullPointerException("context can not be null");
         }
+
+        return currentTheme;
     }
 
 }

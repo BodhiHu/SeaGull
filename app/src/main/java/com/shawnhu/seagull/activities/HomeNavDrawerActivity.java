@@ -22,6 +22,13 @@ import com.shawnhu.seagull.utils.ActivityUtils;
 import java.lang.reflect.Method;
 
 
+/**
+ * TODO: base home activity, which should handle:
+ *        1. navigation;
+ *        2. theme change
+ *        3. actionbar title
+ *        ?. any other stuff
+ */
 public abstract class HomeNavDrawerActivity
         extends     ActionBarActivity
         implements  NavigationDrawerFragment.NavigationDrawerCallbacks

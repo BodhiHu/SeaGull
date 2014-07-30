@@ -3,6 +3,7 @@ package com.shawnhu.seagull.seagull;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.adapters.AnyViewArrayAdapterItem;
+import com.shawnhu.seagull.app.AppPreferences;
 import com.shawnhu.seagull.app.SeagullApplication;
 import com.shawnhu.seagull.fragments.DraftsFragment;
 import com.shawnhu.seagull.fragments.FollowersFragment;
@@ -57,9 +58,19 @@ public class Seagull extends SeagullApplication {
     static public String PREF_SEAGULL_NOTIFICATION_RINGTONE;
     static public String PREF_SEAGULL_NOTIFICATION_VIRATE;
 
+    /**
+     * Seagull's themes, KEY is PREF_APP_THEME, which will be handled by wrapper
+     */
+    static public String SEAGULL_THEMES[] = {
+            Integer.toString(R.style.Theme_Day),
+            Integer.toString(R.style.Theme_Night),
+    };
+
     @Override
     public void onCreate() {
         super.onCreate();
+
+        AppPreferences.addPreferencesToMap(AppPreferences.PREF_APP_THEME, SEAGULL_THEMES);
 
         PREF_SEAGULL_NOTIFICATION_ON = getString(R.string.PREF_SEAGULL_NOTIFICATION_ON);
         PREF_SEAGULL_NOTIFICATION_RINGTONE = getString(R.string.PREF_SEAGULL_NOTIFICATION_RINGTONE);

@@ -3,8 +3,10 @@ package com.shawnhu.seagull.app;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.utils.ActivityUtils;
 
 import java.security.InvalidParameterException;
 import java.util.HashMap;
@@ -47,9 +49,14 @@ public class AppPreferences {
         if (context != null) {
             PREF_APP_THEME = context.getString(R.string.PREF_APP_THEME);
             mDefaultAppTheme = context.getApplicationInfo().theme;
+            mDefaultAppTheme = ActivityUtils.getTheme(context, mDefaultAppTheme);
 
             //TODO: set initial preferences for first launch
         }
+    }
+
+    static public void addPreferencesToMap(String key, String[] v) {
+        PREFERENCES_MAP.put(key, v);
     }
 }
 

@@ -25,11 +25,6 @@ import java.util.Map;
  */
 public class SeagullPreferenceActivity extends AbstractPreferenceActivity {
 
-    static protected String SEAGULL_THEMES[] = {
-            Integer.toString(R.style.Theme_Day),
-            Integer.toString(R.style.Theme_Night),
-    };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +32,6 @@ public class SeagullPreferenceActivity extends AbstractPreferenceActivity {
         mPreferenceResIds.add(R.xml.pref_account);
 
         mPreferenceHeaderResId = R.xml.pref_headers;
-
-        AppPreferences.PREFERENCES_MAP.put(AppPreferences.PREF_APP_THEME, SEAGULL_THEMES);
 
         super.onCreate(savedInstanceState);
     }
