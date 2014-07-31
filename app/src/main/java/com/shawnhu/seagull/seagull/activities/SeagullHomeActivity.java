@@ -9,8 +9,8 @@ import android.widget.TextView;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.HomeNavDrawerActivity;
-import com.shawnhu.seagull.adapters.AnyViewArrayAdapter;
-import com.shawnhu.seagull.adapters.AnyViewArrayAdapterItem;
+import com.shawnhu.seagull.widgets.AnyViewArrayAdapter;
+import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
 import com.shawnhu.seagull.misc.IconicItem;
 import com.shawnhu.seagull.seagull.Seagull;
 

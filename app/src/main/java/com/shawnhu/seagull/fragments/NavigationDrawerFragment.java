@@ -22,7 +22,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.adapters.AnyViewArrayAdapter;
+import com.shawnhu.seagull.widgets.AnyViewArrayAdapter;
 import com.shawnhu.seagull.app.AppPreferences;
 
 /**

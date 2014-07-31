@@ -12,8 +12,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
 
-import com.shawnhu.seagull.adapters.AnyViewArrayAdapter;
-import com.shawnhu.seagull.adapters.AnyViewArrayAdapterItem;
+import com.shawnhu.seagull.widgets.AnyViewArrayAdapter;
+import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
 import com.shawnhu.seagull.fragments.NavigationDrawerFragment;
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.app.AppPreferences;

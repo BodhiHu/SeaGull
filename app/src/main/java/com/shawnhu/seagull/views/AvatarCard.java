@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.adapters.AnyViewArrayAdapterItem;
+import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
 
 /**
  * Created by shawn on 14-7-25.

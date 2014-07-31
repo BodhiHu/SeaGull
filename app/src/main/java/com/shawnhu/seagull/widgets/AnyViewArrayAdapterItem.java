@@ -1,4 +1,4 @@
-package com.shawnhu.seagull.adapters;
+package com.shawnhu.seagull.widgets;
 
 import android.view.LayoutInflater;
 import android.view.View;

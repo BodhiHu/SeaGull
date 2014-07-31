@@ -2,7 +2,7 @@ package com.shawnhu.seagull.seagull;
 
 
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.adapters.AnyViewArrayAdapterItem;
+import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
 import com.shawnhu.seagull.app.AppPreferences;
 import com.shawnhu.seagull.app.SeagullApplication;
 import com.shawnhu.seagull.fragments.DraftsFragment;
