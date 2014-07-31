@@ -6,4 +6,5 @@ package com.shawnhu.seagull.seagull.twitter;
 public class TwitterConfigs {
 
     public static final String OAUTH_CALLBACK_OOB = "oob";
+    public static final String TWITTER_SIGNUP_URL = "https://twitter.com/signup";
 }
