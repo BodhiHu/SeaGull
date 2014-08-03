@@ -24,10 +24,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.shawnhu.seagull.utils.ArrayUtils;
+import com.shawnhu.seagull.seagull.twitter.TweetStore.Drafts;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mariotaku.twidere.provider.TweetStore.Drafts;
-import org.mariotaku.twidere.util.ArrayUtils;
 
 public class DraftItem implements Parcelable {
 

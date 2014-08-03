@@ -24,9 +24,6 @@ import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.mariotaku.twidere.provider.TweetStore.DirectMessages;
-import org.mariotaku.twidere.util.ParseUtils;
-
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
@@ -34,10 +31,11 @@ import java.util.Date;
 import twitter4j.DirectMessage;
 import twitter4j.User;
 
-import static org.mariotaku.twidere.util.HtmlEscapeHelper.toPlainText;
-import static org.mariotaku.twidere.util.Utils.formatDirectMessageText;
-import static org.mariotaku.twidere.util.content.ContentValuesUtils.getAsBoolean;
-import static org.mariotaku.twidere.util.content.ContentValuesUtils.getAsLong;
+import com.shawnhu.seagull.seagull.twitter.TweetStore.DirectMessages;
+import com.shawnhu.seagull.seagull.twitter.utils.Utils;
+import com.shawnhu.seagull.seagull.twitter.utils.content.ContentValuesUtils;
+import com.shawnhu.seagull.utils.HtmlEscapeHelper;
+import com.shawnhu.seagull.utils.ParseUtils;
 
 public class ParcelableDirectMessage implements Parcelable, Serializable, Comparable<ParcelableDirectMessage> {
 
@@ -84,19 +82,19 @@ public class ParcelableDirectMessage implements Parcelable, Serializable, Compar
 	public ParcelableDirectMessage(final ContentValues values) {
 		text_plain = values.getAsString(DirectMessages.TEXT_PLAIN);
 		text_html = values.getAsString(DirectMessages.TEXT_HTML);
-		text_unescaped = toPlainText(text_html);
+		text_unescaped = HtmlEscapeHelper.toPlainText(text_html);
 		sender_screen_name = values.getAsString(DirectMessages.SENDER_SCREEN_NAME);
 		sender_profile_image_url = values.getAsString(DirectMessages.SENDER_PROFILE_IMAGE_URL);
 		sender_name = values.getAsString(DirectMessages.SENDER_NAME);
-		sender_id = getAsLong(values, DirectMessages.SENDER_ID, -1);
+		sender_id = ContentValuesUtils.getAsLong(values, DirectMessages.SENDER_ID, -1);
 		recipient_screen_name = values.getAsString(DirectMessages.RECIPIENT_SCREEN_NAME);
 		recipient_profile_image_url = values.getAsString(DirectMessages.RECIPIENT_PROFILE_IMAGE_URL);
 		recipient_name = values.getAsString(DirectMessages.RECIPIENT_NAME);
-		recipient_id = getAsLong(values, DirectMessages.RECIPIENT_ID, -1);
-		timestamp = getAsLong(values, DirectMessages.MESSAGE_TIMESTAMP, -1);
-		id = getAsLong(values, DirectMessages.MESSAGE_ID, -1);
-		is_outgoing = getAsBoolean(values, DirectMessages.IS_OUTGOING, false);
-		account_id = getAsLong(values, DirectMessages.ACCOUNT_ID, -1);
+		recipient_id = ContentValuesUtils.getAsLong(values, DirectMessages.RECIPIENT_ID, -1);
+		timestamp = ContentValuesUtils.getAsLong(values, DirectMessages.MESSAGE_TIMESTAMP, -1);
+		id = ContentValuesUtils.getAsLong(values, DirectMessages.MESSAGE_ID, -1);
+		is_outgoing = ContentValuesUtils.getAsBoolean(values, DirectMessages.IS_OUTGOING, false);
+		account_id = ContentValuesUtils.getAsLong(values, DirectMessages.ACCOUNT_ID, -1);
 		medias = ParcelableMedia.fromJSONString(values.getAsString(DirectMessages.MEDIAS));
 		first_media = values.getAsString(DirectMessages.FIRST_MEDIA);
 	}
@@ -110,7 +108,7 @@ public class ParcelableDirectMessage implements Parcelable, Serializable, Compar
 		recipient_id = idx.recipient_id != -1 ? c.getLong(idx.recipient_id) : -1;
 		text_html = idx.text != -1 ? c.getString(idx.text) : null;
 		text_plain = idx.text_plain != -1 ? c.getString(idx.text_plain) : null;
-		text_unescaped = toPlainText(text_html);
+		text_unescaped = HtmlEscapeHelper.toPlainText(text_html);
 		sender_name = idx.sender_name != -1 ? c.getString(idx.sender_name) : null;
 		recipient_name = idx.recipient_name != -1 ? c.getString(idx.recipient_name) : null;
 		sender_screen_name = idx.sender_screen_name != -1 ? c.getString(idx.sender_screen_name) : null;
@@ -130,12 +128,12 @@ public class ParcelableDirectMessage implements Parcelable, Serializable, Compar
 		final String sender_profile_image_url_string = sender != null ? ParseUtils.parseString(sender
 				.getProfileImageUrlHttps()) : null;
 		final String recipient_profile_image_url_string = recipient != null ? ParseUtils.parseString(recipient
-				.getProfileImageUrlHttps()) : null;
+                .getProfileImageUrlHttps()) : null;
 		id = message.getId();
 		timestamp = getTime(message.getCreatedAt());
 		sender_id = sender != null ? sender.getId() : -1;
 		recipient_id = recipient != null ? recipient.getId() : -1;
-		text_html = formatDirectMessageText(message);
+		text_html = Utils.formatDirectMessageText(message);
 		text_plain = message.getText();
 		sender_name = sender != null ? sender.getName() : null;
 		recipient_name = recipient != null ? recipient.getName() : null;
@@ -143,7 +141,7 @@ public class ParcelableDirectMessage implements Parcelable, Serializable, Compar
 		recipient_screen_name = recipient != null ? recipient.getScreenName() : null;
 		sender_profile_image_url = sender_profile_image_url_string;
 		recipient_profile_image_url = recipient_profile_image_url_string;
-		text_unescaped = toPlainText(text_html);
+		text_unescaped = HtmlEscapeHelper.toPlainText(text_html);
 		medias = ParcelableMedia.fromEntities(message);
 		first_media = medias != null && medias.length > 0 ? medias[0].url : null;
 	}

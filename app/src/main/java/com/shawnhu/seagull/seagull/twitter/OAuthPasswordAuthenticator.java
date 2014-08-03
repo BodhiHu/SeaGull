@@ -37,7 +37,7 @@ public class OAuthPasswordAuthenticator {
 		if (twitter == null) return null;
 		final RequestToken requestToken;
 		try {
-			requestToken = twitter.getOAuthRequestToken(TwitterConfigs.OAUTH_CALLBACK_OOB);
+			requestToken = twitter.getOAuthRequestToken(SeagullTwitterConstants.OAUTH_CALLBACK_OOB);
 		} catch (final TwitterException e) {
 			if (e.isCausedByNetworkIssue()) throw new AuthenticationException(e);
 			throw new AuthenticityTokenException();

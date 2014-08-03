@@ -275,4 +275,8 @@ public class StringUtils {
             return defaultValue;
         }
     }
+
+    public static String trim(final String str) {
+		return str != null ? str.trim() : null;
+	}
 }

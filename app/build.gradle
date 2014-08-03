@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.shawnhu.home"
-        minSdkVersion 9
+        minSdkVersion 10
         targetSdkVersion 20
         versionCode 1
         versionName "1.0"
@@ -44,5 +44,11 @@ dependencies {
     //compile 'org.twitter4j:twitter4j-examples:3.0.3'
     compile 'com.twitter:twitter-text:1.9.5'
 
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.2'
+    compile 'com.etsy.android.grid:library:1.0.5'
 
+    compile 'org.apache.httpcomponents:httpclient-android:4.3.3'
+    compile 'org.apache.httpcomponents:httpmime:4.3.3'
+
+    compile fileTree(dir: 'libs', include: ['*.jar'])
 }

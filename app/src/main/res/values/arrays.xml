@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="values_official_consumer_key_secret">
+        <item>consumer key secret stub</item>
+    </string-array>
+</resources>

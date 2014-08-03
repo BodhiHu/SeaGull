@@ -25,18 +25,17 @@ import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.mariotaku.querybuilder.Columns.Column;
-import org.mariotaku.querybuilder.RawItemArray;
-import org.mariotaku.querybuilder.Where;
-import org.mariotaku.twidere.provider.TweetStore.Accounts;
-import org.mariotaku.twidere.util.content.ContentResolverUtils;
+import com.shawnhu.seagull.seagull.twitter.utils.Utils;
+import com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils;
+import com.shawnhu.seagull.seagull.twitter.TweetStore.Accounts;
+import com.shawnhu.seagull.utils.querybuilder.Columns;
+import com.shawnhu.seagull.utils.querybuilder.RawItemArray;
+import com.shawnhu.seagull.utils.querybuilder.Where;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mariotaku.twidere.util.Utils.isOfficialConsumerKeySecret;
-import static org.mariotaku.twidere.util.Utils.shouldForceUsingPrivateAPIs;
 
 public class Account implements Parcelable {
 
@@ -123,7 +122,7 @@ public class Account implements Parcelable {
 	public static Account getAccount(final Context context, final long account_id) {
 		if (context == null) return null;
 		final Cursor cur = ContentResolverUtils.query(context.getContentResolver(), Accounts.CONTENT_URI,
-				Accounts.COLUMNS, Accounts.ACCOUNT_ID + " = " + account_id, null, null);
+                Accounts.COLUMNS, Accounts.ACCOUNT_ID + " = " + account_id, null, null);
 		if (cur != null) {
 			try {
 				if (cur.getCount() > 0 && cur.moveToFirst()) {
@@ -154,8 +153,8 @@ public class Account implements Parcelable {
 
 	public static Account[] getAccounts(final Context context, final long[] accountIds) {
 		if (context == null) return new Account[0];
-		final String where = accountIds != null ? Where.in(new Column(Accounts.ACCOUNT_ID),
-				new RawItemArray(accountIds)).getSQL() : null;
+		final String where = accountIds != null ? Where.in(new Columns.Column(Accounts.ACCOUNT_ID),
+                new RawItemArray(accountIds)).getSQL() : null;
 		final Cursor cur = ContentResolverUtils.query(context.getContentResolver(), Accounts.CONTENT_URI,
 				Accounts.COLUMNS_NO_CREDENTIALS, where, null, null);
 		if (cur == null) return new Account[0];
@@ -192,8 +191,8 @@ public class Account implements Parcelable {
 				} else {
 					final String consumerKey = cur.getString(indices.consumer_key);
 					final String consumerSecret = cur.getString(indices.consumer_secret);
-					if (shouldForceUsingPrivateAPIs(context)
-							|| isOfficialConsumerKeySecret(context, consumerKey, consumerSecret)) {
+					if (Utils.shouldForceUsingPrivateAPIs(context)
+							|| Utils.isOfficialConsumerKeySecret(context, consumerKey, consumerSecret)) {
 						accounts.add(new Account(cur, indices));
 					}
 				}
@@ -257,7 +256,7 @@ public class Account implements Parcelable {
 			final boolean isOAuth = account.auth_type == Accounts.AUTH_TYPE_OAUTH
 					|| account.auth_type == Accounts.AUTH_TYPE_XAUTH;
 			final String consumerKey = account.consumer_key, consumerSecret = account.consumer_secret;
-			return isOAuth && isOfficialConsumerKeySecret(context, consumerKey, consumerSecret);
+			return isOAuth && Utils.isOfficialConsumerKeySecret(context, consumerKey, consumerSecret);
 		}
 	}
 

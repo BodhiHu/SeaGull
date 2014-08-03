@@ -9,7 +9,8 @@ import android.os.Parcelable;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import static org.mariotaku.twidere.util.Utils.getImagePathFromUri;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getImagePathFromUri;
+
 
 public class UploaderMediaItem implements Parcelable {
 

@@ -22,9 +22,9 @@ package com.shawnhu.seagull.seagull.twitter.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.mariotaku.jsonserializer.JSONParcel;
-import org.mariotaku.jsonserializer.JSONParcelable;
-import org.mariotaku.twidere.util.ParseUtils;
+import com.shawnhu.seagull.utils.JSONSerializer.JSONParcel;
+import com.shawnhu.seagull.utils.JSONSerializer.JSONParcelable;
+import com.shawnhu.seagull.utils.ParseUtils;
 
 import twitter4j.User;
 import twitter4j.UserList;

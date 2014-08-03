@@ -23,11 +23,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import com.shawnhu.seagull.utils.JSONSerializer.JSONParcel;
+import com.shawnhu.seagull.utils.JSONSerializer.JSONParcelable;
+import com.shawnhu.seagull.utils.JSONSerializer.JSONSerializer;
+
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.mariotaku.jsonserializer.JSONParcel;
-import org.mariotaku.jsonserializer.JSONParcelable;
-import org.mariotaku.jsonserializer.JSONSerializer;
 
 import twitter4j.Status;
 import twitter4j.UserMentionEntity;

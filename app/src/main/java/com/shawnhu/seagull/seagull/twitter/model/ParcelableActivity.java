@@ -19,8 +19,8 @@
 
 package com.shawnhu.seagull.seagull.twitter.model;
 
-import org.mariotaku.jsonserializer.JSONParcel;
-import org.mariotaku.jsonserializer.JSONParcelable;
+import com.shawnhu.seagull.utils.JSONSerializer.JSONParcel;
+import com.shawnhu.seagull.utils.JSONSerializer.JSONParcelable;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -52,13 +52,13 @@ public class ParcelableActivity implements Comparable<ParcelableActivity>, JSONP
 	public final long account_id, activity_timestamp, max_position, min_position;
 	public final int action;
 
-	public final ParcelableUser[] sources;
-	public final ParcelableUser[] target_users;
-	public final ParcelableStatus[] target_statuses;
+	public final ParcelableWithJSONUser[] sources;
+	public final ParcelableWithJSONUser[] target_users;
+	public final ParcelableWithJSONStatus[] target_statuses;
 	public final ParcelableUserList[] target_user_lists;
 
 	public final ParcelableUserList[] target_object_user_lists;
-	public final ParcelableStatus[] target_object_statuses;
+	public final ParcelableWithJSONStatus[] target_object_statuses;
 
 	public ParcelableActivity(final Activity activity, final long account_id) {
 		this.account_id = account_id;
@@ -67,17 +67,17 @@ public class ParcelableActivity implements Comparable<ParcelableActivity>, JSONP
 		max_position = activity.getMaxPosition();
 		min_position = activity.getMinPosition();
 		final int sources_size = activity.getSourcesSize();
-		sources = new ParcelableUser[sources_size];
+		sources = new ParcelableWithJSONUser[sources_size];
 		for (int i = 0; i < sources_size; i++) {
-			sources[i] = new ParcelableUser(activity.getSources()[i], account_id);
+			sources[i] = new ParcelableWithJSONUser(activity.getSources()[i], account_id);
 		}
 		final int targets_size = activity.getTargetsSize();
 		if (action == ACTION_FOLLOW || action == ACTION_MENTION || action == ACTION_LIST_MEMBER_ADDED) {
-			target_users = new ParcelableUser[targets_size];
+			target_users = new ParcelableWithJSONUser[targets_size];
 			target_statuses = null;
 			target_user_lists = null;
 			for (int i = 0; i < targets_size; i++) {
-				target_users[i] = new ParcelableUser(activity.getTargetUsers()[i], account_id);
+				target_users[i] = new ParcelableWithJSONUser(activity.getTargetUsers()[i], account_id);
 			}
 		} else if (action == ACTION_LIST_CREATED) {
 			target_user_lists = new ParcelableUserList[targets_size];
@@ -87,11 +87,11 @@ public class ParcelableActivity implements Comparable<ParcelableActivity>, JSONP
 				target_user_lists[i] = new ParcelableUserList(activity.getTargetUserLists()[i], account_id);
 			}
 		} else {
-			target_statuses = new ParcelableStatus[targets_size];
+			target_statuses = new ParcelableWithJSONStatus[targets_size];
 			target_users = null;
 			target_user_lists = null;
 			for (int i = 0; i < targets_size; i++) {
-				target_statuses[i] = new ParcelableStatus(activity.getTargetStatuses()[i], account_id, false);
+				target_statuses[i] = new ParcelableWithJSONStatus(activity.getTargetStatuses()[i], account_id, false);
 			}
 		}
 		final int target_objects_size = activity.getTargetObjectsSize();
@@ -105,10 +105,10 @@ public class ParcelableActivity implements Comparable<ParcelableActivity>, JSONP
 			target_object_user_lists = null;
 			target_object_statuses = null;
 		} else {
-			target_object_statuses = new ParcelableStatus[target_objects_size];
+			target_object_statuses = new ParcelableWithJSONStatus[target_objects_size];
 			target_object_user_lists = null;
 			for (int i = 0; i < target_objects_size; i++) {
-				target_object_statuses[i] = new ParcelableStatus(activity.getTargetObjectStatuses()[i], account_id,
+				target_object_statuses[i] = new ParcelableWithJSONStatus(activity.getTargetObjectStatuses()[i], account_id,
 						false);
 			}
 		}
@@ -120,12 +120,12 @@ public class ParcelableActivity implements Comparable<ParcelableActivity>, JSONP
 		max_position = in.readLong("max_position");
 		min_position = in.readLong("min_position");
 		action = in.readInt("action");
-		sources = in.readParcelableArray("sources", ParcelableUser.JSON_CREATOR);
-		target_users = in.readParcelableArray("target_users", ParcelableUser.JSON_CREATOR);
-		target_statuses = in.readParcelableArray("target_statuses", ParcelableStatus.JSON_CREATOR);
+		sources = in.readParcelableArray("sources", ParcelableWithJSONUser.JSON_CREATOR);
+		target_users = in.readParcelableArray("target_users", ParcelableWithJSONUser.JSON_CREATOR);
+		target_statuses = in.readParcelableArray("target_statuses", ParcelableWithJSONStatus.JSON_CREATOR);
 		target_user_lists = in.readParcelableArray("target_user_lists", ParcelableUserList.JSON_CREATOR);
 		target_object_user_lists = in.readParcelableArray("target_object_user_lists", ParcelableUserList.JSON_CREATOR);
-		target_object_statuses = in.readParcelableArray("target_object_statuses", ParcelableStatus.JSON_CREATOR);
+		target_object_statuses = in.readParcelableArray("target_object_statuses", ParcelableWithJSONStatus.JSON_CREATOR);
 	}
 
 	@Override

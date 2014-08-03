@@ -4,6 +4,13 @@ import android.content.Context;
 import android.net.Uri;
 
 
+import com.shawnhu.seagull.seagull.twitter.model.ListResponse;
+import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONUser;
+import com.shawnhu.seagull.seagull.twitter.model.SingleResponse;
+import com.shawnhu.seagull.seagull.twitter.utils.Utils;
+import com.shawnhu.seagull.utils.ArrayUtils;
+import com.shawnhu.seagull.utils.ListUtils;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,12 +24,10 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.User;
 
-import static org.mariotaku.twidere.util.Utils.getTwitterInstance;
-
 public class TwitterWrapper {
 
 	public static int clearNotification(final Context context, final int notificationType, final long accountId) {
-		final Uri.Builder builder = Notifications.CONTENT_URI.buildUpon();
+		final Uri.Builder builder = TweetStore.Notifications.CONTENT_URI.buildUpon();
 		builder.appendPath(String.valueOf(notificationType));
 		if (accountId > 0) {
 			builder.appendPath(String.valueOf(accountId));
@@ -32,12 +37,12 @@ public class TwitterWrapper {
 
 	public static int clearUnreadCount(final Context context, final int position) {
 		if (context == null || position < 0) return 0;
-		final Uri uri = UnreadCounts.CONTENT_URI.buildUpon().appendPath(String.valueOf(position)).build();
+		final Uri uri = TweetStore.UnreadCounts.CONTENT_URI.buildUpon().appendPath(String.valueOf(position)).build();
 		return context.getContentResolver().delete(uri, null, null);
 	}
 
 	public static SingleResponse<Boolean> deleteProfileBannerImage(final Context context, final long account_id) {
-		final Twitter twitter = getTwitterInstance(context, account_id, false);
+		final Twitter twitter = Utils.getTwitterInstance(context, account_id, false);
 		if (twitter == null) return new SingleResponse<Boolean>(false, null);
 		try {
 			twitter.removeProfileBannerImage();
@@ -51,7 +56,7 @@ public class TwitterWrapper {
 			final long... status_ids) {
 		if (context == null || position < 0 || status_ids == null || status_ids.length == 0) return 0;
 		int result = 0;
-		final Uri.Builder builder = UnreadCounts.CONTENT_URI.buildUpon();
+		final Uri.Builder builder = TweetStore.UnreadCounts.CONTENT_URI.buildUpon();
 		builder.appendPath(String.valueOf(position));
 		builder.appendPath(String.valueOf(account_id));
 		builder.appendPath(ArrayUtils.toString(status_ids, ',', false));
@@ -63,7 +68,7 @@ public class TwitterWrapper {
 		if (context == null || position < 0 || counts == null) return 0;
 		int result = 0;
 		for (final Entry<Long, Set<Long>> entry : counts.entrySet()) {
-			final Uri.Builder builder = UnreadCounts.CONTENT_URI.buildUpon();
+			final Uri.Builder builder = TweetStore.UnreadCounts.CONTENT_URI.buildUpon();
 			builder.appendPath(String.valueOf(position));
 			builder.appendPath(String.valueOf(entry.getKey()));
 			builder.appendPath(ListUtils.toString(new ArrayList<Long>(entry.getValue()), ',', false));
@@ -72,15 +77,15 @@ public class TwitterWrapper {
 		return result;
 	}
 
-	public static SingleResponse<ParcelableUser> updateProfile(final Context context, final long account_id,
+	public static SingleResponse<ParcelableWithJSONUser> updateProfile(final Context context, final long account_id,
 			final String name, final String url, final String location, final String description) {
-		final Twitter twitter = getTwitterInstance(context, account_id, false);
+		final Twitter twitter = Utils.getTwitterInstance(context, account_id, false);
 		if (twitter != null) {
 			try {
 				final User user = twitter.updateProfile(name, url, location, description);
-				return new SingleResponse<ParcelableUser>(new ParcelableUser(user, account_id), null);
+				return new SingleResponse<ParcelableWithJSONUser>(new ParcelableWithJSONUser(user, account_id), null);
 			} catch (final TwitterException e) {
-				return new SingleResponse<ParcelableUser>(null, e);
+				return new SingleResponse<ParcelableWithJSONUser>(null, e);
 			}
 		}
 		return SingleResponse.getInstance();
@@ -88,7 +93,7 @@ public class TwitterWrapper {
 
 	public static SingleResponse<Boolean> updateProfileBannerImage(final Context context, final long account_id,
 			final Uri image_uri, final boolean delete_image) {
-		final Twitter twitter = getTwitterInstance(context, account_id, false);
+		final Twitter twitter = Utils.getTwitterInstance(context, account_id, false);
 		if (twitter != null && image_uri != null && "file".equals(image_uri.getScheme())) {
 			try {
 				final File file = new File(image_uri.getPath());
@@ -109,20 +114,20 @@ public class TwitterWrapper {
 		return new SingleResponse<Boolean>(false, null);
 	}
 
-	public static SingleResponse<ParcelableUser> updateProfileImage(final Context context, final long account_id,
+	public static SingleResponse<ParcelableWithJSONUser> updateProfileImage(final Context context, final long account_id,
 			final Uri image_uri, final boolean delete_image) {
-		final Twitter twitter = getTwitterInstance(context, account_id, false);
+		final Twitter twitter = Utils.getTwitterInstance(context, account_id, false);
 		if (twitter != null && image_uri != null && "file".equals(image_uri.getScheme())) {
 			try {
 				final User user = twitter.updateProfileImage(new File(image_uri.getPath()));
 				// Wait for 5 seconds, see
 				// https://dev.twitter.com/docs/api/1.1/post/account/update_profile_image
 				Thread.sleep(5000L);
-				return new SingleResponse<ParcelableUser>(new ParcelableUser(user, account_id), null);
+				return new SingleResponse<ParcelableWithJSONUser>(new ParcelableWithJSONUser(user, account_id), null);
 			} catch (final TwitterException e) {
-				return new SingleResponse<ParcelableUser>(null, e);
+				return new SingleResponse<ParcelableWithJSONUser>(null, e);
 			} catch (final InterruptedException e) {
-				return new SingleResponse<ParcelableUser>(null, e);
+				return new SingleResponse<ParcelableWithJSONUser>(null, e);
 			}
 		}
 		return SingleResponse.getInstance();

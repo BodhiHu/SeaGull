@@ -32,4 +32,13 @@ public class Utils {
 		return builder.toString();
 	}
 
+    public static Selectable getColumnsFromProjection(final String... projection) {
+		if (projection == null) return new AllColumns();
+		final int length = projection.length;
+		final Columns.Column[] columns = new Columns.Column[length];
+		for (int i = 0; i < length; i++) {
+			columns[i] = new Columns.Column(projection[i]);
+		}
+		return new Columns(columns);
+	}
 }
