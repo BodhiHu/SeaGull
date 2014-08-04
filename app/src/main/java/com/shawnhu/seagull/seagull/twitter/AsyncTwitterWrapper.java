@@ -21,15 +21,23 @@ import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONUser;
 import com.shawnhu.seagull.seagull.twitter.model.SingleResponse;
 import com.shawnhu.seagull.seagull.twitter.services.BackgroundOperationService;
 import com.shawnhu.seagull.seagull.twitter.tasks.AsyncTask;
+import com.shawnhu.seagull.seagull.twitter.tasks.CacheUsersStatusesTask;
 import com.shawnhu.seagull.seagull.twitter.tasks.ManagedAsyncTask;
 import com.shawnhu.seagull.seagull.twitter.utils.AsyncTaskManager;
+import com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator;
 import com.shawnhu.seagull.seagull.twitter.utils.MessagesManager;
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.*;
 import com.shawnhu.seagull.seagull.twitter.TweetStore.*;
+import com.shawnhu.seagull.seagull.twitter.utils.NameValuePairImpl;
+import com.shawnhu.seagull.seagull.twitter.utils.StatusCodeMessageUtils;
+import com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils;
+import com.shawnhu.seagull.utils.ArrayUtils;
+import com.shawnhu.seagull.utils.ListUtils;
 import com.shawnhu.seagull.utils.querybuilder.Columns;
 import com.shawnhu.seagull.utils.querybuilder.RawItemArray;
 import com.shawnhu.seagull.utils.querybuilder.Where;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.*;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +64,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     private final Context mContext;
     private final AsyncTaskManager mAsyncTaskManager;
+    private final SharedPreferences mPreferences;
     private final MessagesManager mMessagesManager;
     private final ContentResolver mResolver;
 
@@ -67,6 +76,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         mContext = context;
         mAsyncTaskManager = AsyncTaskManager.getInstance();
         mMessagesManager = MessagesManager.getInstance(mContext);
+        mPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         mResolver = context.getContentResolver();
     }
 
@@ -803,11 +813,11 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
         private void deleteCaches(final List<Long> list) {
             for (final Uri uri : STATUSES_URIS) {
-                bulkDelete(mResolver, uri, Statuses.USER_ID, list, Statuses.ACCOUNT_ID + " = " + account_id, false);
+                ContentResolverUtils.bulkDelete(mResolver, uri, Statuses.USER_ID, list, Statuses.ACCOUNT_ID + " = " + account_id, false);
             }
             // I bet you don't want to see these users in your auto complete
             // list.
-            bulkDelete(mResolver, CachedUsers.CONTENT_URI, CachedUsers.USER_ID, list, null, false);
+            ContentResolverUtils.bulkDelete(mResolver, CachedUsers.CONTENT_URI, CachedUsers.USER_ID, list, null, false);
         }
     }
 
@@ -1132,12 +1142,12 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         private boolean isMessageNotFound(final Exception e) {
             if (!(e instanceof TwitterException)) return false;
             final TwitterException te = (TwitterException) e;
-            return te.getErrorCode() == StatusCodeMessagePAGE_NOT_FOUND
+            return te.getErrorCode() == StatusCodeMessageUtils.PAGE_NOT_FOUND
                     || te.getStatusCode() == HttpResponseCode.NOT_FOUND;
         }
     }
 
-    class DestroyFavoriteTask extends ManagedAsyncTask<Void, Void, SingleResponse<getUserName>> {
+    class DestroyFavoriteTask extends ManagedAsyncTask<Void, Void, SingleResponse<ParcelableWithJSONStatus>> {
 
         private final long account_id;
 
@@ -1448,6 +1458,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
             if (account_ids == null) return result;
 
             int idx = 0;
+            final int load_item_limit = mPreferences.getInt(KEY_LOAD_ITEM_LIMIT, DEFAULT_LOAD_ITEM_LIMIT);
             for (final long account_id : account_ids) {
                 final Twitter twitter = getTwitterInstance(mContext, account_id, true);
                 if (twitter != null) {
@@ -1506,7 +1517,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        public ResponseList<Status> getStatuses(final Twitter twitter, final Paging paging)
+        public ResponseList<twitter4j.Status> getStatuses(final Twitter twitter, final Paging paging)
                 throws TwitterException {
             return twitter.getHomeTimeline(paging);
         }
@@ -1568,7 +1579,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        public ResponseList<Status> getStatuses(final Twitter twitter, final Paging paging)
+        public ResponseList<twitter4j.Status> getStatuses(final Twitter twitter, final Paging paging)
                 throws TwitterException {
             return twitter.getMentionsTimeline(paging);
         }
@@ -1657,7 +1668,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
             mSinceIds = since_ids;
         }
 
-        public abstract ResponseList<Status> getStatuses(Twitter twitter, Paging paging)
+        public abstract ResponseList<twitter4j.Status> getStatuses(Twitter twitter, Paging paging)
                 throws TwitterException;
 
         @Override
@@ -1668,6 +1679,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
             if (mAccountIds == null) return result;
 
             int idx = 0;
+            final int load_item_limit = mPreferences.getInt(KEY_LOAD_ITEM_LIMIT, DEFAULT_LOAD_ITEM_LIMIT);
             for (final long account_id : mAccountIds) {
                 final Twitter twitter = getTwitterInstance(mContext, account_id, true);
                 if (twitter != null) {
@@ -1687,7 +1699,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                         } else {
                             sinceId = -1;
                         }
-                        final List<Status> statuses = new ArrayList<Status>();
+                        final List<twitter4j.Status> statuses = new ArrayList<twitter4j.Status>();
                         final boolean truncated = truncateStatuses(getStatuses(twitter, paging), statuses, sinceId);
                         result.add(new StatusListResponse(account_id, maxId, sinceId, load_item_limit, statuses,
                                 truncated));
@@ -1791,7 +1803,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         @Override
         protected void onPostExecute(final ListResponse<Long> result) {
             if (result != null) {
-                final String user_id_where = ListtoString(result.list, ',', false);
+                final String user_id_where = ListUtils.toString(result.list, ',', false);
                 for (final Uri uri : STATUSES_URIS) {
                     final String where = Statuses.ACCOUNT_ID + " = " + account_id + " AND " + Statuses.USER_ID
                             + " IN (" + user_id_where + ")";
@@ -1944,7 +1956,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         protected void onPostExecute(final SingleResponse<DirectMessage> result) {
             super.onPostExecute(result);
             if (result.hasData() && result.getData().getId() > 0) {
-                final ContentValues values = makeDirectMessageContentValues(result.getData(), account_id, true);
+                final ContentValues values = ContentValuesCreator.makeDirectMessageContentValues(result.getData(), account_id, true);
                 final String delete_where = DirectMessages.ACCOUNT_ID + " = " + account_id + " AND "
                         + DirectMessages.MESSAGE_ID + " = " + result.getData().getId();
                 mResolver.delete(DirectMessages.Outbox.CONTENT_URI, delete_where, null);
@@ -1985,7 +1997,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                     for (int i = 0, j = messages.size(); i < j; i++) {
                         final DirectMessage message = messages.get(i);
                         message_ids[i] = message.getId();
-                        values_array[i] = makeDirectMessageContentValues(message, account_id, isOutgoing());
+                        values_array[i] = ContentValuesCreator.makeDirectMessageContentValues(message, account_id, isOutgoing());
                     }
 
                     // Delete all rows conflicting before new data inserted.
@@ -1993,7 +2005,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                         final StringBuilder delete_where = new StringBuilder();
                         delete_where.append(DirectMessages.ACCOUNT_ID + " = " + account_id);
                         delete_where.append(" AND ");
-                        delete_where.append(Where.in(new Column(DirectMessages.MESSAGE_ID),
+                        delete_where.append(Where.in(new Columns.Column(DirectMessages.MESSAGE_ID),
                                 new RawItemArray(message_ids)).getSQL());
                         final Uri delete_uri = appendQueryParameters(uri, new NameValuePairImpl(QUERY_PARAM_NOTIFY,
                                 false));
@@ -2002,7 +2014,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
                     // Insert previously fetched items.
                     final Uri insert_uri = appendQueryParameters(uri, new NameValuePairImpl(QUERY_PARAM_NOTIFY, notify));
-                    bulkInsert(mResolver, insert_uri, values_array);
+                    ContentResolverUtils.bulkInsert(mResolver, insert_uri, values_array);
 
                 }
                 succeed = true;
@@ -2106,7 +2118,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
             boolean succeed = false;
             for (final StatusListResponse response : responses) {
                 final long account_id = response.account_id;
-                final List<Status> statuses = response.list;
+                final List<twitter4j.Status> statuses = response.list;
                 if (statuses == null || statuses.isEmpty()) {
                     continue;
                 }
@@ -2116,7 +2128,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                 final long[] statusIds = new long[statuses.size()];
                 for (int i = 0, j = statuses.size(); i < j; i++) {
                     final twitter4j.Status status = statuses.get(i);
-                    values[i] = makeStatusContentValues(status, account_id);
+                    values[i] = ContentValuesCreator.makeStatusContentValues(status, account_id);
                     statusIds[i] = status.getId();
                 }
                 // Delete all rows conflicting before new data inserted.
@@ -2127,15 +2139,15 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                 final int rowsDeleted = mResolver.delete(deleteUri, deleteWhere, null);
                 // UCD
                 ProfilingUtil.profile(mContext, account_id,
-                        "Download tweets, " + ArraytoString(statusIds, ',', true));
+                        "Download tweets, " + ArrayUtils.toString(statusIds, ',', true));
                 all_statuses.addAll(Arrays.asList(values));
                 // Insert previously fetched items.
                 final Uri insertUri = appendQueryParameters(uri, new NameValuePairImpl(QUERY_PARAM_NOTIFY, notify));
-                bulkInsert(mResolver, insertUri, values);
+                ContentResolverUtils.bulkInsert(mResolver, insertUri, values);
 
                 // Insert a gap.
-                final long min_id = statusIds.length != 0 ? Arraymin(statusIds) : -1;
-                final boolean deletedOldGap = rowsDeleted > 0 && Arraycontains(statusIds, response.max_id);
+                final long min_id = statusIds.length != 0 ? ArrayUtils.min(statusIds) : -1;
+                final boolean deletedOldGap = rowsDeleted > 0 && ArrayUtils.contains(statusIds, response.max_id);
                 final boolean noRowsDeleted = rowsDeleted == 0;
                 final boolean insertGap = min_id > 0 && (noRowsDeleted || deletedOldGap) && !response.truncated
                         && !noItemsBefore && statuses.size() > 1;
@@ -2185,7 +2197,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                 final ArrayList<String> hashtags = new ArrayList<String>();
                 final ArrayList<ContentValues> hashtag_values = new ArrayList<ContentValues>();
                 if (messages != null && messages.size() > 0) {
-                    final ContentValues[] values_array = makeTrendsContentValues(messages);
+                    final ContentValues[] values_array = ContentValuesCreator.makeTrendsContentValues(messages);
                     for (final ContentValues values : values_array) {
                         final String hashtag = values.getAsString(CachedTrends.NAME).replaceFirst("#", "");
                         if (hashtags.contains(hashtag)) {
@@ -2197,9 +2209,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                         hashtag_values.add(hashtag_value);
                     }
                     mResolver.delete(uri, null, null);
-                    bulkInsert(mResolver, uri, values_array);
-                    bulkDelete(mResolver, CachedHashtags.CONTENT_URI, CachedHashtags.NAME, hashtags, null, true);
-                    bulkInsert(mResolver, CachedHashtags.CONTENT_URI,
+                    ContentResolverUtils.bulkInsert(mResolver, uri, values_array);
+                    ContentResolverUtils.bulkDelete(mResolver, CachedHashtags.CONTENT_URI, CachedHashtags.NAME, hashtags, null, true);
+                    ContentResolverUtils.bulkInsert(mResolver, CachedHashtags.CONTENT_URI,
                             hashtag_values.toArray(new ContentValues[hashtag_values.size()]));
                     bundle.putBoolean(EXTRA_SUCCEED, true);
                 }

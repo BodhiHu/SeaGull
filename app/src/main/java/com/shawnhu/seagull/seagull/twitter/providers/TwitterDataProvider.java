@@ -47,34 +47,15 @@ import android.support.v4.app.NotificationCompat;
 import android.text.Html;
 import android.util.Log;
 
-import org.mariotaku.jsonserializer.JSONFileIO;
-import org.mariotaku.twidere.Constants;
-import org.mariotaku.twidere.R;
-import org.mariotaku.twidere.activity.support.HomeActivity;
-import org.mariotaku.twidere.app.TwidereApplication;
-import org.mariotaku.twidere.model.AccountPreferences;
-import org.mariotaku.twidere.model.ParcelableDirectMessage;
-import org.mariotaku.twidere.model.ParcelableStatus;
-import org.mariotaku.twidere.model.SupportTabSpec;
-import org.mariotaku.twidere.model.UnreadItem;
-import org.mariotaku.twidere.provider.TweetStore.Accounts;
-import org.mariotaku.twidere.provider.TweetStore.DirectMessages;
-import org.mariotaku.twidere.provider.TweetStore.Preferences;
-import org.mariotaku.twidere.provider.TweetStore.Statuses;
-import org.mariotaku.twidere.provider.TweetStore.UnreadCounts;
-import org.mariotaku.twidere.util.ArrayUtils;
-import org.mariotaku.twidere.util.CustomTabUtils;
-import org.mariotaku.twidere.util.HtmlEscapeHelper;
-import org.mariotaku.twidere.util.ImagePreloader;
-import org.mariotaku.twidere.util.MediaPreviewUtils;
-import org.mariotaku.twidere.util.ParseUtils;
-import org.mariotaku.twidere.util.PermissionsManager;
-import org.mariotaku.twidere.util.SQLiteDatabaseWrapper;
-import org.mariotaku.twidere.util.SQLiteDatabaseWrapper.LazyLoadCallback;
-import org.mariotaku.twidere.util.SharedPreferencesWrapper;
-import org.mariotaku.twidere.util.TwidereQueryBuilder;
-import org.mariotaku.twidere.util.Utils;
-import org.mariotaku.twidere.util.collection.NoDuplicatesCopyOnWriteArrayList;
+import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONStatus;
+import com.shawnhu.seagull.seagull.twitter.model.UnreadItem;
+import com.shawnhu.seagull.seagull.twitter.utils.ImagePreloader;
+import com.shawnhu.seagull.seagull.twitter.utils.PermissionsManager;
+import com.shawnhu.seagull.seagull.twitter.utils.SQLiteDatabaseWrapper;
+import com.shawnhu.seagull.seagull.twitter.utils.SharedPreferencesWrapper;
+import com.shawnhu.seagull.utils.JSONSerializer.JSONFileIO;
+import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.seagull.twitter.model.ParcelableDirectMessage;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -92,22 +73,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import twitter4j.http.HostAddressResolver;
 
-import static org.mariotaku.twidere.util.Utils.clearAccountColor;
-import static org.mariotaku.twidere.util.Utils.clearAccountName;
-import static org.mariotaku.twidere.util.Utils.getAccountDisplayName;
-import static org.mariotaku.twidere.util.Utils.getAccountIds;
-import static org.mariotaku.twidere.util.Utils.getAccountNotificationId;
-import static org.mariotaku.twidere.util.Utils.getAccountScreenName;
-import static org.mariotaku.twidere.util.Utils.getActivatedAccountIds;
-import static org.mariotaku.twidere.util.Utils.getDisplayName;
-import static org.mariotaku.twidere.util.Utils.getNotificationUri;
-import static org.mariotaku.twidere.util.Utils.getTableId;
-import static org.mariotaku.twidere.util.Utils.getTableNameById;
-import static org.mariotaku.twidere.util.Utils.isFiltered;
-import static org.mariotaku.twidere.util.Utils.isNotificationsSilent;
-
-public final class TwitterDataProvider extends ContentProvider implements Constants, OnSharedPreferenceChangeListener,
-		LazyLoadCallback {
+public final class TwitterDataProvider extends ContentProvider implements OnSharedPreferenceChangeListener,
+        SQLiteDatabaseWrapper.LazyLoadCallback {
 
 	private static final String UNREAD_STATUSES_FILE_NAME = "unread_statuses";
 	private static final String UNREAD_MENTIONS_FILE_NAME = "unread_mentions";
@@ -121,8 +88,8 @@ public final class TwitterDataProvider extends ContentProvider implements Consta
 	private ImagePreloader mImagePreloader;
 	private HostAddressResolver mHostAddressResolver;
 
-	private final List<ParcelableStatus> mNewStatuses = new CopyOnWriteArrayList<ParcelableStatus>();
-	private final List<ParcelableStatus> mNewMentions = new CopyOnWriteArrayList<ParcelableStatus>();
+	private final List<ParcelableWithJSONStatus> mNewStatuses = new CopyOnWriteArrayList<ParcelableWithJSONStatus>();
+	private final List<ParcelableWithJSONStatus> mNewMentions = new CopyOnWriteArrayList<ParcelableWithJSONStatus>();
 	private final List<ParcelableDirectMessage> mNewMessages = new CopyOnWriteArrayList<ParcelableDirectMessage>();
 
 	private final List<UnreadItem> mUnreadStatuses = new NoDuplicatesCopyOnWriteArrayList<UnreadItem>();
@@ -740,7 +707,7 @@ public final class TwitterDataProvider extends ContentProvider implements Consta
 	}
 
 	private void displayStatusesNotification(final int notifiedCount, final AccountPreferences accountPreferences,
-			final int notificationType, final int notificationId, final List<ParcelableStatus> statuses,
+			final int notificationType, final int notificationId, final List<ParcelableWithJSONStatus> statuses,
 			final int titleSingle, final int titleMutiple, final int icon) {
 		final NotificationManager nm = getNotificationManager();
 		if (notifiedCount == 0 || accountPreferences == null || statuses.isEmpty()) return;
@@ -748,7 +715,7 @@ public final class TwitterDataProvider extends ContentProvider implements Consta
 		final Context context = getContext();
 		final Resources resources = context.getResources();
 		final NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(context);
-		final ParcelableStatus firstItem = statuses.get(0);
+		final ParcelableWithJSONStatus firstItem = statuses.get(0);
 		final int statusesSize = statuses.size();
 		final Intent deleteIntent = new Intent(BROADCAST_NOTIFICATION_DELETED);
 		deleteIntent.putExtra(EXTRA_NOTIFICATION_ID, notificationId);
@@ -790,7 +757,7 @@ public final class TwitterDataProvider extends ContentProvider implements Consta
 			final NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle(notifBuilder);
 			final int max = Math.min(4, statusesSize);
 			for (int i = 0; i < max; i++) {
-				final ParcelableStatus s = safeGet(statuses, i);
+				final ParcelableWithJSONStatus s = safeGet(statuses, i);
 				if (s == null) return;
 				final String nameEscaped = HtmlEscapeHelper.escape(getDisplayName(context, s.user_id, s.user_name,
 						s.user_screen_name, mNameFirst, mNickOnly));
@@ -978,10 +945,10 @@ public final class TwitterDataProvider extends ContentProvider implements Consta
 		return c;
 	}
 
-	private int getUsersCount(final List<ParcelableStatus> items) {
+	private int getUsersCount(final List<ParcelableWithJSONStatus> items) {
 		if (items == null || items.isEmpty()) return 0;
 		final Set<Long> ids = new HashSet<Long>();
-		for (final ParcelableStatus item : items.toArray(new ParcelableStatus[items.size()])) {
+		for (final ParcelableWithJSONStatus item : items.toArray(new ParcelableWithJSONStatus[items.size()])) {
 			ids.add(item.user_id);
 		}
 		return ids.size();
@@ -1021,7 +988,7 @@ public final class TwitterDataProvider extends ContentProvider implements Consta
 		final boolean enabled = mPreferences.getBoolean(KEY_FILTERS_IN_MENTIONS, true);
 		final boolean filtersForRts = mPreferences.getBoolean(KEY_FILTERS_FOR_RTS, true);
 		for (final ContentValues value : values) {
-			final ParcelableStatus status = new ParcelableStatus(value);
+			final ParcelableWithJSONStatus status = new ParcelableWithJSONStatus(value);
 			if (!enabled || !isFiltered(mDatabaseWrapper.getSQLiteDatabase(), status, filtersForRts)) {
 				final AccountPreferences pref = AccountPreferences.getAccountPreferences(prefs, status.account_id);
 				if (pref == null || status.user_is_following || !pref.isMyFollowingOnly()) {
@@ -1045,7 +1012,7 @@ public final class TwitterDataProvider extends ContentProvider implements Consta
 		final boolean enabled = mPreferences.getBoolean(KEY_FILTERS_IN_HOME_TIMELINE, true);
 		final boolean filtersForRts = mPreferences.getBoolean(KEY_FILTERS_FOR_RTS, true);
 		for (final ContentValues value : values) {
-			final ParcelableStatus status = new ParcelableStatus(value);
+			final ParcelableWithJSONStatus status = new ParcelableWithJSONStatus(value);
 			if (!enabled || !isFiltered(mDatabaseWrapper.getSQLiteDatabase(), status, filtersForRts)) {
 				mNewStatuses.add(status);
 				if (mUnreadStatuses.add(new UnreadItem(status.id, status.account_id))) {
@@ -1086,7 +1053,7 @@ public final class TwitterDataProvider extends ContentProvider implements Consta
 		switch (getTableId(uri)) {
 			case TABLE_ID_STATUSES: {
 				final int notifiedCount = notifyStatusesInserted(values);
-				final List<ParcelableStatus> items = new ArrayList<ParcelableStatus>(mNewStatuses);
+				final List<ParcelableWithJSONStatus> items = new ArrayList<ParcelableWithJSONStatus>(mNewStatuses);
 				Collections.sort(items);
 				final AccountPreferences[] prefs = AccountPreferences.getNotificationEnabledPreferences(getContext(),
 						getAccountIds(getContext()));
@@ -1106,7 +1073,7 @@ public final class TwitterDataProvider extends ContentProvider implements Consta
 				final AccountPreferences[] prefs = AccountPreferences.getNotificationEnabledPreferences(getContext(),
 						getAccountIds(getContext()));
 				final int notifiedCount = notifyMentionsInserted(prefs, values);
-				final List<ParcelableStatus> items = new ArrayList<ParcelableStatus>(mNewMentions);
+				final List<ParcelableWithJSONStatus> items = new ArrayList<ParcelableWithJSONStatus>(mNewMentions);
 				Collections.sort(items);
 				for (final AccountPreferences pref : prefs) {
 					if (pref.isMentionsNotificationEnabled()) {
@@ -1293,11 +1260,11 @@ public final class TwitterDataProvider extends ContentProvider implements Consta
 		return Preferences.TYPE_INVALID;
 	}
 
-	private static List<ParcelableStatus> getStatusesForAccounts(final List<ParcelableStatus> items,
+	private static List<ParcelableWithJSONStatus> getStatusesForAccounts(final List<ParcelableWithJSONStatus> items,
 			final long accountId) {
 		if (items == null) return Collections.emptyList();
-		final List<ParcelableStatus> result = new ArrayList<ParcelableStatus>();
-		for (final ParcelableStatus item : items.toArray(new ParcelableStatus[items.size()])) {
+		final List<ParcelableWithJSONStatus> result = new ArrayList<ParcelableWithJSONStatus>();
+		for (final ParcelableWithJSONStatus item : items.toArray(new ParcelableWithJSONStatus[items.size()])) {
 			if (item.account_id == accountId) {
 				result.add(item);
 			}
