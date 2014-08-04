@@ -69,14 +69,14 @@ public class TwitterManager {
     }
 
 	private ImageLoaderWrapper mImageLoaderWrapper;
-	private ImageLoader mImageLoader;
+	static private ImageLoader mImageLoader;
 	private AsyncTaskManager mAsyncTaskManager;
 	private AsyncTwitterWrapper mTwitterWrapper;
 	private MultiSelectManager mMultiSelectManager;
-	private TwitterImageDownloader mImageDownloader, mFullImageDownloader;
-	private DiskCache mDiskCache, mFullDiskCache;
+	static private TwitterImageDownloader mImageDownloader, mFullImageDownloader;
+	static private DiskCache mDiskCache, mFullDiskCache;
 	private MessagesManager mCroutonsManager;
-	private SQLiteOpenHelper mSQLiteOpenHelper;
+	static private SQLiteOpenHelper mSQLiteOpenHelper;
 	static private HostAddressResolver mResolver;
 	private SQLiteDatabase mDatabase;
 
@@ -89,7 +89,7 @@ public class TwitterManager {
 		return mAsyncTaskManager = AsyncTaskManager.getInstance();
 	}
 
-	public DiskCache getDiskCache() {
+	static public DiskCache getDiskCache() {
 		if (mDiskCache != null) return mDiskCache;
 		return mDiskCache = getDiskCache(SeagullTwitterConstants.DIR_NAME_IMAGE_CACHE);
 	}
@@ -109,12 +109,12 @@ public class TwitterManager {
 		return mResolver = new TwidereHostAddressResolver(sAppContext);
 	}
 
-	public ImageDownloader getImageDownloader() {
+	static public ImageDownloader getImageDownloader() {
 		if (mImageDownloader != null) return mImageDownloader;
 		return mImageDownloader = new TwitterImageDownloader(sAppContext, false);
 	}
 
-	public ImageLoader getImageLoader() {
+	static public ImageLoader getImageLoader() {
 		if (mImageLoader != null) return mImageLoader;
 		final ImageLoader loader = ImageLoader.getInstance();
 		final ImageLoaderConfiguration.Builder cb = new ImageLoaderConfiguration.Builder(sAppContext);
@@ -151,7 +151,7 @@ public class TwitterManager {
 		return mDatabase = getSQLiteOpenHelper().getWritableDatabase();
 	}
 
-	public SQLiteOpenHelper getSQLiteOpenHelper() {
+	public static SQLiteOpenHelper getSQLiteOpenHelper() {
 		if (mSQLiteOpenHelper != null) return mSQLiteOpenHelper;
 		return mSQLiteOpenHelper = new TwitterSQLiteOpenHelper(sAppContext,
                 SeagullTwitterConstants.DATABASES_NAME, SeagullTwitterConstants.DATABASES_VERSION);
@@ -168,7 +168,7 @@ public class TwitterManager {
 		}
 	}
 
-	private DiskCache getDiskCache(final String dirName) {
+	static private DiskCache getDiskCache(final String dirName) {
 		final File cacheDir = getBestCacheDir(sAppContext, dirName);
 		final File fallbackCacheDir = getInternalCacheDir(sAppContext, dirName);
 		return new UnlimitedDiscCache(cacheDir, fallbackCacheDir, new URLFileNameGenerator());

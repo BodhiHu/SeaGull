@@ -47,15 +47,25 @@ import android.support.v4.app.NotificationCompat;
 import android.text.Html;
 import android.util.Log;
 
+import com.shawnhu.seagull.seagull.twitter.TweetStore;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.*;
+import com.shawnhu.seagull.seagull.twitter.TwitterManager;
+import com.shawnhu.seagull.seagull.twitter.TwitterQueryBuilder;
+import com.shawnhu.seagull.seagull.twitter.model.AccountPreferences;
 import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONStatus;
 import com.shawnhu.seagull.seagull.twitter.model.UnreadItem;
 import com.shawnhu.seagull.seagull.twitter.utils.ImagePreloader;
 import com.shawnhu.seagull.seagull.twitter.utils.PermissionsManager;
 import com.shawnhu.seagull.seagull.twitter.utils.SQLiteDatabaseWrapper;
 import com.shawnhu.seagull.seagull.twitter.utils.SharedPreferencesWrapper;
+import com.shawnhu.seagull.utils.ArrayUtils;
 import com.shawnhu.seagull.utils.JSONSerializer.JSONFileIO;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.*;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.*;
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.model.ParcelableDirectMessage;
+import com.shawnhu.seagull.utils.ParseUtils;
+import com.shawnhu.seagull.utils.collections.NoDuplicatesCopyOnWriteArrayList;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -236,14 +246,13 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 	@Override
 	public boolean onCreate() {
 		final Context context = getContext();
-		final TwidereApplication app = TwidereApplication.getInstance(context);
 		mDatabaseWrapper = new SQLiteDatabaseWrapper(this);
-		mHostAddressResolver = app.getHostAddressResolver();
+		mHostAddressResolver = TwitterManager.getHostAddressResolver();
 		mPreferences = SharedPreferencesWrapper.getInstance(context, SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
 		mPreferences.registerOnSharedPreferenceChangeListener(this);
 		updatePreferences();
 		mPermissionsManager = new PermissionsManager(context);
-		mImagePreloader = new ImagePreloader(context, app.getImageLoader());
+		mImagePreloader = new ImagePreloader(context, TwitterManager.getImageLoader());
 		final IntentFilter filter = new IntentFilter();
 		filter.addAction(BROADCAST_HOME_ACTIVITY_ONSTART);
 		filter.addAction(BROADCAST_HOME_ACTIVITY_ONSTOP);
@@ -257,8 +266,7 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 
 	@Override
 	public SQLiteDatabase onCreateSQLiteDatabase() {
-		final TwidereApplication app = TwidereApplication.getInstance(getContext());
-		final SQLiteOpenHelper helper = app.getSQLiteOpenHelper();
+		final SQLiteOpenHelper helper = TwitterManager.getSQLiteOpenHelper();
 		return helper.getWritableDatabase();
 	}
 
@@ -355,7 +363,7 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 					if (segments.size() != 4) return null;
 					final long accountId = ParseUtils.parseLong(segments.get(2));
 					final long conversationId = ParseUtils.parseLong(segments.get(3));
-					final String query = TwidereQueryBuilder.ConversationQueryBuilder.buildByConversationId(projection,
+					final String query = TwitterQueryBuilder.ConversationQueryBuilder.buildByConversationId(projection,
 							accountId, conversationId, selection, sortOrder);
 					final Cursor c = mDatabaseWrapper.rawQuery(query, selectionArgs);
 					setNotificationUri(c, DirectMessages.CONTENT_URI);
@@ -366,7 +374,7 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 					if (segments.size() != 4) return null;
 					final long accountId = ParseUtils.parseLong(segments.get(2));
 					final String screenName = segments.get(3);
-					final String query = TwidereQueryBuilder.ConversationQueryBuilder.buildByScreenName(projection,
+					final String query = TwitterQueryBuilder.ConversationQueryBuilder.buildByScreenName(projection,
 							accountId, screenName, selection, sortOrder);
 					final Cursor c = mDatabaseWrapper.rawQuery(query, selectionArgs);
 					setNotificationUri(c, DirectMessages.CONTENT_URI);
