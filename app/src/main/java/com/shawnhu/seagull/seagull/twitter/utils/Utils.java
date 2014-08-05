@@ -215,12 +215,32 @@ public final class Utils {
                 SeagullTwitterConstants.VIRTUAL_TABLE_ID_ALL_PREFERENCES);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY, TweetStore.Preferences.CONTENT_PATH + "/*",
                 SeagullTwitterConstants.VIRTUAL_TABLE_ID_PREFERENCES);
+
+        /**
+         * clear all unread counts(Home/Mentions timeline, Direct messages)
+         *  @params: none
+         */
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY, TweetStore.UnreadCounts.CONTENT_PATH,
                 SeagullTwitterConstants.VIRTUAL_TABLE_ID_UNREAD_COUNTS);
+        /**
+         * clear unread counts for
+         *   NOTIFICATION_ID_HOME_TIMELINE   ||
+         *   NOTIFICATION_ID_MENTIONS        ||
+         *   NOTIFICATION_ID_DIRECT_MESSAGES
+         *
+         *  @params: type: any of above three
+         */
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY, TweetStore.UnreadCounts.CONTENT_PATH + "/#",
                 SeagullTwitterConstants.VIRTUAL_TABLE_ID_UNREAD_COUNTS);
+        /**
+         * clear unread counts with specific IDs of account
+         *  @params: type: any of above three
+         *  @params: account id
+         *  @params: ids
+         */
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY, TweetStore.UnreadCounts.CONTENT_PATH + "/#/#/*",
                 SeagullTwitterConstants.VIRTUAL_TABLE_ID_UNREAD_COUNTS);
+
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY, TweetStore.UnreadCounts.ByType.CONTENT_PATH + "/*",
                 SeagullTwitterConstants.VIRTUAL_TABLE_ID_UNREAD_COUNTS_BY_TYPE);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY, TweetStore.CONTENT_PATH_DATABASE_READY,
@@ -282,7 +302,9 @@ public final class Utils {
         event.getText().add(text);
         event.setClassName(cls.getName());
         event.setPackageName(context.getPackageName());
-        event.setSource(view);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            event.setSource(view);
+        }
 
         // Sends the event directly through the accessibility manager. If your
         // application only targets SDK 14+, you should just call
@@ -1069,7 +1091,11 @@ public final class Utils {
             return Bitmap.CompressFormat.JPEG;
         else if ("png".equalsIgnoreCase(extension))
             return Bitmap.CompressFormat.PNG;
-        else if ("webp".equalsIgnoreCase(extension)) return Bitmap.CompressFormat.WEBP;
+        else if ("webp".equalsIgnoreCase(extension)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                return Bitmap.CompressFormat.WEBP;
+            }
+        }
         return def;
     }
 

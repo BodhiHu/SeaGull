@@ -622,7 +622,6 @@ public class SeagullTwitterConstants {
 	public static final String EXTRA_IMAGE_URI = "image_uri";
 	public static final String EXTRA_ATTACHED_IMAGE_TYPE = "attached_image_type";
 	public static final String EXTRA_ACTIVATED_ONLY = "activated_only";
-	public static final String EXTRA_TAB_POSITION = "tab_position";
 	public static final String EXTRA_HAS_RUNNING_TASK = "has_running_task";
 	public static final String EXTRA_OAUTH_VERIFIER = "oauth_verifier";
 	public static final String EXTRA_REQUEST_TOKEN = "request_token";

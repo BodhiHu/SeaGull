@@ -55,10 +55,13 @@ import com.shawnhu.seagull.seagull.twitter.model.AccountPreferences;
 import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONStatus;
 import com.shawnhu.seagull.seagull.twitter.model.UnreadItem;
 import com.shawnhu.seagull.seagull.twitter.utils.ImagePreloader;
+import com.shawnhu.seagull.seagull.twitter.utils.MediaPreviewUtils;
 import com.shawnhu.seagull.seagull.twitter.utils.PermissionsManager;
 import com.shawnhu.seagull.seagull.twitter.utils.SQLiteDatabaseWrapper;
 import com.shawnhu.seagull.seagull.twitter.utils.SharedPreferencesWrapper;
+import com.shawnhu.seagull.seagull.twitter.utils.Utils;
 import com.shawnhu.seagull.utils.ArrayUtils;
+import com.shawnhu.seagull.utils.HtmlEscapeHelper;
 import com.shawnhu.seagull.utils.JSONSerializer.JSONFileIO;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.*;
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.*;
@@ -86,6 +89,7 @@ import twitter4j.http.HostAddressResolver;
 public final class TwitterDataProvider extends ContentProvider implements OnSharedPreferenceChangeListener,
         SQLiteDatabaseWrapper.LazyLoadCallback {
 
+    private static final String TAG = "TwitterDataProvider";
 	private static final String UNREAD_STATUSES_FILE_NAME = "unread_statuses";
 	private static final String UNREAD_MENTIONS_FILE_NAME = "unread_mentions";
 	private static final String UNREAD_MESSAGES_FILE_NAME = "unread_messages";
@@ -414,45 +418,6 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 		}
 	}
 
-	private void buildNotification(final NotificationCompat.Builder builder, final AccountPreferences accountPrefs,
-			final int notificationType, final String ticker, final String title, final String message, final long when,
-			final int icon, final Bitmap largeIcon, final Intent contentIntent, final Intent deleteIntent) {
-		final Context context = getContext();
-		builder.setTicker(ticker);
-		builder.setContentTitle(title);
-		builder.setContentText(message);
-		builder.setAutoCancel(true);
-		builder.setWhen(System.currentTimeMillis());
-		builder.setSmallIcon(icon);
-		if (largeIcon != null) {
-			builder.setLargeIcon(largeIcon);
-		}
-		if (deleteIntent != null) {
-			builder.setDeleteIntent(PendingIntent.getBroadcast(context, 0, deleteIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT));
-		}
-		if (contentIntent != null) {
-			builder.setContentIntent(PendingIntent.getActivity(context, 0, contentIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT));
-		}
-		int defaults = 0;
-		if (isNotificationAudible()) {
-			if (AccountPreferences.isNotificationHasRingtone(notificationType)) {
-				final Uri ringtone = accountPrefs.getNotificationRingtone();
-				builder.setSound(ringtone, Notification.STREAM_DEFAULT);
-			}
-			if (AccountPreferences.isNotificationHasVibration(notificationType)) {
-				defaults |= Notification.DEFAULT_VIBRATE;
-			} else {
-				defaults &= ~Notification.DEFAULT_VIBRATE;
-			}
-		}
-		if (AccountPreferences.isNotificationHasLight(notificationType)) {
-			final int color = accountPrefs.getNotificationLightColor();
-			builder.setLights(color, 1000, 2000);
-		}
-		builder.setDefaults(defaults);
-	}
 
 	private boolean checkPermission(final String... permissions) {
 		return mPermissionsManager.checkCallingPermission(permissions);
@@ -608,34 +573,75 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 		return result;
 	}
 
-	private int clearUnreadCount(final int position) {
+	private int clearUnreadCount(final int notification_type) {
 		final Context context = getContext();
 		final int result;
-		final SupportTabSpec tab = CustomTabUtils.getAddedTabAt(context, position);
-		final String type = tab.type;
-		if (TAB_TYPE_HOME_TIMELINE.equals(type) || TAB_TYPE_STAGGERED_HOME_TIMELINE.equals(type)) {
-			final long account_id = tab.args != null ? tab.args.getLong(EXTRA_ACCOUNT_ID, -1) : -1;
-			final long[] account_ids = account_id > 0 ? new long[] { account_id } : getActivatedAccountIds(context);
-			result = clearUnreadCount(mUnreadStatuses, account_ids);
-			saveUnreadItemsFile(mUnreadStatuses, UNREAD_STATUSES_FILE_NAME);
-		} else if (TAB_TYPE_MENTIONS_TIMELINE.equals(type)) {
-			final long account_id = tab.args != null ? tab.args.getLong(EXTRA_ACCOUNT_ID, -1) : -1;
-			final long[] account_ids = account_id > 0 ? new long[] { account_id } : getActivatedAccountIds(context);
-			result = clearUnreadCount(mUnreadMentions, account_ids);
-			mUnreadMentions.clear();
-			saveUnreadItemsFile(mUnreadMentions, UNREAD_MENTIONS_FILE_NAME);
-		} else if (TAB_TYPE_DIRECT_MESSAGES.equals(type)) {
-			final long account_id = tab.args != null ? tab.args.getLong(EXTRA_ACCOUNT_ID, -1) : -1;
-			final long[] account_ids = account_id > 0 ? new long[] { account_id } : getActivatedAccountIds(context);
-			result = clearUnreadCount(mUnreadMessages, account_ids);
-			mUnreadMessages.clear();
-			saveUnreadItemsFile(mUnreadMessages, UNREAD_MESSAGES_FILE_NAME);
-		} else
-			return 0;
+        final long[] account_ids = getActivatedAccountIds(context);
+        switch (notification_type) {
+            case NOTIFICATION_ID_HOME_TIMELINE:
+                result = clearUnreadCount(mUnreadStatuses, account_ids);
+                saveUnreadItemsFile(mUnreadStatuses, UNREAD_STATUSES_FILE_NAME);
+                break;
+            case NOTIFICATION_ID_MENTIONS:
+                result = clearUnreadCount(mUnreadMentions, account_ids);
+			    mUnreadMentions.clear();
+			    saveUnreadItemsFile(mUnreadMentions, UNREAD_MENTIONS_FILE_NAME);
+                break;
+            case NOTIFICATION_ID_DIRECT_MESSAGES:
+                result = clearUnreadCount(mUnreadMessages, account_ids);
+			    mUnreadMessages.clear();
+			    saveUnreadItemsFile(mUnreadMessages, UNREAD_MESSAGES_FILE_NAME);
+                break;
+            default:
+                return 0;
+        }
+
 		if (result > 0) {
-			notifyUnreadCountChanged(position);
+			notifyUnreadCountChanged(notification_type);
 		}
 		return result;
+	}
+
+    /** TODO:
+     *
+     private void buildNotification(final NotificationCompat.Builder builder, final AccountPreferences accountPrefs,
+			final int notificationType, final String ticker, final String title, final String message, final long when,
+			final int icon, final Bitmap largeIcon, final Intent contentIntent, final Intent deleteIntent) {
+		final Context context = getContext();
+		builder.setTicker(ticker);
+		builder.setContentTitle(title);
+		builder.setContentText(message);
+		builder.setAutoCancel(true);
+		builder.setWhen(System.currentTimeMillis());
+		builder.setSmallIcon(icon);
+		if (largeIcon != null) {
+			builder.setLargeIcon(largeIcon);
+		}
+		if (deleteIntent != null) {
+			builder.setDeleteIntent(PendingIntent.getBroadcast(context, 0, deleteIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT));
+		}
+		if (contentIntent != null) {
+			builder.setContentIntent(PendingIntent.getActivity(context, 0, contentIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT));
+		}
+		int defaults = 0;
+		if (isNotificationAudible()) {
+			if (AccountPreferences.isNotificationHasRingtone(notificationType)) {
+				final Uri ringtone = accountPrefs.getNotificationRingtone();
+				builder.setSound(ringtone, Notification.STREAM_DEFAULT);
+			}
+			if (AccountPreferences.isNotificationHasVibration(notificationType)) {
+				defaults |= Notification.DEFAULT_VIBRATE;
+			} else {
+				defaults &= ~Notification.DEFAULT_VIBRATE;
+			}
+		}
+		if (AccountPreferences.isNotificationHasLight(notificationType)) {
+			final int color = accountPrefs.getNotificationLightColor();
+			builder.setLights(color, 1000, 2000);
+		}
+		builder.setDefaults(defaults);
 	}
 
 	private void displayMessagesNotification(final int notifiedCount, final AccountPreferences accountPrefs,
@@ -694,7 +700,7 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 				final ParcelableDirectMessage item = messages.get(i);
 				if (item == null) return;
 				final String nameEscaped = HtmlEscapeHelper.escape(getDisplayName(context, item.sender_id,
-						item.sender_name, item.sender_name, mNameFirst, mNickOnly));
+                        item.sender_name, item.sender_name, mNameFirst, mNickOnly));
 				final String textEscaped = HtmlEscapeHelper.escape(stripMentionText(item.text_unescaped,
 						getAccountScreenName(context, item.account_id)));
 				inboxStyle.addLine(Html.fromHtml(String.format("<b>%s</b>: %s", nameEscaped, textEscaped)));
@@ -713,6 +719,7 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 		final int accountNotificationId = getAccountNotificationId(NOTIFICATION_ID_DIRECT_MESSAGES, accountId);
 		nm.notify(accountNotificationId, notifStyle.build());
 	}
+
 
 	private void displayStatusesNotification(final int notifiedCount, final AccountPreferences accountPreferences,
 			final int notificationType, final int notificationId, final List<ParcelableWithJSONStatus> statuses,
@@ -805,10 +812,11 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 		final int accountNotificationId = getAccountNotificationId(notificationId, accountId);
 		nm.notify(accountNotificationId, notifStyle.build());
 	}
+    */
 
 	private Cursor getCachedImageCursor(final String url) {
 		if (Utils.isDebugBuild()) {
-			Log.d(LOGTAG, String.format("getCachedImageCursor(%s)", url));
+			Log.d(TAG, String.format("getCachedImageCursor(%s)", url));
 		}
 		final MatrixCursor c = new MatrixCursor(TweetStore.CachedImages.MATRIX_COLUMNS);
 		final File file = mImagePreloader.getCachedImageFile(url);
@@ -820,7 +828,7 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 
 	private ParcelFileDescriptor getCachedImageFd(final String url) throws FileNotFoundException {
 		if (Utils.isDebugBuild()) {
-			Log.d(LOGTAG, String.format("getCachedImageFd(%s)", url));
+			Log.d(TAG, String.format("getCachedImageFd(%s)", url));
 		}
 		final File file = mImagePreloader.getCachedImageFile(url);
 		if (file == null) return null;
@@ -1034,9 +1042,9 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 		return result;
 	}
 
-	private void notifyUnreadCountChanged(final int position) {
+	private void notifyUnreadCountChanged(final int type) {
 		final Intent intent = new Intent(BROADCAST_UNREAD_COUNT_UPDATED);
-		intent.putExtra(EXTRA_TAB_POSITION, position);
+		intent.putExtra(EXTRA_NOTIFICATION_ID, type);
 		final Context context = getContext();
 		context.sendBroadcast(intent);
 		notifyContentObserver(UnreadCounts.CONTENT_URI);
