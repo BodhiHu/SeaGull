@@ -241,8 +241,6 @@ public final class Utils {
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY, TweetStore.UnreadCounts.CONTENT_PATH + "/#/#/*",
                 SeagullTwitterConstants.VIRTUAL_TABLE_ID_UNREAD_COUNTS);
 
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY, TweetStore.UnreadCounts.ByType.CONTENT_PATH + "/*",
-                SeagullTwitterConstants.VIRTUAL_TABLE_ID_UNREAD_COUNTS_BY_TYPE);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY, TweetStore.CONTENT_PATH_DATABASE_READY,
                 SeagullTwitterConstants.VIRTUAL_TABLE_ID_DATABASE_READY);
 

@@ -743,23 +743,12 @@ public interface TweetStore {
 
 		public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, CONTENT_PATH);
 
-		public static final String TAB_POSITION = "tab_position";
-
-		public static final String TAB_TYPE = "tab_type";
+		public static final String TYPE = "type";
 
 		public static final String COUNT = "count";
 
-		public static final String[] MATRIX_COLUMNS = new String[] { TAB_POSITION, TAB_TYPE, COUNT };
+		public static final String[] MATRIX_COLUMNS = new String[] { TYPE, COUNT };
 
-		public static final String[] COLUMNS = new String[] { _ID, TAB_POSITION, TAB_TYPE, COUNT };
-
-		public static interface ByType extends UnreadCounts {
-
-			public static final String CONTENT_PATH_SEGMENT = "by_type";
-
-			public static final String CONTENT_PATH = UnreadCounts.CONTENT_PATH + "/" + CONTENT_PATH_SEGMENT;
-
-			public static final Uri CONTENT_URI = Uri.withAppendedPath(UnreadCounts.CONTENT_URI, CONTENT_PATH_SEGMENT);
-		}
+		public static final String[] COLUMNS = new String[] { _ID, TYPE, COUNT };
 	}
 }
