@@ -19,7 +19,7 @@
 
 package com.shawnhu.seagull.seagull.twitter.adapter.iface;
 
-import org.mariotaku.twidere.model.ParcelableDirectMessage;
+import com.shawnhu.seagull.seagull.twitter.model.ParcelableDirectMessage;
 
 public interface IDirectMessagesAdapter extends IBaseCardAdapter {
 

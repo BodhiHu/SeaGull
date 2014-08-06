@@ -27,14 +27,12 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-import org.mariotaku.twidere.Constants;
-import org.mariotaku.twidere.R;
-import org.mariotaku.twidere.app.TwidereApplication;
-import org.mariotaku.twidere.provider.TweetStore.Accounts;
-import org.mariotaku.twidere.util.ImageLoaderWrapper;
-import org.mariotaku.twidere.view.holder.AccountViewHolder;
+import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.seagull.twitter.TweetStore;
+import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
+import com.shawnhu.seagull.seagull.twitter.TweetStore.Accounts;
 
-public class AccountsAdapter extends SimpleCursorAdapter implements Constants {
+public class AccountsAdapter extends SimpleCursorAdapter {
 
 	private final ImageLoaderWrapper mImageLoader;
 	private final SharedPreferences mPreferences;

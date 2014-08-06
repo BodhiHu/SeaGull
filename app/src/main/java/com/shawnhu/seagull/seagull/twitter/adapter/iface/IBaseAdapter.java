@@ -21,10 +21,9 @@ package com.shawnhu.seagull.seagull.twitter.adapter.iface;
 
 import android.widget.ListAdapter;
 
-import org.mariotaku.twidere.Constants;
-import org.mariotaku.twidere.util.ImageLoaderWrapper;
+import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
 
-public interface IBaseAdapter extends Constants, ListAdapter {
+public interface IBaseAdapter extends ListAdapter {
 
 	public ImageLoaderWrapper getImageLoader();
 

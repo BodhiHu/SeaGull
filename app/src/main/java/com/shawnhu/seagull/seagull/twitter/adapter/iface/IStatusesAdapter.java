@@ -19,7 +19,7 @@
 
 package com.shawnhu.seagull.seagull.twitter.adapter.iface;
 
-import org.mariotaku.twidere.model.ParcelableStatus;
+import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONStatus;
 
 public interface IStatusesAdapter<Data> extends IBaseCardAdapter {
 
@@ -29,11 +29,11 @@ public interface IStatusesAdapter<Data> extends IBaseCardAdapter {
 
 	public int getActualCount();
 
-	public ParcelableStatus getLastStatus();
+	public ParcelableWithJSONStatus getLastStatus();
 
 	public long getLastStatusId();
 
-	public ParcelableStatus getStatus(int position);
+	public ParcelableWithJSONStatus getStatus(int position);
 
 	public long getStatusId(final int position);
 
