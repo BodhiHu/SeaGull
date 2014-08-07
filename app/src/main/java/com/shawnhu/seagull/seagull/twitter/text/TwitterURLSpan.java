@@ -25,26 +25,28 @@ import android.view.View;
 
 public class TwitterURLSpan extends URLSpan {
 
-	public static final int VALUE_LINK_HIGHLIGHT_OPTION_CODE_NONE = 0x0;
-	public static final int VALUE_LINK_HIGHLIGHT_OPTION_CODE_HIGHLIGHT = 0x1;
-	public static final int VALUE_LINK_HIGHLIGHT_OPTION_CODE_UNDERLINE = 0x2;
-	public static final int VALUE_LINK_HIGHLIGHT_OPTION_CODE_BOTH =
-            VALUE_LINK_HIGHLIGHT_OPTION_CODE_HIGHLIGHT | VALUE_LINK_HIGHLIGHT_OPTION_CODE_UNDERLINE;
+    private final int                               type;
+	private final long                              accountId;
+	private final String                            url;
+    private final String                            orig;
+	private final boolean                           sensitive;
+	private final OnLinkClickListener               listener;
 
-    private final int type, highlightStyle, highlightColor;
-	private final long accountId;
-	private final String url, orig;
-	private final boolean sensitive;
-	private final OnLinkClickListener listener;
+	public TwitterURLSpan(final String              url,
+                          final long                accountId,
+                          final int                 type,
+                          final boolean             sensitive,
+                          final OnLinkClickListener listener) {
 
-	public TwitterURLSpan(final String url, final long accountId, final int type, final boolean sensitive,
-                          final OnLinkClickListener listener, final int highlightStyle, final int highlightColor) {
-		this(url, null, accountId, type, sensitive, listener, highlightStyle, highlightColor);
+		this(url, null, accountId, type, sensitive, listener);
 	}
 
-	public TwitterURLSpan(final String url, final String orig, final long accountId, final int type,
-                          final boolean sensitive, final OnLinkClickListener listener, final int highlightStyle,
-                          final int highlightColor) {
+	public TwitterURLSpan(final String              url,
+                          final String              orig,
+                          final long                accountId,
+                          final int                 type,
+                          final boolean             sensitive,
+                          final OnLinkClickListener listener) {
 		super(url);
 		this.url = url;
 		this.orig = orig;
@@ -52,24 +54,12 @@ public class TwitterURLSpan extends URLSpan {
 		this.type = type;
 		this.sensitive = sensitive;
 		this.listener = listener;
-		this.highlightStyle = highlightStyle;
-		this.highlightColor = highlightColor;
 	}
 
 	@Override
 	public void onClick(final View widget) {
 		if (listener != null) {
 			listener.onLinkClick(url, orig, accountId, type, sensitive);
-		}
-	}
-
-	@Override
-	public void updateDrawState(final TextPaint ds) {
-		if ((highlightStyle & VALUE_LINK_HIGHLIGHT_OPTION_CODE_UNDERLINE) != 0) {
-			ds.setUnderlineText(true);
-		}
-		if ((highlightStyle & VALUE_LINK_HIGHLIGHT_OPTION_CODE_HIGHLIGHT) != 0) {
-			ds.setColor(highlightColor != 0 ? highlightColor : ds.linkColor);
 		}
 	}
 

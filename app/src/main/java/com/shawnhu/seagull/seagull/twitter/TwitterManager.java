@@ -68,11 +68,11 @@ public class TwitterManager {
         return sTwitterManager;
     }
 
-	private ImageLoaderWrapper mImageLoaderWrapper;
+	static private ImageLoaderWrapper mImageLoaderWrapper;
 	static private ImageLoader mImageLoader;
 	private AsyncTaskManager mAsyncTaskManager;
 	private AsyncTwitterWrapper mTwitterWrapper;
-	private MultiSelectManager mMultiSelectManager;
+	static private MultiSelectManager mMultiSelectManager;
 	static private TwitterImageDownloader mImageDownloader, mFullImageDownloader;
 	static private DiskCache mDiskCache, mFullDiskCache;
 	private MessagesManager mCroutonsManager;
@@ -129,7 +129,7 @@ public class TwitterManager {
 		return mImageLoader = loader;
 	}
 
-	public ImageLoaderWrapper getImageLoaderWrapper() {
+	static public ImageLoaderWrapper getImageLoaderWrapper() {
 		if (mImageLoaderWrapper != null) return mImageLoaderWrapper;
 		return mImageLoaderWrapper = new ImageLoaderWrapper(getImageLoader());
 	}
@@ -139,7 +139,7 @@ public class TwitterManager {
 		return mCroutonsManager = MessagesManager.getInstance(sAppContext);
 	}
 
-	public MultiSelectManager getMultiSelectManager() {
+	static public MultiSelectManager getMultiSelectManager() {
 		if (mMultiSelectManager != null) return mMultiSelectManager;
 		return mMultiSelectManager = new MultiSelectManager();
 	}

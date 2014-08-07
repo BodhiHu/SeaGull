@@ -19,53 +19,52 @@
 
 package com.shawnhu.seagull.seagull.twitter.adapter;
 
+import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.Build;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.ImageView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.TweetStore;
+import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
 import com.shawnhu.seagull.seagull.twitter.TweetStore.Accounts;
 
 public class AccountsAdapter extends SimpleCursorAdapter {
 
+    private static final String TAG = "AccountsAdapter";
 	private final ImageLoaderWrapper mImageLoader;
-	private final SharedPreferences mPreferences;
 
-	private int mUserColorIdx, mProfileImageIdx, mScreenNameIdx, mAccountIdIdx;
-	private long mDefaultAccountId;
+	private int mProfileImageIdx, mScreenNameIdx, mAccountIdIdx;
 
-	private boolean mDisplayProfileImage;
-	private int mChoiceMode;
-
-	public AccountsAdapter(final Context context) {
-		super(context, R.layout.list_item_account, null, new String[] { Accounts.NAME },
-				new int[] { android.R.id.text1 }, 0);
-		final TwidereApplication application = TwidereApplication.getInstance(context);
-		mImageLoader = application.getImageLoaderWrapper();
-		mPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-	}
+    public AccountsAdapter(final Context context, int layout) {
+        super(context, layout, null,
+                new String[] {TweetStore.Accounts.NAME},
+                new int[]    {R.id.text_name});
+		mImageLoader = TwitterManager.getImageLoaderWrapper();
+    }
 
 	@Override
 	public void bindView(final View view, final Context context, final Cursor cursor) {
-		final int color = cursor.getInt(mUserColorIdx);
-		final AccountViewHolder holder = (AccountViewHolder) view.getTag();
-		holder.screen_name.setText("@" + cursor.getString(mScreenNameIdx));
-		holder.setAccountColor(color);
-		holder.setIsDefault(mDefaultAccountId != -1 && mDefaultAccountId == cursor.getLong(mAccountIdIdx));
-		if (mDisplayProfileImage) {
-			mImageLoader.displayProfileImage(holder.profile_image, cursor.getString(mProfileImageIdx));
-		} else {
-			holder.profile_image.setImageResource(R.drawable.ic_profile_image_default);
-		}
-		final boolean isMultipleChoice = mChoiceMode == ListView.CHOICE_MODE_MULTIPLE
-				|| mChoiceMode == ListView.CHOICE_MODE_MULTIPLE_MODAL;
-		holder.checkbox.setVisibility(isMultipleChoice ? View.VISIBLE : View.GONE);
+        if (view != null) {
+            ImageView profile_image = (ImageView) view.findViewById(R.id.image_profile);
+            TextView screen_name = (TextView) view.findViewById(R.id.text_screen_name);
+
+            try {
+                mImageLoader.displayProfileImage(profile_image, cursor.getString(mProfileImageIdx));
+                screen_name.setText(cursor.getString(mScreenNameIdx));
+            } catch(Exception e) {
+                Log.e(TAG, e.toString());
+                e.printStackTrace();
+            }
+        }
+
 		super.bindView(view, context, cursor);
 	}
 
@@ -84,37 +83,20 @@ public class AccountsAdapter extends SimpleCursorAdapter {
 
 	@Override
 	public View newView(final Context context, final Cursor cursor, final ViewGroup parent) {
-
-		final View view = super.newView(context, cursor, parent);
-		final AccountViewHolder viewholder = new AccountViewHolder(view);
-		view.setTag(viewholder);
-		return view;
+		return super.newView(context, cursor, parent);
 	}
 
 	@Override
 	public void notifyDataSetChanged() {
-		mDefaultAccountId = mPreferences.getLong(KEY_DEFAULT_ACCOUNT_ID, -1);
 		super.notifyDataSetChanged();
 	}
 
-	public void setChoiceMode(final int mode) {
-		if (mChoiceMode == mode) return;
-		mChoiceMode = mode;
-		notifyDataSetChanged();
-	}
-
-	public void setDisplayProfileImage(final boolean display) {
-		mDisplayProfileImage = display;
-		notifyDataSetChanged();
-	}
-
-	@Override
+    @Override
 	public Cursor swapCursor(final Cursor cursor) {
 		if (cursor != null) {
-			mAccountIdIdx = cursor.getColumnIndex(Accounts.ACCOUNT_ID);
-			mUserColorIdx = cursor.getColumnIndex(Accounts.COLOR);
+			mAccountIdIdx    = cursor.getColumnIndex(Accounts.ACCOUNT_ID);
 			mProfileImageIdx = cursor.getColumnIndex(Accounts.PROFILE_IMAGE_URL);
-			mScreenNameIdx = cursor.getColumnIndex(Accounts.SCREEN_NAME);
+			mScreenNameIdx   = cursor.getColumnIndex(Accounts.SCREEN_NAME);
 		}
 		return super.swapCursor(cursor);
 	}

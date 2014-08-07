@@ -25,29 +25,27 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.mariotaku.twidere.R;
-import org.mariotaku.twidere.app.TwidereApplication;
-import org.mariotaku.twidere.fragment.support.DirectMessagesConversationFragment;
-import org.mariotaku.twidere.model.Account;
-import org.mariotaku.twidere.util.ImageLoaderWrapper;
+import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.seagull.twitter.TwitterManager;
+import com.shawnhu.seagull.seagull.twitter.model.Account;
+import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
 
 import java.util.Collection;
 
 public class AccountsSpinnerAdapter extends ArrayAdapter<Account> {
 
-	private final ImageLoaderWrapper mImageLoader;
-	private final boolean mDisplayProfileImage;
+	private ImageLoaderWrapper mImageLoader;
 
-	public AccountsSpinnerAdapter(final Context context) {
-		super(context, R.layout.list_item_two_line_small);
-		setDropDownViewResource(R.layout.list_item_two_line_small);
-		mImageLoader = TwidereApplication.getInstance(context).getImageLoaderWrapper();
-		mDisplayProfileImage = context.getSharedPreferences(DirectMessagesConversationFragment.SHARED_PREFERENCES_NAME,
-				Context.MODE_PRIVATE).getBoolean(DirectMessagesConversationFragment.KEY_DISPLAY_PROFILE_IMAGE, true);
+	public AccountsSpinnerAdapter(final Context context, int layout, int drop_down_layout) {
+		super(context, layout);
+		setDropDownViewResource(drop_down_layout);
+
+		mImageLoader = TwitterManager.getInstance(context).getImageLoaderWrapper();
 	}
 
-	public AccountsSpinnerAdapter(final Context context, final Collection<Account> accounts) {
-		this(context);
+	public AccountsSpinnerAdapter(final Context context, int layout, int drop_down_layout,
+                                  final Collection<Account> accounts) {
+		this(context, layout, drop_down_layout);
 		addAll(accounts);
 	}
 
@@ -66,21 +64,17 @@ public class AccountsSpinnerAdapter extends ArrayAdapter<Account> {
 	}
 
 	private void bindView(final View view, final Account item) {
-		final TextView text1 = (TextView) view.findViewById(android.R.id.text1);
-		final TextView text2 = (TextView) view.findViewById(android.R.id.text2);
-		final ImageView icon = (ImageView) view.findViewById(android.R.id.icon);
-		text2.setVisibility(item.is_dummy ? View.GONE : View.VISIBLE);
-		icon.setVisibility(item.is_dummy ? View.GONE : View.VISIBLE);
+		final TextView name = (TextView) view.findViewById(R.id.text_name);
+		final TextView screen_name = (TextView) view.findViewById(R.id.text_screen_name);
+		final ImageView profile_image = (ImageView) view.findViewById(R.id.image_profile);
+		screen_name.setVisibility(item.is_dummy ? View.GONE : View.VISIBLE);
+		profile_image.setVisibility(item.is_dummy ? View.GONE : View.VISIBLE);
 		if (!item.is_dummy) {
-			text1.setText(item.name);
-			text2.setText(String.format("@%s", item.screen_name));
-			if (mDisplayProfileImage) {
-				mImageLoader.displayProfileImage(icon, item.profile_image_url);
-			} else {
-				icon.setImageResource(R.drawable.ic_profile_image_default);
-			}
+			name.setText(item.name);
+			screen_name.setText("@" + item.screen_name);
+            mImageLoader.displayProfileImage(profile_image, item.profile_image_url);
 		} else {
-			text1.setText(R.string.none);
+			name.setText(R.string.none);
 		}
 	}
 

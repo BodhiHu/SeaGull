@@ -23,26 +23,17 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 
-import org.mariotaku.twidere.adapter.iface.IBaseAdapter;
-import org.mariotaku.twidere.app.TwidereApplication;
-import org.mariotaku.twidere.util.ImageLoaderWrapper;
-import org.mariotaku.twidere.util.OnLinkClickHandler;
-import org.mariotaku.twidere.util.TwidereLinkify;
+import com.shawnhu.seagull.seagull.twitter.TwitterManager;
+import com.shawnhu.seagull.seagull.twitter.text.TwitterLinkify;
+import com.shawnhu.seagull.seagull.twitter.text.TwitterURLSpan;
+import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
 
 import java.util.Collection;
 
-import static org.mariotaku.twidere.util.Utils.getLinkHighlightOptionInt;
+public class BaseArrayAdapter<T> extends ArrayAdapter<T> {
 
-public class BaseArrayAdapter<T> extends ArrayAdapter<T> implements IBaseAdapter, OnSharedPreferenceChangeListener {
+	private final TwitterLinkify mLinkify;
 
-	private final TwidereLinkify mLinkify;
-
-	private float mTextSize;
-	private int mLinkHighlightOption, mLinkHighlightColor;
-
-	private boolean mDisplayProfileImage, mNicknameOnly, mDisplayNameFirst, mShowAccountColor;
-
-	private final SharedPreferences mNicknamePrefs, mColorPrefs;
 	private final ImageLoaderWrapper mImageLoader;
 
 	public BaseArrayAdapter(final Context context, final int layoutRes) {
@@ -51,8 +42,7 @@ public class BaseArrayAdapter<T> extends ArrayAdapter<T> implements IBaseAdapter
 
 	public BaseArrayAdapter(final Context context, final int layoutRes, final Collection<? extends T> collection) {
 		super(context, layoutRes, collection);
-		final TwidereApplication app = TwidereApplication.getInstance(context);
-		mLinkify = new TwidereLinkify(new OnLinkClickHandler(context, app.getMultiSelectManager()));
+		mLinkify = new TwitterLinkify(new OnLinkClickHandler(context, TwitterManager.getMultiSelectManager()));
 		mImageLoader = app.getImageLoaderWrapper();
 		mNicknamePrefs = context.getSharedPreferences(USER_NICKNAME_PREFERENCES_NAME, Context.MODE_PRIVATE);
 		mColorPrefs = context.getSharedPreferences(USER_COLOR_PREFERENCES_NAME, Context.MODE_PRIVATE);
