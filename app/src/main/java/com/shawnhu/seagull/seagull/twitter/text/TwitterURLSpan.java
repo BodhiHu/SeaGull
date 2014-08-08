@@ -19,7 +19,7 @@
 
 package com.shawnhu.seagull.seagull.twitter.text;
 
-import android.text.TextPaint;
+import android.content.Context;
 import android.text.style.URLSpan;
 import android.view.View;
 
@@ -59,11 +59,14 @@ public class TwitterURLSpan extends URLSpan {
 	@Override
 	public void onClick(final View widget) {
 		if (listener != null) {
-			listener.onLinkClick(url, orig, accountId, type, sensitive);
+			listener.onLinkClick(widget.getContext(),
+                                 url, orig, accountId, type, sensitive);
 		}
 	}
 
     public interface OnLinkClickListener {
-		public void onLinkClick(String link, String orig, long account_id, int type, boolean sensitive);
+		public void onLinkClick(Context context,
+                                String link, String orig, long account_id, int type,
+                                boolean sensitive);
 	}
 }

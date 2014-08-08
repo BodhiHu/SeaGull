@@ -21,7 +21,7 @@ public class SeagullTwitterConstants {
     public static final String USER_NICKNAME_PREFERENCES_NAME = "user_nicknames";
     public static final String USER_COLOR_PREFERENCES_NAME = "user_colors";
     public static final String HOST_MAPPING_PREFERENCES_NAME = "host_mapping";
-    public static final String SHARED_PREFERENCES_NAME = "preferences";
+    public static final String SHARED_PREFERENCES_NAME = "twitter-preferences";
     public static final String PERMISSION_PREFERENCES_NAME = "app_permissions";
     public static final String SILENT_NOTIFICATIONS_PREFERENCE_NAME = "silent_notifications";
     public static final String TIMELINE_POSITIONS_PREFERENCES_NAME = "timeline_positions";
@@ -225,7 +225,6 @@ public class SeagullTwitterConstants {
     public static final int TWITTER_MAX_IMAGE_HEIGHT = 2048;
 
     public static final String DIR_NAME_IMAGE_CACHE = "image_cache";
-    public static final String DIR_NAME_FULL_IMAGE_CACHE = "full_image_cache";
 
 
     /**

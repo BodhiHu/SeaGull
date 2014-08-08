@@ -21,38 +21,23 @@ package com.shawnhu.seagull.seagull.twitter.adapter;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.text.TwitterLinkify;
-import com.shawnhu.seagull.seagull.twitter.text.TwitterURLSpan;
 import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
 
 import java.util.Collection;
 
 public class BaseArrayAdapter<T> extends ArrayAdapter<T> {
 
-	private final TwitterLinkify mLinkify;
-
-	private final ImageLoaderWrapper mImageLoader;
-
 	public BaseArrayAdapter(final Context context, final int layoutRes) {
 		this(context, layoutRes, null);
 	}
 
-	public BaseArrayAdapter(final Context context, final int layoutRes, final Collection<? extends T> collection) {
+	public BaseArrayAdapter(final Context context, final int layoutRes,
+                            final Collection<? extends T> collection) {
 		super(context, layoutRes, collection);
-		mLinkify = new TwitterLinkify(new OnLinkClickHandler(context, TwitterManager.getMultiSelectManager()));
-		mImageLoader = app.getImageLoaderWrapper();
-		mNicknamePrefs = context.getSharedPreferences(USER_NICKNAME_PREFERENCES_NAME, Context.MODE_PRIVATE);
-		mColorPrefs = context.getSharedPreferences(USER_COLOR_PREFERENCES_NAME, Context.MODE_PRIVATE);
-		mNicknamePrefs.registerOnSharedPreferenceChangeListener(this);
-		mColorPrefs.registerOnSharedPreferenceChangeListener(this);
-	}
-
-	@Override
-	public ImageLoaderWrapper getImageLoader() {
-		return mImageLoader;
+		mImageLoader = TwitterManager.getImageLoaderWrapper();
 	}
 
 	@Override

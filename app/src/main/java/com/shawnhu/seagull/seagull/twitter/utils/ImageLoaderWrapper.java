@@ -1,100 +1,152 @@
-/*
- * 				Twidere - Twitter client for Android
- * 
- *  Copyright (C) 2012-2014 Mariotaku Lee <mariotaku.lee@gmail.com>
- * 
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- * 
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- * 
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package com.shawnhu.seagull.seagull.twitter.utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.widget.ImageView;
 
+import com.nostra13.universalimageloader.cache.disc.DiskCache;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.utils.L;
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
+import com.shawnhu.seagull.seagull.twitter.utils.imageloader.AccountExtra;
+import com.shawnhu.seagull.seagull.twitter.utils.imageloader.TwitterImageDownloader;
+import com.shawnhu.seagull.seagull.twitter.utils.imageloader.URLFileNameGenerator;
+
+import java.io.File;
 
 
 public class ImageLoaderWrapper {
+    private ImageLoaderWrapper() {}
 
-	private final ImageLoader mImageLoader;
-	private final DisplayImageOptions mProfileImageDisplayOptions, mImageDisplayOptions, mBannerDisplayOptions;
+    static private ImageLoaderWrapper sInstance;
+    static private Context            sContext;
+    static private ImageLoader        sImageLoader;
 
-	public ImageLoaderWrapper(final ImageLoader loader) {
-		mImageLoader = loader;
-		final DisplayImageOptions.Builder profileOptsNuilder = new DisplayImageOptions.Builder();
-		profileOptsNuilder.cacheInMemory(true);
-		profileOptsNuilder.cacheOnDisk(true);
-		profileOptsNuilder.showImageForEmptyUri(R.drawable.ic_profile_image_default);
-		profileOptsNuilder.showImageOnFail(R.drawable.ic_profile_image_default);
-		profileOptsNuilder.showImageOnLoading(R.drawable.ic_profile_image_default);
-		profileOptsNuilder.bitmapConfig(Bitmap.Config.ARGB_8888);
-		profileOptsNuilder.resetViewBeforeLoading(true);
-		final DisplayImageOptions.Builder imageOptsBuilder = new DisplayImageOptions.Builder();
-		imageOptsBuilder.cacheInMemory(true);
-		imageOptsBuilder.cacheOnDisk(true);
-		imageOptsBuilder.bitmapConfig(Bitmap.Config.RGB_565);
-		imageOptsBuilder.resetViewBeforeLoading(true);
-		final DisplayImageOptions.Builder bannerOptsBuilder = new DisplayImageOptions.Builder();
-		bannerOptsBuilder.cacheInMemory(true);
-		bannerOptsBuilder.cacheOnDisk(true);
-		bannerOptsBuilder.bitmapConfig(Bitmap.Config.RGB_565);
-		bannerOptsBuilder.resetViewBeforeLoading(true);
+    static public ImageLoaderWrapper getInstance(Context context) {
+        if (sInstance == null) {
+            sContext = context;
+            sImageLoader = ImageLoader.getInstance();
+            sImageLoader.init(new ImageLoaderConfiguration.Builder(context)
+                            .threadPriority(Thread.NORM_PRIORITY - 2)
+                            .denyCacheImageMultipleSizesInMemory()
+                            .tasksProcessingOrder(QueueProcessingType.LIFO)
+                            //.memoryCache(new ImageMemoryCache(40));
+                            .diskCache(getImageLoaderDiskCache())
+                            .imageDownloader(new TwitterImageDownloader(context, false))
+                            .build()
+            );
 
-		mProfileImageDisplayOptions = profileOptsNuilder.build();
-		mImageDisplayOptions = imageOptsBuilder.build();
-		mBannerDisplayOptions = bannerOptsBuilder.build();
-	}
+            L.writeDebugLogs(Utils.isDebugBuild());
 
-	public void clearFileCache() {
-		mImageLoader.clearDiskCache();
-	}
+            sInstance = new ImageLoaderWrapper();
+        }
 
-	public void clearMemoryCache() {
-		mImageLoader.clearMemoryCache();
-	}
 
-	public void displayPreviewImage(final ImageView view, final String url) {
-		mImageLoader.displayImage(url, view, mImageDisplayOptions);
-	}
+        return sInstance;
+    }
 
-	public void displayPreviewImage(final ImageView view, final String url, final ImageLoadingHandler loadingHandler) {
-		mImageLoader.displayImage(url, view, mImageDisplayOptions, loadingHandler, loadingHandler);
-	}
+    public ImageLoader getImageLoader() {
+        return sImageLoader;
+    }
 
-	public void displayPreviewImageWithCredentials(final ImageView view, final String url, final long accountId,
-			final ImageLoadingHandler loadingHandler) {
-		final DisplayImageOptions.Builder b = new DisplayImageOptions.Builder();
-		b.cloneFrom(mImageDisplayOptions);
-		b.extraForDownloader(new AccountExtra(accountId));
-		mImageLoader.displayImage(url, view, b.build(), loadingHandler, loadingHandler);
-	}
+    static final DisplayImageOptions mProfileImageDisplayOptions =
+            (new DisplayImageOptions.Builder())
+            .cacheInMemory(true)
+            .cacheOnDisk(true)
+            .showImageForEmptyUri(R.drawable.ic_profile_image_default)
+            .showImageOnFail(R.drawable.ic_profile_image_default)
+            .showImageOnLoading(R.drawable.ic_profile_image_default)
+            .bitmapConfig(Bitmap.Config.ARGB_8888)
+            .resetViewBeforeLoading(true)
+            .build();
+    static final DisplayImageOptions mImageDisplayOptions        =
+            (new DisplayImageOptions.Builder())
+            .cacheInMemory(true)
+            .cacheOnDisk(true)
+            .bitmapConfig(Bitmap.Config.RGB_565)
+            .resetViewBeforeLoading(true)
+            .build();
+    static final DisplayImageOptions mBannerDisplayOptions       =
+            (new DisplayImageOptions.Builder())
+            .cacheInMemory(true)
+            .cacheOnDisk(true)
+            .bitmapConfig(Bitmap.Config.RGB_565)
+            .resetViewBeforeLoading(true)
+            .build();
 
-	public void displayProfileBanner(final ImageView view, final String base_url, final int width) {
-		final String type = getBestBannerType(width);
-		final String url = TextUtils.isEmpty(base_url) ? null : base_url + "/" + type;
-		mImageLoader.displayImage(url, view, mBannerDisplayOptions);
-	}
+    public void clearFileCache()
+    {
+        sImageLoader.clearDiskCache();
+    }
 
-	public void displayProfileImage(final ImageView view, final String url) {
-		mImageLoader.displayImage(url, view, mProfileImageDisplayOptions);
-	}
+    public void clearMemoryCache()
+    {
+        sImageLoader.clearMemoryCache();
+    }
 
-	public void loadProfileImage(final String url, final ImageLoadingListener listener) {
-		mImageLoader.loadImage(url, mProfileImageDisplayOptions, listener);
-	}
+    public void displayPreviewImage(
+            final ImageView view,
+            final String    url)
+    {
+        sImageLoader.displayImage(url, view, mImageDisplayOptions);
+    }
+
+    public void displayPreviewImage(
+            final ImageView view,
+            final String    url,
+            final ImageLoadingHandler loadingHandler)
+    {
+        sImageLoader.displayImage(url, view, mImageDisplayOptions, loadingHandler, loadingHandler);
+    }
+
+    public void displayPreviewImageWithCredentials(
+            final ImageView view,
+            final String    url,
+            final long      accountId,
+            final ImageLoadingHandler loadingHandler)
+    {
+        final DisplayImageOptions.Builder b = new DisplayImageOptions.Builder();
+        b.cloneFrom(mImageDisplayOptions);
+        b.extraForDownloader(new AccountExtra(accountId));
+        sImageLoader.displayImage(url, view, b.build(), loadingHandler, loadingHandler);
+    }
+
+    public void displayProfileBanner(
+            final ImageView view,
+            final String    base_url,
+            final int       width)
+    {
+        final String type = Utils.getBestBannerType(width);
+        final String url = TextUtils.isEmpty(base_url) ? null : base_url + "/" + type;
+        sImageLoader.displayImage(url, view, mBannerDisplayOptions);
+    }
+
+    public void displayProfileImage(
+            final ImageView view,
+            final String    url)
+    {
+        sImageLoader.displayImage(url, view, mProfileImageDisplayOptions);
+    }
+
+    public void loadProfileImage(
+            final String url,
+            final ImageLoadingListener listener)
+    {
+        sImageLoader.loadImage(url, mProfileImageDisplayOptions, listener);
+    }
+
+    static private DiskCache getImageLoaderDiskCache()
+    {
+        final String dirName = SeagullTwitterConstants.DIR_NAME_IMAGE_CACHE;
+        final File cacheDir = Utils.getBestCacheDir(sContext, dirName);
+        final File fallbackCacheDir = Utils.getInternalCacheDir(sContext, dirName);
+        return new UnlimitedDiscCache(cacheDir, fallbackCacheDir, new URLFileNameGenerator());
+    }
 }

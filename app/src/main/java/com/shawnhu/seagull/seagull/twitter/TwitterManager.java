@@ -54,8 +54,8 @@ public class TwitterManager {
     static private TwitterManager sTwitterManager;
 
     TwitterManager(Context context) {
-        if (context == null || !(context instanceof Application)) {
-            throw new NullPointerException("context must be null && instanceof Application");
+        if (context == null) {
+            throw new NullPointerException("context must not be null");
         }
         sAppContext = context;
     }
@@ -68,109 +68,85 @@ public class TwitterManager {
         return sTwitterManager;
     }
 
-	static private ImageLoaderWrapper mImageLoaderWrapper;
-	static private ImageLoader mImageLoader;
-	private AsyncTaskManager mAsyncTaskManager;
-	private AsyncTwitterWrapper mTwitterWrapper;
-	static private MultiSelectManager mMultiSelectManager;
-	static private TwitterImageDownloader mImageDownloader, mFullImageDownloader;
-	static private DiskCache mDiskCache, mFullDiskCache;
-	private MessagesManager mCroutonsManager;
-	static private SQLiteOpenHelper mSQLiteOpenHelper;
-	static private HostAddressResolver mResolver;
-	private SQLiteDatabase mDatabase;
+    static private ImageLoaderWrapper   sImageLoaderWrapper;
+    static private AsyncTaskManager     sAsyncTaskManager;
+    static private AsyncTwitterWrapper  sTwitterWrapper;
+    static private MultiSelectManager   sMultiSelectManager;
+    static private MessagesManager      sCroutonsManager;
+    static private SQLiteOpenHelper     sSQLiteOpenHelper;
+    static private HostAddressResolver  sHostAddrResolver;
+    static private SQLiteDatabase       sDatabase;
 
-    static public Application getApplicationContext() {
+    public Application getApplicationContext() {
         return (Application) sAppContext;
     }
 
-	public AsyncTaskManager getAsyncTaskManager() {
-		if (mAsyncTaskManager != null) return mAsyncTaskManager;
-		return mAsyncTaskManager = AsyncTaskManager.getInstance();
-	}
+    public AsyncTaskManager getAsyncTaskManager() {
+        if (sAsyncTaskManager == null) {
+            sAsyncTaskManager = AsyncTaskManager.getInstance();
+        }
 
-	static public DiskCache getDiskCache() {
-		if (mDiskCache != null) return mDiskCache;
-		return mDiskCache = getDiskCache(SeagullTwitterConstants.DIR_NAME_IMAGE_CACHE);
-	}
+        return sAsyncTaskManager;
+    }
 
-	public DiskCache getFullDiskCache() {
-		if (mFullDiskCache != null) return mFullDiskCache;
-		return mFullDiskCache = getDiskCache(SeagullTwitterConstants.DIR_NAME_FULL_IMAGE_CACHE);
-	}
+    public HostAddressResolver getHostAddressResolver() {
+        if (sHostAddrResolver == null) {
+            //TODO: new instance
+            sHostAddrResolver = new TwidereHostAddressResolver(sAppContext);
+        }
+        return sHostAddrResolver;
+    }
 
-	public ImageDownloader getFullImageDownloader() {
-		if (mFullImageDownloader != null) return mFullImageDownloader;
-		return mFullImageDownloader = new TwitterImageDownloader(sAppContext, true);
-	}
+    public ImageLoader getImageLoader() {
+        return getImageLoaderWrapper().getImageLoader();
+    }
 
-	static public HostAddressResolver getHostAddressResolver() {
-		if (mResolver != null) return mResolver;
-		return mResolver = new TwidereHostAddressResolver(sAppContext);
-	}
+    public ImageLoaderWrapper getImageLoaderWrapper() {
+        if (sImageLoaderWrapper == null) {
+            sImageLoaderWrapper = ImageLoaderWrapper.getInstance(sAppContext);
+        }
 
-	static public ImageDownloader getImageDownloader() {
-		if (mImageDownloader != null) return mImageDownloader;
-		return mImageDownloader = new TwitterImageDownloader(sAppContext, false);
-	}
+        return sImageLoaderWrapper;
+    }
 
-	static public ImageLoader getImageLoader() {
-		if (mImageLoader != null) return mImageLoader;
-		final ImageLoader loader = ImageLoader.getInstance();
-		final ImageLoaderConfiguration.Builder cb = new ImageLoaderConfiguration.Builder(sAppContext);
-		cb.threadPriority(Thread.NORM_PRIORITY - 2);
-		cb.denyCacheImageMultipleSizesInMemory();
-		cb.tasksProcessingOrder(QueueProcessingType.LIFO);
-		// cb.memoryCache(new ImageMemoryCache(40));
-		cb.diskCache(getDiskCache());
-		cb.imageDownloader(getImageDownloader());
-		L.writeDebugLogs(Utils.isDebugBuild());
-		loader.init(cb.build());
-		return mImageLoader = loader;
-	}
+    public MessagesManager getMessagesManager() {
+        if (sCroutonsManager == null) {
+            sCroutonsManager = MessagesManager.getInstance(sAppContext);
+        }
 
-	static public ImageLoaderWrapper getImageLoaderWrapper() {
-		if (mImageLoaderWrapper != null) return mImageLoaderWrapper;
-		return mImageLoaderWrapper = new ImageLoaderWrapper(getImageLoader());
-	}
+        return sCroutonsManager;
+    }
 
-	public MessagesManager getMessagesManager() {
-		if (mCroutonsManager != null) return mCroutonsManager;
-		return mCroutonsManager = MessagesManager.getInstance(sAppContext);
-	}
+    public MultiSelectManager getMultiSelectManager() {
+        if (sMultiSelectManager == null) {
+            //TODO: newInstance
+            sMultiSelectManager = new MultiSelectManager();
+        }
 
-	static public MultiSelectManager getMultiSelectManager() {
-		if (mMultiSelectManager != null) return mMultiSelectManager;
-		return mMultiSelectManager = new MultiSelectManager();
-	}
+        return sMultiSelectManager = new MultiSelectManager();
+    }
 
-	public SQLiteDatabase getSQLiteDatabase() {
-		if (mDatabase != null) return mDatabase;
+    public SQLiteDatabase getSQLiteDatabase() {
+        if (sDatabase != null) return sDatabase;
 
-		StrictModeUtils.checkDiskIO();
-		return mDatabase = getSQLiteOpenHelper().getWritableDatabase();
-	}
+        StrictModeUtils.checkDiskIO();
+        return sDatabase = getSQLiteOpenHelper().getWritableDatabase();
+    }
 
-	public static SQLiteOpenHelper getSQLiteOpenHelper() {
-		if (mSQLiteOpenHelper != null) return mSQLiteOpenHelper;
-		return mSQLiteOpenHelper = new TwitterSQLiteOpenHelper(sAppContext,
-                SeagullTwitterConstants.DATABASES_NAME, SeagullTwitterConstants.DATABASES_VERSION);
-	}
+    public SQLiteOpenHelper getSQLiteOpenHelper() {
+        if (sSQLiteOpenHelper == null) {
+            //TODO
+            sSQLiteOpenHelper = new TwitterSQLiteOpenHelper(sAppContext,
+                    SeagullTwitterConstants.DATABASES_NAME,
+                    SeagullTwitterConstants.DATABASES_VERSION);
+        }
 
-	public AsyncTwitterWrapper getTwitterWrapper() {
-		if (mTwitterWrapper != null) return mTwitterWrapper;
-		return mTwitterWrapper = AsyncTwitterWrapper.getInstance(sAppContext);
-	}
+        return sSQLiteOpenHelper;
+    }
 
-	public void reloadConnectivitySettings() {
-		if (mImageDownloader != null) {
-			mImageDownloader.reloadConnectivitySettings();
-		}
-	}
+    public AsyncTwitterWrapper getTwitterWrapper() {
+        if (sTwitterWrapper != null) return sTwitterWrapper;
 
-	static private DiskCache getDiskCache(final String dirName) {
-		final File cacheDir = getBestCacheDir(sAppContext, dirName);
-		final File fallbackCacheDir = getInternalCacheDir(sAppContext, dirName);
-		return new UnlimitedDiscCache(cacheDir, fallbackCacheDir, new URLFileNameGenerator());
-	}
+        return sTwitterWrapper = AsyncTwitterWrapper.getInstance(sAppContext);
+    }
 }

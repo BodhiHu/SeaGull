@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.model.Account;
@@ -60,24 +61,31 @@ import twitter4j.http.HttpResponseCode;
 
 public class AsyncTwitterWrapper extends TwitterWrapper {
 
-    private static AsyncTwitterWrapper sInstance;
+    private static AsyncTwitterWrapper  sInstance;
 
-    private final Context mContext;
-    private final AsyncTaskManager mAsyncTaskManager;
-    private final SharedPreferences mPreferences;
-    private final MessagesManager mMessagesManager;
-    private final ContentResolver mResolver;
+    private final Context               mContext;
+    private final TwitterManager        mTwitterManager;
+    private final AsyncTaskManager      mAsyncTaskManager;
+    private final SharedPreferences     mPreferences;
+    private final MessagesManager       mMessagesManager;
+    private final ContentResolver       mResolver;
 
-    private int mGetHomeTimelineTaskId, mGetMentionsTaskId;
-    private int mGetReceivedDirectMessagesTaskId, mGetSentDirectMessagesTaskId;
-    private int mGetLocalTrendsTaskId;
+    private int                         mGetHomeTimelineTaskId,
+                                        mGetMentionsTaskId,
+                                        mGetReceivedDirectMessagesTaskId,
+                                        mGetSentDirectMessagesTaskId,
+                                        mGetLocalTrendsTaskId;
 
-    public AsyncTwitterWrapper(final Context context) {
-        mContext = context;
-        mAsyncTaskManager = AsyncTaskManager.getInstance();
-        mMessagesManager = MessagesManager.getInstance(mContext);
-        mPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        mResolver = context.getContentResolver();
+    AsyncTwitterWrapper(final Context context) {
+        if (context == null) {
+            throw new NullPointerException("Context can not be null");
+        }
+        mContext            = context;
+        mTwitterManager     = TwitterManager.getInstance(context);
+        mAsyncTaskManager   = mTwitterManager.getAsyncTaskManager();
+        mMessagesManager    = mTwitterManager.getMessagesManager();
+        mPreferences        = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        mResolver           = context.getContentResolver();
     }
 
     public int acceptFriendshipAsync(final long accountId, final long userId) {
