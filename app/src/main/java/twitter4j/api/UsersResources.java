@@ -281,7 +281,7 @@ public interface UsersResources {
 	 *
 	 * @param screenName the screen name of the user for whom to request the
 	 *            detail
-	 * @return User
+	 * @return TwitterUser
 	 * @throws twitter4j.TwitterException when Twitter service or network is unavailable
 	 * @see <a href="https://dev.twitter.com/docs/api/1.1/get/users/show">GET
 	 *      users/show | Twitter Developers</a>
@@ -319,7 +319,7 @@ public interface UsersResources {
                                           String endSleepTime, String timeZone, String lang) throws TwitterException;
 
 	/**
-	 * Sets values that users are able to set under the "Account" tab of their
+	 * Sets values that users are able to set under the "TwitterAccount" tab of their
 	 * settings page. Only the parameters specified(non-null) will be updated. <br>
 	 * This method calls http://api.twitter.com/1.1/account/update_profile.json
 	 *

@@ -33,13 +33,9 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.util.LongSparseArray;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.text.SpannableStringBuilder;
@@ -49,7 +45,6 @@ import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.text.style.CharacterStyle;
 import android.text.style.StyleSpan;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -73,12 +68,10 @@ import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.AsyncTwitterWrapper;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.TweetStore;
-import com.shawnhu.seagull.seagull.twitter.TwitterManager;
-import com.shawnhu.seagull.seagull.twitter.model.Account;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableDirectMessage;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableLocation;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONStatus;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONUser;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterDirectMessage;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterUser;
 import com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils;
 import com.shawnhu.seagull.seagull.twitter.utils.net.TwidereHostResolverFactory;
 import com.shawnhu.seagull.seagull.twitter.utils.net.TwidereHttpClientFactory;
@@ -133,16 +126,13 @@ import crouton.Crouton;
 import crouton.CroutonConfiguration;
 import crouton.CroutonStyle;
 import earlybird.UCDService;
-import twitter4j.DirectMessage;
 import twitter4j.EntitySupport;
 import twitter4j.MediaEntity;
 import twitter4j.RateLimitStatus;
-import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.URLEntity;
-import twitter4j.User;
 import twitter4j.UserMentionEntity;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.Authorization;
@@ -396,7 +386,7 @@ public final class Utils {
         return Math.max(1, result);
     }
 
-    public static int cancelRetweet(final AsyncTwitterWrapper wrapper, final ParcelableWithJSONStatus status) {
+    public static int cancelRetweet(final AsyncTwitterWrapper wrapper, final TwitterStatus status) {
         if (wrapper == null || status == null) return -1;
         if (status.my_retweet_id > 0)
             return wrapper.destroyStatusAsync(status.account_id, status.my_retweet_id);
@@ -521,7 +511,7 @@ public final class Utils {
         return intent;
     }
 
-    public static Intent createStatusShareIntent(final Context context, final ParcelableWithJSONStatus status) {
+    public static Intent createStatusShareIntent(final Context context, final TwitterStatus status) {
         final Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         final String name = status.user_name, screenName = status.user_screen_name;
@@ -602,11 +592,11 @@ public final class Utils {
         return buf.toString();
     }
 
-    public static ParcelableDirectMessage findDirectMessageInDatabases(final Context context, final long account_id,
+    public static TwitterDirectMessage findDirectMessageInDatabases(final Context context, final long account_id,
             final long message_id) {
         if (context == null) return null;
         final ContentResolver resolver = context.getContentResolver();
-        ParcelableDirectMessage message = null;
+        TwitterDirectMessage message = null;
         final String where = TweetStore.DirectMessages.ACCOUNT_ID + " = " + account_id + " AND " + TweetStore.DirectMessages.MESSAGE_ID
                 + " = " + message_id;
         for (final Uri uri : DIRECT_MESSAGES_URIS) {
@@ -616,35 +606,35 @@ public final class Utils {
             }
             if (cur.getCount() > 0) {
                 cur.moveToFirst();
-                message = new ParcelableDirectMessage(cur, new ParcelableDirectMessage.CursorIndices(cur));
+                message = new TwitterDirectMessage(cur, new TwitterDirectMessage.CursorIndices(cur));
             }
             cur.close();
         }
         return message;
     }
 
-    public static ParcelableWithJSONStatus findStatus(final Context context, final long account_id, final long status_id)
+    public static TwitterStatus findStatus(final Context context, final long account_id, final long status_id)
             throws TwitterException {
         if (context == null || account_id <= 0 || status_id <= 0) return null;
-        final ParcelableWithJSONStatus p_status = findStatusInDatabases(context, account_id, status_id);
+        final TwitterStatus p_status = findStatusInDatabases(context, account_id, status_id);
         if (p_status != null) return p_status;
         final Twitter twitter = getTwitterInstance(context, account_id, true);
         if (twitter == null) return null;
-        final Status status = twitter.showStatus(status_id);
+        final twitter4j.Status status = twitter.showStatus(status_id);
         if (status == null || status.getId() <= 0) return null;
         final String where = TweetStore.Statuses.ACCOUNT_ID + " = " + account_id + " AND " + TweetStore.Statuses.STATUS_ID + " = "
                 + status.getId();
         final ContentResolver resolver = context.getContentResolver();
         resolver.delete(TweetStore.CachedStatuses.CONTENT_URI, where, null);
         resolver.insert(TweetStore.CachedStatuses.CONTENT_URI, ContentValuesCreator.makeStatusContentValues(status, account_id));
-        return new ParcelableWithJSONStatus(status, account_id, false);
+        return new TwitterStatus(status, account_id, false);
     }
 
-    public static ParcelableWithJSONStatus findStatusInDatabases(final Context context, final long account_id,
+    public static TwitterStatus findStatusInDatabases(final Context context, final long account_id,
             final long status_id) {
         if (context == null) return null;
         final ContentResolver resolver = context.getContentResolver();
-        ParcelableWithJSONStatus status = null;
+        TwitterStatus status = null;
         final String where = TweetStore.Statuses.ACCOUNT_ID + " = " + account_id + " AND " + TweetStore.Statuses.STATUS_ID + " = "
                 + status_id;
         for (final Uri uri : STATUSES_URIS) {
@@ -654,14 +644,14 @@ public final class Utils {
             }
             if (cur.getCount() > 0) {
                 cur.moveToFirst();
-                status = new ParcelableWithJSONStatus(cur, new ParcelableWithJSONStatus.CursorIndices(cur));
+                status = new TwitterStatus(cur, new TwitterStatus.CursorIndices(cur));
             }
             cur.close();
         }
         return status;
     }
 
-    public static String formatDirectMessageText(final DirectMessage message) {
+    public static String formatDirectMessageText(final twitter4j.DirectMessage message) {
         if (message == null) return null;
         final String text = message.getRawText();
         if (text == null) return null;
@@ -670,7 +660,7 @@ public final class Utils {
         return builder.build().replace("\n", "<br/>");
     }
 
-    public static String formatExpandedUserDescription(final User user) {
+    public static String formatExpandedUserDescription(final twitter4j.User user) {
         if (user == null) return null;
         final String text = user.getDescription();
         if (text == null) return null;
@@ -697,7 +687,7 @@ public final class Utils {
         return DateUtils.formatDateTime(context, timestamp, DateUtils.FORMAT_SHOW_DATE);
     }
 
-    public static String formatStatusText(final Status status) {
+    public static String formatStatusText(final twitter4j.Status status) {
         if (status == null) return null;
         final String text = status.getRawText();
         if (text == null) return null;
@@ -748,7 +738,7 @@ public final class Utils {
         return DateUtils.formatDateTime(context, timestamp, format_flags);
     }
 
-    public static String formatUserDescription(final User user) {
+    public static String formatUserDescription(final twitter4j.User user) {
         if (user == null) return null;
         final String text = user.getDescription();
         if (text == null) return null;
@@ -1280,9 +1270,9 @@ public final class Utils {
                 FORMAT_PATTERN_TEXT, text);
     }
 
-    public static String getInReplyToName(final Status status) {
+    public static String getInReplyToName(final twitter4j.Status status) {
         if (status == null) return null;
-        final Status orig = status.isRetweet() ? status.getRetweetedStatus() : status;
+        final twitter4j.Status orig = status.isRetweet() ? status.getRetweetedStatus() : status;
         final long in_reply_to_user_id = status.getInReplyToUserId();
         final UserMentionEntity[] entities = status.getUserMentionEntities();
         if (entities == null) return orig.getInReplyToScreenName();
@@ -1546,7 +1536,7 @@ public final class Utils {
                 throw te;
         }
         while (resp != null && isRedirected(resp.getStatusCode())) {
-            final String request_url = resp.getResponseHeader("Location");
+            final String request_url = resp.getResponseHeader("TwitterLocation");
             if (request_url == null) return null;
             if (urls.contains(request_url)) throw new TwitterException("Too many redirects");
             urls.add(request_url);
@@ -1572,7 +1562,7 @@ public final class Utils {
         return 0;
     }
 
-    public static String getSenderUserName(final Context context, final ParcelableDirectMessage user) {
+    public static String getSenderUserName(final Context context, final TwitterDirectMessage user) {
         if (context == null || user == null) return null;
         final SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         final boolean display_name = prefs.getBoolean(KEY_NAME_FIRST, true);
@@ -1688,7 +1678,7 @@ public final class Utils {
         return date.getTime();
     }
 
-    public static Authorization getTwitterAuthorization(final Context context, final Account.AccountWithCredentials account) {
+    public static Authorization getTwitterAuthorization(final Context context, final TwitterAccount.TwitterAccountWithCredentials account) {
         if (context == null || account == null) return null;
         switch (account.auth_type) {
             case Accounts.AUTH_TYPE_OAUTH:
@@ -1956,17 +1946,17 @@ public final class Utils {
         return string.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">");
     }
 
-    public static String getUserName(final Context context, final ParcelableWithJSONStatus status) {
+    public static String getUserName(final Context context, final TwitterStatus status) {
         if (context == null || status == null) return null;
         return getDisplayName(context, status.user_id, status.user_name, status.user_screen_name);
     }
 
-    public static String getUserName(final Context context, final ParcelableWithJSONUser user) {
+    public static String getUserName(final Context context, final TwitterUser user) {
         if (context == null || user == null) return null;
         return getDisplayName(context, user.id, user.name, user.screen_name);
     }
 
-    public static String getUserName(final Context context, final User user) {
+    public static String getUserName(final Context context, final twitter4j.User user) {
         if (context == null || user == null) return null;
         return getDisplayName(context, user.getId(), user.getName(), user.getScreenName());
     }
@@ -1984,7 +1974,7 @@ public final class Utils {
                 Accounts.COLUMNS, null, null, null);
         if (cur == null) return false;
         final String[] keySecrets = context.getResources().getStringArray(R.array.values_official_consumer_key_secret);
-        final Account.Indices indices = new Account.Indices(cur);
+        final TwitterAccount.Indices indices = new TwitterAccount.Indices(cur);
         cur.moveToFirst();
         try {
             while (!cur.isAfterLast()) {
@@ -2130,7 +2120,7 @@ public final class Utils {
         }
     }
 
-    public static boolean isFiltered(final SQLiteDatabase database, final ParcelableWithJSONStatus status,
+    public static boolean isFiltered(final SQLiteDatabase database, final TwitterStatus status,
             final boolean filter_rts) {
         if (database == null || status == null) return false;
         return isFiltered(database, status.user_id, status.text_plain, status.text_html, status.source,
@@ -2166,7 +2156,7 @@ public final class Utils {
         }
     }
 
-    public static boolean isMyRetweet(final ParcelableWithJSONStatus status) {
+    public static boolean isMyRetweet(final TwitterStatus status) {
         if (status == null) return false;
         return status.retweeted_by_id == status.account_id || status.my_retweet_id > 0;
     }
@@ -2624,7 +2614,7 @@ public final class Utils {
         }
     }
 
-    public static void startStatusShareChooser(final Context context, final ParcelableWithJSONStatus status) {
+    public static void startStatusShareChooser(final Context context, final TwitterStatus status) {
         final Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         final String name = status.user_name, screenName = status.user_screen_name;
@@ -2658,10 +2648,10 @@ public final class Utils {
         return orig.replaceAll("\\n+", "\n");
     }
 
-    public static boolean truncateMessages(final List<DirectMessage> in, final List<DirectMessage> out,
+    public static boolean truncateMessages(final List<twitter4j.DirectMessage> in, final List<twitter4j.DirectMessage> out,
             final long since_id) {
         if (in == null) return false;
-        for (final DirectMessage message : in) {
+        for (final twitter4j.DirectMessage message : in) {
             if (since_id > 0 && message.getId() <= since_id) {
                 continue;
             }
@@ -2670,7 +2660,7 @@ public final class Utils {
         return in.size() != out.size();
     }
 
-    public static boolean truncateStatuses(final List<Status> in, final List<Status> out,
+    public static boolean truncateStatuses(final List<twitter4j.Status> in, final List<twitter4j.Status> out,
             final long since_id) {
         if (in == null) return false;
         for (final twitter4j.Status status : in) {

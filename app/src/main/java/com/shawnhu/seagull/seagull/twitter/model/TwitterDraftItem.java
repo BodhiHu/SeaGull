@@ -30,58 +30,58 @@ import com.shawnhu.seagull.seagull.twitter.TweetStore.Drafts;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class DraftItem implements Parcelable {
+public class TwitterDraftItem implements Parcelable {
 
-	public static final Parcelable.Creator<DraftItem> CREATOR = new Parcelable.Creator<DraftItem>() {
+	public static final Parcelable.Creator<TwitterDraftItem> CREATOR = new Parcelable.Creator<TwitterDraftItem>() {
 		@Override
-		public DraftItem createFromParcel(final Parcel in) {
-			return new DraftItem(in);
+		public TwitterDraftItem createFromParcel(final Parcel in) {
+			return new TwitterDraftItem(in);
 		}
 
 		@Override
-		public DraftItem[] newArray(final int size) {
-			return new DraftItem[size];
+		public TwitterDraftItem[] newArray(final int size) {
+			return new TwitterDraftItem[size];
 		}
 	};
 
 	public final long[] account_ids;
 	public final long _id, in_reply_to_status_id, timestamp;
 	public final String text;
-	public final ParcelableMediaUpdate[] medias;
+	public final TwitterMediaUpdate[] medias;
 	public final boolean is_possibly_sensitive;
-	public final ParcelableLocation location;
+	public final TwitterLocation location;
 	public final int action_type;
 	public final JSONObject action_extras;
 
-	public DraftItem(final Cursor cursor, final CursorIndices indices) {
+	public TwitterDraftItem(final Cursor cursor, final CursorIndices indices) {
 		_id = cursor.getLong(indices._id);
 		text = cursor.getString(indices.text);
-		medias = ParcelableMediaUpdate.fromJSONString(cursor.getString(indices.medias));
+		medias = TwitterMediaUpdate.fromJSONString(cursor.getString(indices.medias));
 		account_ids = ArrayUtils.parseLongArray(cursor.getString(indices.account_ids), ',');
 		in_reply_to_status_id = cursor.getLong(indices.in_reply_to_status_id);
 		is_possibly_sensitive = cursor.getShort(indices.is_possibly_sensitive) == 1;
-		location = new ParcelableLocation(cursor.getString(indices.location));
+		location = new TwitterLocation(cursor.getString(indices.location));
 		timestamp = cursor.getLong(indices.timestamp);
 		action_type = cursor.getInt(indices.action_type);
 		action_extras = createJSONObject(cursor.getString(indices.action_extras));
 	}
 
-	public DraftItem(final Parcel in) {
+	public TwitterDraftItem(final Parcel in) {
 		account_ids = in.createLongArray();
 		_id = in.readLong();
 		in_reply_to_status_id = in.readLong();
 		text = in.readString();
-		medias = in.createTypedArray(ParcelableMediaUpdate.CREATOR);
+		medias = in.createTypedArray(TwitterMediaUpdate.CREATOR);
 		is_possibly_sensitive = in.readInt() == 1;
-		location = ParcelableLocation.fromString(in.readString());
+		location = TwitterLocation.fromString(in.readString());
 		timestamp = in.readLong();
 		action_type = in.readInt();
 		action_extras = createJSONObject(in.readString());
 	}
 
-	public DraftItem(final ParcelableStatusUpdate status) {
+	public TwitterDraftItem(final TwitterStatusUpdate status) {
 		_id = 0;
-		account_ids = Account.getAccountIds(status.accounts);
+		account_ids = TwitterAccount.getAccountIds(status.accounts);
 		in_reply_to_status_id = status.in_reply_to_status_id;
 		text = status.text;
 		medias = status.medias;
@@ -105,7 +105,7 @@ public class DraftItem implements Parcelable {
 		out.writeString(text);
 		out.writeTypedArray(medias, flags);
 		out.writeInt(is_possibly_sensitive ? 1 : 0);
-		out.writeString(ParcelableLocation.toString(location));
+		out.writeString(TwitterLocation.toString(location));
 		out.writeLong(timestamp);
 		out.writeInt(action_type);
 		out.writeString(action_extras.toString());

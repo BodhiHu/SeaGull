@@ -18,7 +18,7 @@
         <item>@string/INDEX_APP_THEME_HACKER</item>
     </string-array>
 
-    <!-- Account settings -->
+    <!-- TwitterAccount settings -->
 
     <string name="pref_header_account">Account</string>
 

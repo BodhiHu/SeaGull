@@ -19,8 +19,8 @@
 
 package com.shawnhu.seagull.seagull.twitter.utils;
 
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONStatus;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONUser;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterUser;
 import com.shawnhu.seagull.utils.ArrayUtils;
 import com.shawnhu.seagull.utils.collections.NoDuplicatesArrayList;
 
@@ -114,19 +114,19 @@ public class MultiSelectManager {
 
 	public static long getFirstSelectAccountId(final List<Object> selected_items) {
 		final Object obj = selected_items.get(0);
-		if (obj instanceof ParcelableWithJSONUser)
-			return ((ParcelableWithJSONUser) obj).account_id;
-		else if (obj instanceof ParcelableWithJSONStatus) return ((ParcelableWithJSONStatus) obj).account_id;
+		if (obj instanceof TwitterUser)
+			return ((TwitterUser) obj).account_id;
+		else if (obj instanceof TwitterStatus) return ((TwitterStatus) obj).account_id;
 		return -1;
 	}
 
 	public static long[] getSelectedUserIds(final List<Object> selected_items) {
 		final ArrayList<Long> ids_list = new ArrayList<Long>();
 		for (final Object item : selected_items) {
-			if (item instanceof ParcelableWithJSONUser) {
-				ids_list.add(((ParcelableWithJSONUser) item).id);
-			} else if (item instanceof ParcelableWithJSONStatus) {
-				ids_list.add(((ParcelableWithJSONStatus) item).user_id);
+			if (item instanceof TwitterUser) {
+				ids_list.add(((TwitterUser) item).id);
+			} else if (item instanceof TwitterStatus) {
+				ids_list.add(((TwitterStatus) item).user_id);
 			}
 		}
 		return ArrayUtils.fromList(ids_list);
@@ -153,10 +153,10 @@ public class MultiSelectManager {
 
 		@Override
 		public boolean add(final Object object) {
-			if (object instanceof ParcelableWithJSONStatus) {
-				manager.mSelectedStatusIds.add(((ParcelableWithJSONStatus) object).id);
-			} else if (object instanceof ParcelableWithJSONUser) {
-				manager.mSelectedUserIds.add(((ParcelableWithJSONUser) object).id);
+			if (object instanceof TwitterStatus) {
+				manager.mSelectedStatusIds.add(((TwitterStatus) object).id);
+			} else if (object instanceof TwitterUser) {
+				manager.mSelectedUserIds.add(((TwitterUser) object).id);
 			} else
 				return false;
 			final boolean ret = super.add(object);
@@ -175,10 +175,10 @@ public class MultiSelectManager {
 		@Override
 		public boolean remove(final Object object) {
 			final boolean ret = super.remove(object);
-			if (object instanceof ParcelableWithJSONStatus) {
-				manager.mSelectedStatusIds.remove(((ParcelableWithJSONStatus) object).id);
-			} else if (object instanceof ParcelableWithJSONUser) {
-				manager.mSelectedUserIds.remove(((ParcelableWithJSONUser) object).id);
+			if (object instanceof TwitterStatus) {
+				manager.mSelectedStatusIds.remove(((TwitterStatus) object).id);
+			} else if (object instanceof TwitterUser) {
+				manager.mSelectedUserIds.remove(((TwitterUser) object).id);
 			}
 			if (ret) {
 				if (isEmpty()) {

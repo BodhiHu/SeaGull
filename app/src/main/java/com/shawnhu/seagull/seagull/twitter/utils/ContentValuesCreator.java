@@ -22,19 +22,18 @@ package com.shawnhu.seagull.seagull.twitter.utils;
 import android.content.ContentValues;
 
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
-import com.shawnhu.seagull.seagull.twitter.model.Account;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableDirectMessage;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableLocation;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableMedia;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableMediaUpdate;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableStatusUpdate;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableUserMention;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSON;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONStatus;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONUser;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterLocation;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterMedia;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterMediaUpdate;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusUpdate;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterDirectMessage;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterUser;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterUserMention;
 import com.shawnhu.seagull.utils.ArrayUtils;
 import com.shawnhu.seagull.utils.HtmlEscapeHelper;
-import com.shawnhu.seagull.utils.JSONSerializer.JSONSerializer;
+import com.shawnhu.seagull.utils.JSON.JSONSerializer;
 import com.shawnhu.seagull.utils.ParseUtils;
 
 import org.json.JSONException;
@@ -43,13 +42,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import twitter4j.DirectMessage;
 import twitter4j.GeoLocation;
-import twitter4j.Status;
 import twitter4j.Trend;
 import twitter4j.Trends;
 import twitter4j.URLEntity;
-import twitter4j.User;
 import twitter4j.auth.AccessToken;
 import twitter4j.conf.Configuration;
 
@@ -58,7 +54,7 @@ import static com.shawnhu.seagull.seagull.twitter.TweetStore.*;
 public final class ContentValuesCreator {
 
 	public static ContentValues makeAccountContentValuesBasic(final Configuration conf, final String basicUsername,
-			final String basicPassword, final User user, final int color, final String apiUrlFormat) {
+			final String basicPassword, final twitter4j.User user, final int color, final String apiUrlFormat) {
 		if (user == null || user.getId() <= 0) return null;
 		final ContentValues values = new ContentValues();
 		if (basicUsername == null || basicPassword == null) return null;
@@ -77,7 +73,7 @@ public final class ContentValuesCreator {
 	}
 
 	public static ContentValues makeAccountContentValuesOAuth(final Configuration conf, final AccessToken accessToken,
-			final User user, final int authType, final int color, final String apiUrlFormat,
+			final twitter4j.User user, final int authType, final int color, final String apiUrlFormat,
 			final boolean sameOAuthSigningUrl) {
 		if (user == null || user.getId() <= 0 || accessToken == null || user.getId() != accessToken.getUserId())
 			return null;
@@ -99,7 +95,7 @@ public final class ContentValuesCreator {
 		return values;
 	}
 
-	public static ContentValues makeAccountContentValuesTWIP(final Configuration conf, final User user,
+	public static ContentValues makeAccountContentValuesTWIP(final Configuration conf, final twitter4j.User user,
 			final int color, final String apiUrlFormat) {
 		if (user == null || user.getId() <= 0) return null;
 		final ContentValues values = new ContentValues();
@@ -115,7 +111,7 @@ public final class ContentValuesCreator {
 		return values;
 	}
 
-	public static ContentValues makeCachedUserContentValues(final User user) {
+	public static ContentValues makeCachedUserContentValues(final twitter4j.User user) {
 		if (user == null || user.getId() <= 0) return null;
 		final String profile_image_url = ParseUtils.parseString(user.getProfileImageUrlHttps());
 		final String url = ParseUtils.parseString(user.getURL());
@@ -145,11 +141,11 @@ public final class ContentValuesCreator {
 		return values;
 	}
 
-	public static ContentValues makeDirectMessageContentValues(final DirectMessage message, final long account_id,
+	public static ContentValues makeDirectMessageContentValues(final twitter4j.DirectMessage message, final long account_id,
 			final boolean is_outgoing) {
 		if (message == null || message.getId() <= 0) return null;
 		final ContentValues values = new ContentValues();
-		final User sender = message.getSender(), recipient = message.getRecipient();
+		final twitter4j.User sender = message.getSender(), recipient = message.getRecipient();
 		if (sender == null || recipient == null) return null;
 		final String sender_profile_image_url = ParseUtils.parseString(sender.getProfileImageUrlHttps());
 		final String recipient_profile_image_url = ParseUtils.parseString(recipient.getProfileImageUrlHttps());
@@ -169,7 +165,7 @@ public final class ContentValuesCreator {
 		values.put(DirectMessages.RECIPIENT_SCREEN_NAME, recipient.getScreenName());
 		values.put(DirectMessages.SENDER_PROFILE_IMAGE_URL, sender_profile_image_url);
 		values.put(DirectMessages.RECIPIENT_PROFILE_IMAGE_URL, recipient_profile_image_url);
-		final ParcelableMedia[] medias = ParcelableMedia.fromEntities(message);
+		final TwitterMedia[] medias = TwitterMedia.fromEntities(message);
 		if (medias != null) {
 			values.put(DirectMessages.MEDIAS, JSONSerializer.toJSONArrayString(medias));
 			values.put(DirectMessages.FIRST_MEDIA, medias[0].url);
@@ -177,7 +173,7 @@ public final class ContentValuesCreator {
 		return values;
 	}
 
-	public static ContentValues makeDirectMessageContentValues(final ParcelableDirectMessage message) {
+	public static ContentValues makeDirectMessageContentValues(final TwitterDirectMessage message) {
 		if (message == null || message.id <= 0) return null;
 		final ContentValues values = new ContentValues();
 		values.put(DirectMessages.ACCOUNT_ID, message.account_id);
@@ -209,7 +205,7 @@ public final class ContentValuesCreator {
 		values.put(Drafts.ACCOUNT_IDS, ArrayUtils.toString(new long[]{accountId}, ',', false));
 		values.put(Drafts.TIMESTAMP, System.currentTimeMillis());
 		if (imageUri != null) {
-			final ParcelableMediaUpdate[] medias = { new ParcelableMediaUpdate(imageUri, 0) };
+			final TwitterMediaUpdate[] medias = { new TwitterMediaUpdate(imageUri, 0) };
 			values.put(Drafts.MEDIAS, JSONSerializer.toJSONArrayString(medias));
 		}
 		final JSONObject extras = new JSONObject();
@@ -222,7 +218,7 @@ public final class ContentValuesCreator {
 		return values;
 	}
 
-	public static ContentValues makeFilterdUserContentValues(final ParcelableWithJSONStatus status) {
+	public static ContentValues makeFilterdUserContentValues(final TwitterStatus status) {
 		if (status == null) return null;
 		final ContentValues values = new ContentValues();
 		values.put(Filters.Users.USER_ID, status.user_id);
@@ -231,7 +227,7 @@ public final class ContentValuesCreator {
 		return values;
 	}
 
-	public static ContentValues makeFilterdUserContentValues(final ParcelableWithJSONUser user) {
+	public static ContentValues makeFilterdUserContentValues(final TwitterUser user) {
 		if (user == null) return null;
 		final ContentValues values = new ContentValues();
 		values.put(Filters.Users.USER_ID, user.id);
@@ -240,7 +236,7 @@ public final class ContentValuesCreator {
 		return values;
 	}
 
-	public static ContentValues makeFilterdUserContentValues(final ParcelableUserMention user) {
+	public static ContentValues makeFilterdUserContentValues(final TwitterUserMention user) {
 		if (user == null) return null;
 		final ContentValues values = new ContentValues();
 		values.put(Filters.Users.USER_ID, user.id);
@@ -249,7 +245,7 @@ public final class ContentValuesCreator {
 		return values;
 	}
 
-	public static ContentValues makeStatusContentValues(final Status orig, final long account_id) {
+	public static ContentValues makeStatusContentValues(final twitter4j.Status orig, final long account_id) {
 		if (orig == null || orig.getId() <= 0) return null;
 		final ContentValues values = new ContentValues();
 		values.put(Statuses.ACCOUNT_ID, account_id);
@@ -257,10 +253,10 @@ public final class ContentValuesCreator {
 		values.put(Statuses.STATUS_TIMESTAMP, orig.getCreatedAt().getTime());
 		values.put(Statuses.MY_RETWEET_ID, orig.getCurrentUserRetweet());
 		final boolean is_retweet = orig.isRetweet();
-		final Status status;
-		final Status retweeted_status = is_retweet ? orig.getRetweetedStatus() : null;
+		final twitter4j.Status status;
+		final twitter4j.Status retweeted_status = is_retweet ? orig.getRetweetedStatus() : null;
 		if (retweeted_status != null) {
-			final User retweet_user = orig.getUser();
+			final twitter4j.User retweet_user = orig.getUser();
 			values.put(Statuses.RETWEET_ID, retweeted_status.getId());
 			values.put(Statuses.RETWEET_TIMESTAMP, retweeted_status.getCreatedAt().getTime());
 			values.put(Statuses.RETWEETED_BY_USER_ID, retweet_user.getId());
@@ -270,7 +266,7 @@ public final class ContentValuesCreator {
 		} else {
 			status = orig;
 		}
-		final User user = status.getUser();
+		final twitter4j.User user = status.getUser();
 		if (user != null) {
 			final long userId = user.getId();
 			final String profileImageUrl = ParseUtils.parseString(user.getProfileImageUrlHttps());
@@ -300,30 +296,30 @@ public final class ContentValuesCreator {
 		}
 		values.put(Statuses.IS_RETWEET, is_retweet);
 		values.put(Statuses.IS_FAVORITE, status.isFavorited());
-		final ParcelableMedia[] medias = ParcelableMedia.fromEntities(status);
+		final TwitterMedia[] medias = TwitterMedia.fromEntities(status);
 		if (medias != null) {
 			values.put(Statuses.MEDIAS, JSONSerializer.toJSONArrayString(medias));
 			values.put(Statuses.FIRST_MEDIA, medias[0].url);
 		}
-		final ParcelableUserMention[] mentions = ParcelableUserMention.fromStatus(status);
+		final TwitterUserMention[] mentions = TwitterUserMention.fromStatus(status);
 		if (mentions != null) {
 			values.put(Statuses.MENTIONS, JSONSerializer.toJSONArrayString(mentions));
 		}
 		return values;
 	}
 
-	public static ContentValues makeStatusDraftContentValues(final ParcelableStatusUpdate status) {
-		return makeStatusDraftContentValues(status, Account.getAccountIds(status.accounts));
+	public static ContentValues makeStatusDraftContentValues(final TwitterStatusUpdate status) {
+		return makeStatusDraftContentValues(status, TwitterAccount.getAccountIds(status.accounts));
 	}
 
-	public static ContentValues makeStatusDraftContentValues(final ParcelableStatusUpdate status,
+	public static ContentValues makeStatusDraftContentValues(final TwitterStatusUpdate status,
 			final long[] accountIds) {
 		final ContentValues values = new ContentValues();
 		values.put(Drafts.ACTION_TYPE, Drafts.ACTION_UPDATE_STATUS);
 		values.put(Drafts.TEXT, status.text);
 		values.put(Drafts.ACCOUNT_IDS, ArrayUtils.toString(accountIds, ',', false));
 		values.put(Drafts.IN_REPLY_TO_STATUS_ID, status.in_reply_to_status_id);
-		values.put(Drafts.LOCATION, ParcelableLocation.toString(status.location));
+		values.put(Drafts.LOCATION, TwitterLocation.toString(status.location));
 		values.put(Drafts.IS_POSSIBLY_SENSITIVE, status.is_possibly_sensitive);
 		values.put(Drafts.TIMESTAMP, System.currentTimeMillis());
 		if (status.medias != null) {

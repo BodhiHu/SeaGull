@@ -4,9 +4,8 @@ import android.content.Context;
 import android.net.Uri;
 
 
-import com.shawnhu.seagull.seagull.twitter.model.ListResponse;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONUser;
-import com.shawnhu.seagull.seagull.twitter.model.SingleResponse;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterResponse;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterUser;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
 import com.shawnhu.seagull.utils.ArrayUtils;
 import com.shawnhu.seagull.utils.ListUtils;
@@ -22,7 +21,6 @@ import twitter4j.DirectMessage;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import twitter4j.User;
 
 public class TwitterWrapper {
 
@@ -41,14 +39,14 @@ public class TwitterWrapper {
 		return context.getContentResolver().delete(uri, null, null);
 	}
 
-	public static SingleResponse<Boolean> deleteProfileBannerImage(final Context context, final long account_id) {
+	public static TwitterResponse<Boolean> deleteProfileBannerImage(final Context context, final long account_id) {
 		final Twitter twitter = Utils.getTwitterInstance(context, account_id, false);
-		if (twitter == null) return new SingleResponse<Boolean>(false, null);
+		if (twitter == null) return new TwitterResponse<Boolean>(false, null);
 		try {
 			twitter.removeProfileBannerImage();
-			return new SingleResponse<Boolean>(true, null);
+			return new TwitterResponse<Boolean>(true, null);
 		} catch (final TwitterException e) {
-			return new SingleResponse<Boolean>(false, e);
+			return new TwitterResponse<Boolean>(false, e);
 		}
 	}
 
@@ -77,21 +75,21 @@ public class TwitterWrapper {
 		return result;
 	}
 
-	public static SingleResponse<ParcelableWithJSONUser> updateProfile(final Context context, final long account_id,
+	public static TwitterResponse<TwitterUser> updateProfile(final Context context, final long account_id,
 			final String name, final String url, final String location, final String description) {
 		final Twitter twitter = Utils.getTwitterInstance(context, account_id, false);
 		if (twitter != null) {
 			try {
-				final User user = twitter.updateProfile(name, url, location, description);
-				return new SingleResponse<ParcelableWithJSONUser>(new ParcelableWithJSONUser(user, account_id), null);
+				final twitter4j.User user = twitter.updateProfile(name, url, location, description);
+				return new TwitterResponse<TwitterUser>(new TwitterUser(user, account_id), null);
 			} catch (final TwitterException e) {
-				return new SingleResponse<ParcelableWithJSONUser>(null, e);
+				return new TwitterResponse<TwitterUser>(null, e);
 			}
 		}
-		return SingleResponse.getInstance();
+		return new TwitterResponse<TwitterUser>(null, null);
 	}
 
-	public static SingleResponse<Boolean> updateProfileBannerImage(final Context context, final long account_id,
+	public static TwitterResponse<Boolean> updateProfileBannerImage(final Context context, final long account_id,
 			final Uri image_uri, final boolean delete_image) {
 		final Twitter twitter = Utils.getTwitterInstance(context, account_id, false);
 		if (twitter != null && image_uri != null && "file".equals(image_uri.getScheme())) {
@@ -104,36 +102,36 @@ public class TwitterWrapper {
 				if (delete_image) {
 					file.delete();
 				}
-				return new SingleResponse<Boolean>(true, null);
+				return new TwitterResponse<Boolean>(true, null);
 			} catch (final TwitterException e) {
-				return new SingleResponse<Boolean>(false, e);
+				return new TwitterResponse<Boolean>(false, e);
 			} catch (final InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		return new SingleResponse<Boolean>(false, null);
+		return new TwitterResponse<Boolean>(false, null);
 	}
 
-	public static SingleResponse<ParcelableWithJSONUser> updateProfileImage(final Context context, final long account_id,
+	public static TwitterResponse<TwitterUser> updateProfileImage(final Context context, final long account_id,
 			final Uri image_uri, final boolean delete_image) {
 		final Twitter twitter = Utils.getTwitterInstance(context, account_id, false);
 		if (twitter != null && image_uri != null && "file".equals(image_uri.getScheme())) {
 			try {
-				final User user = twitter.updateProfileImage(new File(image_uri.getPath()));
+				final twitter4j.User user = twitter.updateProfileImage(new File(image_uri.getPath()));
 				// Wait for 5 seconds, see
 				// https://dev.twitter.com/docs/api/1.1/post/account/update_profile_image
 				Thread.sleep(5000L);
-				return new SingleResponse<ParcelableWithJSONUser>(new ParcelableWithJSONUser(user, account_id), null);
+				return new TwitterResponse<TwitterUser>(new TwitterUser(user, account_id), null);
 			} catch (final TwitterException e) {
-				return new SingleResponse<ParcelableWithJSONUser>(null, e);
+				return new TwitterResponse<TwitterUser>(null, e);
 			} catch (final InterruptedException e) {
-				return new SingleResponse<ParcelableWithJSONUser>(null, e);
+				return new TwitterResponse<TwitterUser>(null, e);
 			}
 		}
-		return SingleResponse.getInstance();
+		return new TwitterResponse<TwitterUser>(null, null);
 	}
 
-	public static final class MessageListResponse extends TwitterListResponse<DirectMessage> {
+	public static final class MessageListResponse extends TwitterListResponse {
 
 		public final boolean truncated;
 
@@ -158,7 +156,7 @@ public class TwitterWrapper {
 
 	}
 
-	public static final class StatusListResponse extends TwitterListResponse<Status> {
+	public static final class StatusListResponse extends TwitterListResponse {
 
 		public final boolean truncated;
 
@@ -183,7 +181,7 @@ public class TwitterWrapper {
 
 	}
 
-	public static class TwitterListResponse<Data> extends ListResponse<Data> {
+	public static class TwitterListResponse<Data> extends com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Data> {
 
 		public final long account_id, max_id, since_id;
 

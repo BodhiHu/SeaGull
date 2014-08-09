@@ -17,7 +17,7 @@ import java.io.OutputStreamWriter;
 public class ProfilingUtil {
 
 	public static final String FILE_NAME_PROFILE = "Profile";
-	public static final String FILE_NAME_LOCATION = "Location";
+	public static final String FILE_NAME_LOCATION = "TwitterLocation";
 	public static final String FILE_NAME_APP = "App";
 	public static final String FILE_NAME_WIFI = "Wifi";
 

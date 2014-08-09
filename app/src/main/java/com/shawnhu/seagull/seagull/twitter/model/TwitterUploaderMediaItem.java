@@ -12,18 +12,18 @@ import java.io.FileNotFoundException;
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getImagePathFromUri;
 
 
-public class UploaderMediaItem implements Parcelable {
+public class TwitterUploaderMediaItem implements Parcelable {
 
-	public static final Parcelable.Creator<UploaderMediaItem> CREATOR = new Parcelable.Creator<UploaderMediaItem>() {
+	public static final Parcelable.Creator<TwitterUploaderMediaItem> CREATOR = new Parcelable.Creator<TwitterUploaderMediaItem>() {
 
 		@Override
-		public UploaderMediaItem createFromParcel(final Parcel source) {
-			return new UploaderMediaItem(source);
+		public TwitterUploaderMediaItem createFromParcel(final Parcel source) {
+			return new TwitterUploaderMediaItem(source);
 		}
 
 		@Override
-		public UploaderMediaItem[] newArray(final int size) {
-			return new UploaderMediaItem[size];
+		public TwitterUploaderMediaItem[] newArray(final int size) {
+			return new TwitterUploaderMediaItem[size];
 		}
 	};
 
@@ -31,14 +31,14 @@ public class UploaderMediaItem implements Parcelable {
 	public final ParcelFileDescriptor fd;
 	public final long size;
 
-	public UploaderMediaItem(final Context context, final ParcelableMediaUpdate media) throws FileNotFoundException {
+	public TwitterUploaderMediaItem(final Context context, final TwitterMediaUpdate media) throws FileNotFoundException {
 		path = getImagePathFromUri(context, Uri.parse(media.uri));
 		final File file = new File(path);
 		fd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
 		size = file.length();
 	}
 
-	public UploaderMediaItem(final Parcel src) {
+	public TwitterUploaderMediaItem(final Parcel src) {
 		path = src.readString();
 		fd = src.readParcelable(ParcelFileDescriptor.class.getClassLoader());
 		size = src.readLong();
@@ -61,12 +61,12 @@ public class UploaderMediaItem implements Parcelable {
 		dest.writeLong(size);
 	}
 
-	public static UploaderMediaItem[] getFromStatusUpdate(final Context context, final ParcelableStatusUpdate status)
+	public static TwitterUploaderMediaItem[] getFromStatusUpdate(final Context context, final TwitterStatusUpdate status)
 			throws FileNotFoundException {
 		if (status.medias == null) return null;
-		final UploaderMediaItem[] medias = new UploaderMediaItem[status.medias.length];
+		final TwitterUploaderMediaItem[] medias = new TwitterUploaderMediaItem[status.medias.length];
 		for (int i = 0, j = medias.length; i < j; i++) {
-			medias[i] = new UploaderMediaItem(context, status.medias[i]);
+			medias[i] = new TwitterUploaderMediaItem(context, status.medias[i]);
 		}
 		return medias;
 	}

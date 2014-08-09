@@ -33,7 +33,7 @@ import twitter4j.conf.ConfigurationContext;
 import twitter4j.internal.logging.Logger;
 
 /**
- * A data class representing HTTP Response
+ * A data class representing HTTP TwitterResponse
  * 
  * @author Yusuke Yamamoto - yusuke at mac.com
  */

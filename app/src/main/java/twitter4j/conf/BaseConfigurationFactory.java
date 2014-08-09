@@ -18,7 +18,7 @@ package twitter4j.conf;
 
 /**
  * ConfigurationFactory implementation for ConfigurationBase. Currently
- * getInstance calls concrete constructor each time. No caching at all.
+ * newInstance calls concrete constructor each time. No caching at all.
  * 
  * @author Yusuke Yamamoto - yusuke at mac.com
  */

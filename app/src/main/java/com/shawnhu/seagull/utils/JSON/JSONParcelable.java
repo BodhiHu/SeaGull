@@ -25,7 +25,7 @@
  * For more information, please refer to <http://unlicense.org/>
  */
 
-package com.shawnhu.seagull.utils.JSONSerializer;
+package com.shawnhu.seagull.utils.JSON;
 
 public interface JSONParcelable {
 

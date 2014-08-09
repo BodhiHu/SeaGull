@@ -220,7 +220,7 @@ public final class StatusUpdate implements Serializable {
 
 	@Override
 	public String toString() {
-		return "StatusUpdate{status=" + status + ", inReplyToStatusId=" + inReplyToStatusId + ", location=" + location
+		return "TwitterStatusUpdate{status=" + status + ", inReplyToStatusId=" + inReplyToStatusId + ", location=" + location
 				+ ", placeId=" + placeId + ", displayCoordinates=" + displayCoordinates + ", possiblySensitive="
 				+ possiblySensitive + ", mediaName=" + mediaName + ", mediaFile=" + mediaFile
 				+ ", overrideContentType=" + overrideContentType + "}";

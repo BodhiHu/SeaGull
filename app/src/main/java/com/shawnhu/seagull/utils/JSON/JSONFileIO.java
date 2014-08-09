@@ -1,7 +1,8 @@
-package com.shawnhu.seagull.utils.JSONSerializer;
+package com.shawnhu.seagull.utils.JSON;
 
 import android.content.Context;
 
+import com.shawnhu.seagull.seagull.twitter.utils.Utils;
 import com.shawnhu.seagull.utils.ArrayUtils;
 
 import org.json.JSONArray;
@@ -64,11 +65,11 @@ public class JSONFileIO extends JSONSerializer {
 
 	public static File getSerializationFile(final Context context, final Object... args) throws IOException {
 		if (context == null || args == null || args.length == 0) return null;
-		final File cache_dir = getBestCacheDir(context, JSON_CACHE_DIR);
+		final File cache_dir = Utils.getBestCacheDir(context, JSON_CACHE_DIR);
 		if (!cache_dir.exists()) {
 			cache_dir.mkdirs();
 		}
-		final String filename = encodeQueryParams(ArrayUtils.toString(args, '.', false));
+		final String filename = Utils.encodeQueryParams(ArrayUtils.toString(args, '.', false));
 		final File cache_file = new File(cache_dir, filename + ".json");
 		return cache_file;
 	}
@@ -156,7 +157,7 @@ public class JSONFileIO extends JSONSerializer {
 		} catch (final JSONException e) {
 			throw new IOException(e);
 		} finally {
-			closeSilently(writer);
+			Utils.closeSilently(writer);
 		}
 	}
 
@@ -170,56 +171,4 @@ public class JSONFileIO extends JSONSerializer {
 			throw new IOException(e);
 		}
 	}
-
-    /***********************************************************************************************
-     ** BEGIN TODO: getBestCacheDir, encodeQueryParams, closeSilently: where to put?
-     */
-    public static File getBestCacheDir(final Context context, final String cacheDirName) {
-        if (context == null) throw new NullPointerException();
-        final File extCacheDir;
-        try {
-            // Workaround for https://github.com/mariotaku/twidere/issues/138
-            extCacheDir = context.getExternalCacheDir();
-        } catch (final Exception e) {
-            return new File(context.getCacheDir(), cacheDirName);
-        }
-        if (extCacheDir != null && extCacheDir.isDirectory()) {
-            final File cacheDir = new File(extCacheDir, cacheDirName);
-            if (cacheDir.isDirectory() || cacheDir.mkdirs()) return cacheDir;
-        }
-        return new File(context.getCacheDir(), cacheDirName);
-    }
-    public static String encodeQueryParams(final String value) throws IOException {
-        final String encoded = URLEncoder.encode(value, "UTF-8");
-        final StringBuilder buf = new StringBuilder();
-        final int length = encoded.length();
-        char focus;
-        for (int i = 0; i < length; i++) {
-            focus = encoded.charAt(i);
-            if (focus == '*') {
-                buf.append("%2A");
-            } else if (focus == '+') {
-                buf.append("%20");
-            } else if (focus == '%' && i + 1 < encoded.length() && encoded.charAt(i + 1) == '7'
-                    && encoded.charAt(i + 2) == 'E') {
-                buf.append('~');
-                i += 2;
-            } else {
-                buf.append(focus);
-            }
-        }
-        return buf.toString();
-    }
-    public static boolean closeSilently(final Closeable c) {
-        if (c == null) return false;
-        try {
-            c.close();
-        } catch (final IOException e) {
-            return false;
-        }
-        return true;
-    }
-    /**
-     ** END
-     **********************************************************************************************/
 }

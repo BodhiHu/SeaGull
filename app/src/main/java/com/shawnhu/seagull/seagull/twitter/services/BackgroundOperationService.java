@@ -44,13 +44,13 @@ import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.*;
 import com.shawnhu.seagull.seagull.twitter.TweetStore;
 import static com.shawnhu.seagull.seagull.twitter.TweetStore.*;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
-import com.shawnhu.seagull.seagull.twitter.model.Account;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableDirectMessage;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableLocation;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableMediaUpdate;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableStatusUpdate;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONStatus;
-import com.shawnhu.seagull.seagull.twitter.model.SingleResponse;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterLocation;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterMediaUpdate;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusUpdate;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterResponse;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterDirectMessage;
 import com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator;
 import com.shawnhu.seagull.seagull.twitter.utils.MessagesManager;
 import com.shawnhu.seagull.seagull.twitter.utils.StatusCodeMessageUtils;
@@ -70,11 +70,8 @@ import java.util.Collections;
 import java.util.List;
 
 import twitter4j.MediaUploadResponse;
-import twitter4j.Status;
-import twitter4j.StatusUpdate;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import twitter4j.UserMentionEntity;
 
 import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.makeDirectMessageContentValues;
 import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.makeDirectMessageDraftContentValues;
@@ -213,7 +210,7 @@ public class BackgroundOperationService extends IntentService {
 		builder.setOngoing(true);
 		final Notification notification = builder.build();
 		startForeground(NOTIFICATION_ID_SEND_DIRECT_MESSAGE, notification);
-		final SingleResponse<ParcelableDirectMessage> result = sendDirectMessage(builder, accountId, recipientId, text,
+		final TwitterResponse<TwitterDirectMessage> result = sendDirectMessage(builder, accountId, recipientId, text,
 				imageUri);
 		if (result.getData() != null && result.getData().id > 0) {
 			final ContentValues values = makeDirectMessageContentValues(result.getData());
@@ -233,29 +230,29 @@ public class BackgroundOperationService extends IntentService {
 
 	private void handleUpdateStatusIntent(final Intent intent) {
 		final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-		final ParcelableStatusUpdate status = intent.getParcelableExtra(EXTRA_STATUS);
+		final TwitterStatusUpdate status = intent.getParcelableExtra(EXTRA_STATUS);
 		final Parcelable[] status_parcelables = intent.getParcelableArrayExtra(EXTRA_STATUSES);
-		final ParcelableStatusUpdate[] statuses;
+		final TwitterStatusUpdate[] statuses;
 		if (status_parcelables != null) {
-			statuses = new ParcelableStatusUpdate[status_parcelables.length];
+			statuses = new TwitterStatusUpdate[status_parcelables.length];
 			for (int i = 0, j = status_parcelables.length; i < j; i++) {
-				statuses[i] = (ParcelableStatusUpdate) status_parcelables[i];
+				statuses[i] = (TwitterStatusUpdate) status_parcelables[i];
 			}
 		} else if (status != null) {
-			statuses = new ParcelableStatusUpdate[1];
+			statuses = new TwitterStatusUpdate[1];
 			statuses[0] = status;
 		} else
 			return;
 		startForeground(NOTIFICATION_ID_UPDATE_STATUS, updateUpdateStatusNotificaion(this, builder, 0, null));
-		for (final ParcelableStatusUpdate item : statuses) {
+		for (final TwitterStatusUpdate item : statuses) {
 			mNotificationManager.notify(NOTIFICATION_ID_UPDATE_STATUS,
 					updateUpdateStatusNotificaion(this, builder, 0, item));
-			final List<SingleResponse<ParcelableWithJSONStatus>> result = updateStatus(builder, item);
+			final List<TwitterResponse<TwitterStatus>> result = updateStatus(builder, item);
 			boolean failed = false;
 			Exception exception = null;
-			final List<Long> failed_account_ids = ListUtils.fromArray(Account.getAccountIds(item.accounts));
+			final List<Long> failed_account_ids = ListUtils.fromArray(TwitterAccount.getAccountIds(item.accounts));
 
-			for (final SingleResponse<ParcelableWithJSONStatus> response : result) {
+			for (final TwitterResponse<TwitterStatus> response : result) {
 				if (response.getData() == null) {
 					failed = true;
 					if (exception == null) {
@@ -281,7 +278,7 @@ public class BackgroundOperationService extends IntentService {
 			} else {
 				showOkMessage(R.string.status_updated, false);
 				if (item.medias != null) {
-					for (final ParcelableMediaUpdate media : item.medias) {
+					for (final TwitterMediaUpdate media : item.medias) {
 						final String path = getImagePathFromUri(this, Uri.parse(media.uri));
 						if (path != null) {
 							new File(path).delete();
@@ -297,7 +294,7 @@ public class BackgroundOperationService extends IntentService {
 		mNotificationManager.cancel(NOTIFICATION_ID_UPDATE_STATUS);
 	}
 
-	private void saveDrafts(final ParcelableStatusUpdate status, final List<Long> account_ids) {
+	private void saveDrafts(final TwitterStatusUpdate status, final List<Long> account_ids) {
 		final ContentValues values = ContentValuesCreator.makeStatusDraftContentValues(status,
                 ArrayUtils.fromList(account_ids));
 		mResolver.insert(Drafts.CONTENT_URI, values);
@@ -308,11 +305,11 @@ public class BackgroundOperationService extends IntentService {
 		mNotificationManager.notify(NOTIFICATION_ID_DRAFTS, notification);
 	}
 
-	private SingleResponse<ParcelableDirectMessage> sendDirectMessage(final NotificationCompat.Builder builder,
+	private TwitterResponse<TwitterDirectMessage> sendDirectMessage(final NotificationCompat.Builder builder,
 			final long accountId, final long recipientId, final String text, final String imageUri) {
 		final Twitter twitter = getTwitterInstance(this, accountId, true, true);
 		try {
-			final ParcelableDirectMessage directMessage;
+			final TwitterDirectMessage directMessage;
 			if (imageUri != null) {
 				final String path = getImagePathFromUri(this, Uri.parse(imageUri));
 				if (path == null) throw new FileNotFoundException();
@@ -324,18 +321,18 @@ public class BackgroundOperationService extends IntentService {
 				final ContentLengthInputStream is = new ContentLengthInputStream(file);
 				is.setReadListener(new MessageMediaUploadListener(this, mNotificationManager, builder, text));
 				final MediaUploadResponse uploadResp = twitter.uploadMedia(file.getName(), is, o.outMimeType);
-				directMessage = new ParcelableDirectMessage(twitter.sendDirectMessage(recipientId, text,
+				directMessage = new TwitterDirectMessage(twitter.sendDirectMessage(recipientId, text,
 						uploadResp.getId()), accountId, true);
 				file.delete();
 			} else {
-				directMessage = new ParcelableDirectMessage(twitter.sendDirectMessage(recipientId, text), accountId,
+				directMessage = new TwitterDirectMessage(twitter.sendDirectMessage(recipientId, text), accountId,
 						true);
 			}
-			return SingleResponse.getInstance(directMessage);
+			return new TwitterResponse<TwitterDirectMessage>(directMessage, null);
 		} catch (final IOException e) {
-			return SingleResponse.getInstance(e);
+			return new TwitterResponse<TwitterDirectMessage>(null, e);
 		} catch (final TwitterException e) {
-			return SingleResponse.getInstance(e);
+			return new TwitterResponse<TwitterDirectMessage>(null, e);
 		}
 	}
 
@@ -343,8 +340,8 @@ public class BackgroundOperationService extends IntentService {
 		mHandler.post(new ToastRunnable(this, resId, duration));
 	}
 
-	private List<SingleResponse<ParcelableWithJSONStatus>> updateStatus(final Builder builder,
-			final ParcelableStatusUpdate statusUpdate) {
+	private List<TwitterResponse<TwitterStatus>> updateStatus(final Builder builder,
+			final TwitterStatusUpdate statusUpdate) {
 		final ArrayList<ContentValues> hashtag_values = new ArrayList<ContentValues>();
 		final Collection<String> hashtags = extractor.extractHashtags(statusUpdate.text);
 		for (final String hashtag : hashtags) {
@@ -359,7 +356,7 @@ public class BackgroundOperationService extends IntentService {
 		mResolver.bulkInsert(CachedHashtags.CONTENT_URI,
 				hashtag_values.toArray(new ContentValues[hashtag_values.size()]));
 
-		final List<SingleResponse<ParcelableWithJSONStatus>> results = new ArrayList<SingleResponse<ParcelableWithJSONStatus>>();
+		final List<TwitterResponse<TwitterStatus>> results = new ArrayList<TwitterResponse<TwitterStatus>>();
 
 		if (statusUpdate.accounts.length == 0) return Collections.emptyList();
 
@@ -368,7 +365,7 @@ public class BackgroundOperationService extends IntentService {
             final String unshortenedText = statusUpdate.text;
 
 			if (statusUpdate.medias != null) {
-				for (final ParcelableMediaUpdate media : statusUpdate.medias) {
+				for (final TwitterMediaUpdate media : statusUpdate.medias) {
 					final String path = getImagePathFromUri(this, Uri.parse(media.uri));
 					final File file = path != null ? new File(path) : null;
 					if (file != null && file.exists()) {
@@ -376,18 +373,18 @@ public class BackgroundOperationService extends IntentService {
 					}
 				}
 			}
-			for (final Account account : statusUpdate.accounts) {
+			for (final TwitterAccount account : statusUpdate.accounts) {
 				final Twitter twitter = getTwitterInstance(this, account.account_id, true, true);
-				final StatusUpdate status = new StatusUpdate(unshortenedText);
+				final twitter4j.StatusUpdate status = new twitter4j.StatusUpdate(unshortenedText);
 				status.setInReplyToStatusId(statusUpdate.in_reply_to_status_id);
 				if (statusUpdate.location != null) {
-					status.setLocation(ParcelableLocation.toGeoLocation(statusUpdate.location));
+					status.setLocation(TwitterLocation.toGeoLocation(statusUpdate.location));
 				}
 				if (hasMedia) {
 					final BitmapFactory.Options o = new BitmapFactory.Options();
 					o.inJustDecodeBounds = true;
 					if (statusUpdate.medias.length == 1) {
-						final ParcelableMediaUpdate media = statusUpdate.medias[0];
+						final TwitterMediaUpdate media = statusUpdate.medias[0];
 						final String path = getImagePathFromUri(this, Uri.parse(media.uri));
 						try {
 							if (path == null) throw new FileNotFoundException();
@@ -403,7 +400,7 @@ public class BackgroundOperationService extends IntentService {
 						final long[] mediaIds = new long[statusUpdate.medias.length];
 						try {
 							for (int i = 0, j = mediaIds.length; i < j; i++) {
-								final ParcelableMediaUpdate media = statusUpdate.medias[i];
+								final TwitterMediaUpdate media = statusUpdate.medias[i];
 								final String path = getImagePathFromUri(this, Uri.parse(media.uri));
 								if (path == null) throw new FileNotFoundException();
 								BitmapFactory.decodeFile(path, o);
@@ -418,7 +415,7 @@ public class BackgroundOperationService extends IntentService {
 						} catch (final FileNotFoundException e) {
 
 						} catch (final TwitterException e) {
-							final SingleResponse<ParcelableWithJSONStatus> response = SingleResponse.getInstance(e);
+							final TwitterResponse<TwitterStatus> response = new TwitterResponse<TwitterStatus>(null, e);
 							results.add(response);
 							continue;
 						}
@@ -428,20 +425,20 @@ public class BackgroundOperationService extends IntentService {
 				status.setPossiblySensitive(statusUpdate.is_possibly_sensitive);
 
 				if (twitter == null) {
-					results.add(new SingleResponse<ParcelableWithJSONStatus>(null, new NullPointerException()));
+					results.add(new TwitterResponse<TwitterStatus>(null, new NullPointerException()));
 					continue;
 				}
 				try {
-					final Status resultStatus = twitter.updateStatus(status);
-					final ParcelableWithJSONStatus result = new ParcelableWithJSONStatus(resultStatus, account.account_id, false);
-					results.add(new SingleResponse<ParcelableWithJSONStatus>(result, null));
+					final twitter4j.Status resultStatus = twitter.updateStatus(status);
+					final TwitterStatus result = new TwitterStatus(resultStatus, account.account_id, false);
+					results.add(new TwitterResponse<TwitterStatus>(result, null));
 				} catch (final TwitterException e) {
-					final SingleResponse<ParcelableWithJSONStatus> response = SingleResponse.getInstance(e);
+					final TwitterResponse<TwitterStatus> response = new TwitterResponse<TwitterStatus>(null, e);
 					results.add(response);
 				}
 			}
 		} catch (final Exception e) {
-			final SingleResponse<ParcelableWithJSONStatus> response = SingleResponse.getInstance(e);
+			final TwitterResponse<TwitterStatus> response = new TwitterResponse<TwitterStatus>(null, e);
 			results.add(response);
 		}
 
@@ -461,7 +458,7 @@ public class BackgroundOperationService extends IntentService {
 	}
 
 	private static Notification updateUpdateStatusNotificaion(final Context context,
-			final NotificationCompat.Builder builder, final int progress, final ParcelableStatusUpdate status) {
+			final NotificationCompat.Builder builder, final int progress, final TwitterStatusUpdate status) {
 		builder.setContentTitle(context.getString(R.string.updating_status_notification));
 		if (status != null) {
 			builder.setContentText(status.text);
@@ -542,10 +539,10 @@ public class BackgroundOperationService extends IntentService {
 		int percent;
 
 		private final Builder builder;
-		private final ParcelableStatusUpdate statusUpdate;
+		private final TwitterStatusUpdate statusUpdate;
 
 		StatusMediaUploadListener(final Context context, final NotificationManager manager,
-				final NotificationCompat.Builder builder, final ParcelableStatusUpdate statusUpdate) {
+				final NotificationCompat.Builder builder, final TwitterStatusUpdate statusUpdate) {
 			this.context = context;
 			this.manager = manager;
 			this.builder = builder;

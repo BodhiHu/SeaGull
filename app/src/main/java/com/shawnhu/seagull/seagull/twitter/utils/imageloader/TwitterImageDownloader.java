@@ -26,9 +26,8 @@ import android.text.TextUtils;
 import com.nostra13.universalimageloader.core.assist.ContentLengthInputStream;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
-import com.shawnhu.seagull.seagull.twitter.model.Account;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableMedia;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterMedia;
 import com.shawnhu.seagull.seagull.twitter.text.TwitterLinkify;
 import com.shawnhu.seagull.seagull.twitter.utils.MediaPreviewUtils;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
@@ -65,7 +64,7 @@ public class TwitterImageDownloader extends BaseImageDownloader {
     @Override
     protected InputStream getStreamFromNetwork(final String uriString, final Object extras) throws IOException {
         if (uriString == null) return null;
-        final ParcelableMedia media = MediaPreviewUtils.getAllAvailableImage(uriString, mFullImage, mFullImage
+        final TwitterMedia media = MediaPreviewUtils.getAllAvailableImage(uriString, mFullImage, mFullImage
                 || !mFastImageLoading ? mClient : null);
         try {
             final String mediaUrl = media != null ? media.media_url : uriString;
@@ -115,10 +114,10 @@ public class TwitterImageDownloader extends BaseImageDownloader {
             throws IOException, TwitterException {
         final Uri uri = Uri.parse(uriString);
         final Authorization auth;
-        final Account.AccountWithCredentials account;
+        final TwitterAccount.TwitterAccountWithCredentials account;
         if (isTwitterAuthRequired(uri) && extras instanceof AccountExtra) {
             final AccountExtra accountExtra = (AccountExtra) extras;
-            account = Account.getAccountWithCredentials(mContext, accountExtra.account_id);
+            account = TwitterAccount.getAccountWithCredentials(mContext, accountExtra.account_id);
             auth = Utils.getTwitterAuthorization(mContext, accountExtra.account_id);
         } else {
             account = null;

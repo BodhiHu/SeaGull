@@ -1,8 +1,6 @@
 package com.shawnhu.seagull.seagull.twitter.providers;
 
-import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -25,17 +23,16 @@ import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
-import android.support.v4.app.NotificationCompat;
-import android.text.Html;
 import android.util.Log;
 
 import com.shawnhu.seagull.seagull.twitter.TweetStore;
 import static com.shawnhu.seagull.seagull.twitter.TweetStore.*;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.TwitterQueryBuilder;
-import com.shawnhu.seagull.seagull.twitter.model.AccountPreferences;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableWithJSONStatus;
-import com.shawnhu.seagull.seagull.twitter.model.UnreadItem;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterAccountPreferences;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterDirectMessage;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterUnreadItem;
 import com.shawnhu.seagull.seagull.twitter.utils.ImagePreloader;
 import com.shawnhu.seagull.seagull.twitter.utils.MediaPreviewUtils;
 import com.shawnhu.seagull.seagull.twitter.utils.PermissionsManager;
@@ -43,12 +40,10 @@ import com.shawnhu.seagull.seagull.twitter.utils.SQLiteDatabaseWrapper;
 import com.shawnhu.seagull.seagull.twitter.utils.SharedPreferencesWrapper;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
 import com.shawnhu.seagull.utils.ArrayUtils;
-import com.shawnhu.seagull.utils.HtmlEscapeHelper;
-import com.shawnhu.seagull.utils.JSONSerializer.JSONFileIO;
+import com.shawnhu.seagull.utils.JSON.JSONFileIO;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.*;
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.*;
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableDirectMessage;
 import com.shawnhu.seagull.utils.ParseUtils;
 import com.shawnhu.seagull.utils.collections.NoDuplicatesCopyOnWriteArrayList;
 
@@ -85,13 +80,13 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
     private HostAddressResolver         mHostAddressResolver;
     private TwitterManager              mTwitterManager;
 
-    private final List<ParcelableWithJSONStatus> mNewStatuses = new CopyOnWriteArrayList<ParcelableWithJSONStatus>();
-    private final List<ParcelableWithJSONStatus> mNewMentions = new CopyOnWriteArrayList<ParcelableWithJSONStatus>();
-    private final List<ParcelableDirectMessage> mNewMessages = new CopyOnWriteArrayList<ParcelableDirectMessage>();
+    private final List<TwitterStatus> mNewStatuses = new CopyOnWriteArrayList<TwitterStatus>();
+    private final List<TwitterStatus> mNewMentions = new CopyOnWriteArrayList<TwitterStatus>();
+    private final List<TwitterDirectMessage> mNewMessages = new CopyOnWriteArrayList<TwitterDirectMessage>();
 
-    private final List<UnreadItem> mUnreadStatuses = new NoDuplicatesCopyOnWriteArrayList<UnreadItem>();
-    private final List<UnreadItem> mUnreadMentions = new NoDuplicatesCopyOnWriteArrayList<UnreadItem>();
-    private final List<UnreadItem> mUnreadMessages = new NoDuplicatesCopyOnWriteArrayList<UnreadItem>();
+    private final List<TwitterUnreadItem> mUnreadStatuses = new NoDuplicatesCopyOnWriteArrayList<TwitterUnreadItem>();
+    private final List<TwitterUnreadItem> mUnreadMentions = new NoDuplicatesCopyOnWriteArrayList<TwitterUnreadItem>();
+    private final List<TwitterUnreadItem> mUnreadMessages = new NoDuplicatesCopyOnWriteArrayList<TwitterUnreadItem>();
 
     private boolean mHomeActivityInBackground;
 
@@ -583,7 +578,7 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 
     /** TODO:
      *
-     private void buildNotification(final NotificationCompat.Builder builder, final AccountPreferences accountPrefs,
+     private void buildNotification(final NotificationCompat.Builder builder, final TwitterAccountPreferences accountPrefs,
             final int notificationType, final String ticker, final String title, final String message, final long when,
             final int icon, final Bitmap largeIcon, final Intent contentIntent, final Intent deleteIntent) {
         final Context context = getContext();
@@ -606,32 +601,32 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         }
         int defaults = 0;
         if (isNotificationAudible()) {
-            if (AccountPreferences.isNotificationHasRingtone(notificationType)) {
+            if (TwitterAccountPreferences.isNotificationHasRingtone(notificationType)) {
                 final Uri ringtone = accountPrefs.getNotificationRingtone();
                 builder.setSound(ringtone, Notification.STREAM_DEFAULT);
             }
-            if (AccountPreferences.isNotificationHasVibration(notificationType)) {
+            if (TwitterAccountPreferences.isNotificationHasVibration(notificationType)) {
                 defaults |= Notification.DEFAULT_VIBRATE;
             } else {
                 defaults &= ~Notification.DEFAULT_VIBRATE;
             }
         }
-        if (AccountPreferences.isNotificationHasLight(notificationType)) {
+        if (TwitterAccountPreferences.isNotificationHasLight(notificationType)) {
             final int color = accountPrefs.getNotificationLightColor();
             builder.setLights(color, 1000, 2000);
         }
         builder.setDefaults(defaults);
     }
 
-    private void displayMessagesNotification(final int notifiedCount, final AccountPreferences accountPrefs,
-            final int notificationType, final int icon, final List<ParcelableDirectMessage> messages) {
+    private void displayMessagesNotification(final int notifiedCount, final TwitterAccountPreferences accountPrefs,
+            final int notificationType, final int icon, final List<TwitterDirectMessage> messages) {
         final NotificationManager nm = getNotificationManager();
         if (notifiedCount == 0 || accountPrefs == null || messages.isEmpty()) return;
         final long accountId = accountPrefs.getAccountId();
         final Context context = getContext();
         final Resources resources = context.getResources();
         final NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(context);
-        final ParcelableDirectMessage firstItem = messages.get(0);
+        final TwitterDirectMessage firstItem = messages.get(0);
         final int messagesCount = messages.size();
         final Intent deleteIntent = new Intent(BROADCAST_NOTIFICATION_DELETED);
         deleteIntent.putExtra(EXTRA_NOTIFICATION_ID, NOTIFICATION_ID_DIRECT_MESSAGES);
@@ -676,7 +671,7 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
             final NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle(notifBuilder);
             final int max = Math.min(4, messagesCount);
             for (int i = 0; i < max; i++) {
-                final ParcelableDirectMessage item = messages.get(i);
+                final TwitterDirectMessage item = messages.get(i);
                 if (item == null) return;
                 final String nameEscaped = HtmlEscapeHelper.escape(getDisplayName(context, item.sender_id,
                         item.sender_name, item.sender_name, mNameFirst, mNickOnly));
@@ -700,8 +695,8 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
     }
 
 
-    private void displayStatusesNotification(final int notifiedCount, final AccountPreferences accountPreferences,
-            final int notificationType, final int notificationId, final List<ParcelableWithJSONStatus> statuses,
+    private void displayStatusesNotification(final int notifiedCount, final TwitterAccountPreferences accountPreferences,
+            final int notificationType, final int notificationId, final List<TwitterStatus> statuses,
             final int titleSingle, final int titleMutiple, final int icon) {
         final NotificationManager nm = getNotificationManager();
         if (notifiedCount == 0 || accountPreferences == null || statuses.isEmpty()) return;
@@ -709,7 +704,7 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         final Context context = getContext();
         final Resources resources = context.getResources();
         final NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(context);
-        final ParcelableWithJSONStatus firstItem = statuses.get(0);
+        final TwitterStatus firstItem = statuses.get(0);
         final int statusesSize = statuses.size();
         final Intent deleteIntent = new Intent(BROADCAST_NOTIFICATION_DELETED);
         deleteIntent.putExtra(EXTRA_NOTIFICATION_ID, notificationId);
@@ -751,7 +746,7 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
             final NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle(notifBuilder);
             final int max = Math.min(4, statusesSize);
             for (int i = 0; i < max; i++) {
-                final ParcelableWithJSONStatus s = safeGet(statuses, i);
+                final TwitterStatus s = safeGet(statuses, i);
                 if (s == null) return;
                 final String nameEscaped = HtmlEscapeHelper.escape(getDisplayName(context, s.user_id, s.user_name,
                         s.user_screen_name, mNameFirst, mNickOnly));
@@ -881,10 +876,10 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
                 true);
     }
 
-    private int getSendersCount(final List<ParcelableDirectMessage> items) {
+    private int getSendersCount(final List<TwitterDirectMessage> items) {
         if (items == null || items.isEmpty()) return 0;
         final Set<Long> ids = new HashSet<Long>();
-        for (final ParcelableDirectMessage item : items.toArray(new ParcelableDirectMessage[items.size()])) {
+        for (final TwitterDirectMessage item : items.toArray(new TwitterDirectMessage[items.size()])) {
             ids.add(item.sender_id);
         }
         return ids.size();
@@ -918,10 +913,10 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         return c;
     }
 
-    private int getUsersCount(final List<ParcelableWithJSONStatus> items) {
+    private int getUsersCount(final List<TwitterStatus> items) {
         if (items == null || items.isEmpty()) return 0;
         final Set<Long> ids = new HashSet<Long>();
-        for (final ParcelableWithJSONStatus item : items.toArray(new ParcelableWithJSONStatus[items.size()])) {
+        for (final TwitterStatus item : items.toArray(new TwitterStatus[items.size()])) {
             ids.add(item.user_id);
         }
         return ids.size();
@@ -942,9 +937,9 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         // Add statuses that not filtered to list for future use.
         int result = 0;
         for (final ContentValues value : values) {
-            final ParcelableDirectMessage message = new ParcelableDirectMessage(value);
+            final TwitterDirectMessage message = new TwitterDirectMessage(value);
             mNewMessages.add(message);
-            if (mUnreadMessages.add(new UnreadItem(message.sender_id, message.account_id))) {
+            if (mUnreadMessages.add(new TwitterUnreadItem(message.sender_id, message.account_id))) {
                 result++;
             }
         }
@@ -954,20 +949,20 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         return result;
     }
 
-    private int notifyMentionsInserted(final AccountPreferences[] prefs, final ContentValues... values) {
+    private int notifyMentionsInserted(final TwitterAccountPreferences[] prefs, final ContentValues... values) {
         if (values == null || values.length == 0) return 0;
         // Add statuses that not filtered to list for future use.
         int result = 0;
         final boolean enabled = mPreferences.getBoolean(KEY_FILTERS_IN_MENTIONS, true);
         final boolean filtersForRts = mPreferences.getBoolean(KEY_FILTERS_FOR_RTS, true);
         for (final ContentValues value : values) {
-            final ParcelableWithJSONStatus status = new ParcelableWithJSONStatus(value);
+            final TwitterStatus status = new TwitterStatus(value);
             if (!enabled || !isFiltered(mDatabaseWrapper.getSQLiteDatabase(), status, filtersForRts)) {
-                final AccountPreferences pref = AccountPreferences.getAccountPreferences(prefs, status.account_id);
+                final TwitterAccountPreferences pref = TwitterAccountPreferences.getAccountPreferences(prefs, status.account_id);
                 if (pref == null || status.user_is_following || !pref.isMyFollowingOnly()) {
                     mNewMentions.add(status);
                 }
-                if (mUnreadMentions.add(new UnreadItem(status.id, status.account_id))) {
+                if (mUnreadMentions.add(new TwitterUnreadItem(status.id, status.account_id))) {
                     result++;
                 }
             }
@@ -985,10 +980,10 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         final boolean enabled = mPreferences.getBoolean(KEY_FILTERS_IN_HOME_TIMELINE, true);
         final boolean filtersForRts = mPreferences.getBoolean(KEY_FILTERS_FOR_RTS, true);
         for (final ContentValues value : values) {
-            final ParcelableWithJSONStatus status = new ParcelableWithJSONStatus(value);
+            final TwitterStatus status = new TwitterStatus(value);
             if (!enabled || !isFiltered(mDatabaseWrapper.getSQLiteDatabase(), status, filtersForRts)) {
                 mNewStatuses.add(status);
-                if (mUnreadStatuses.add(new UnreadItem(status.id, status.account_id))) {
+                if (mUnreadStatuses.add(new TwitterUnreadItem(status.id, status.account_id))) {
                     result++;
                 }
             }
@@ -1033,11 +1028,11 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         switch (getTableId(uri)) {
             case TABLE_ID_STATUSES: {
                 final int notifiedCount = notifyStatusesInserted(values);
-                final List<ParcelableWithJSONStatus> items = new ArrayList<ParcelableWithJSONStatus>(mNewStatuses);
+                final List<TwitterStatus> items = new ArrayList<TwitterStatus>(mNewStatuses);
                 Collections.sort(items);
-                final AccountPreferences[] prefs = AccountPreferences.getNotificationEnabledPreferences(getContext(),
+                final TwitterAccountPreferences[] prefs = TwitterAccountPreferences.getNotificationEnabledAccountPreferences(getContext(),
                         getAccountIds(getContext()));
-                for (final AccountPreferences pref : prefs) {
+                for (final TwitterAccountPreferences pref : prefs) {
                     if (pref.isHomeTimelineNotificationEnabled()) {
                         final long accountId = pref.getAccountId();
                         /**
@@ -1052,12 +1047,12 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
                 break;
             }
             case TABLE_ID_MENTIONS: {
-                final AccountPreferences[] prefs = AccountPreferences.getNotificationEnabledPreferences(getContext(),
+                final TwitterAccountPreferences[] prefs = TwitterAccountPreferences.getNotificationEnabledAccountPreferences(getContext(),
                         getAccountIds(getContext()));
                 final int notifiedCount = notifyMentionsInserted(prefs, values);
-                final List<ParcelableWithJSONStatus> items = new ArrayList<ParcelableWithJSONStatus>(mNewMentions);
+                final List<TwitterStatus> items = new ArrayList<TwitterStatus>(mNewMentions);
                 Collections.sort(items);
-                for (final AccountPreferences pref : prefs) {
+                for (final TwitterAccountPreferences pref : prefs) {
                     if (pref.isMentionsNotificationEnabled()) {
                         final long accountId = pref.getAccountId();
                         /**
@@ -1073,11 +1068,11 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
             }
             case TABLE_ID_DIRECT_MESSAGES_INBOX: {
                 final int notifiedCount = notifyIncomingMessagesInserted(values);
-                final List<ParcelableDirectMessage> items = new ArrayList<ParcelableDirectMessage>(mNewMessages);
+                final List<TwitterDirectMessage> items = new ArrayList<TwitterDirectMessage>(mNewMessages);
                 Collections.sort(items);
-                final AccountPreferences[] prefs = AccountPreferences.getNotificationEnabledPreferences(getContext(),
+                final TwitterAccountPreferences[] prefs = TwitterAccountPreferences.getNotificationEnabledAccountPreferences(getContext(),
                         getAccountIds(getContext()));
-                for (final AccountPreferences pref : prefs) {
+                for (final TwitterAccountPreferences pref : prefs) {
                     if (pref.isDirectMessagesNotificationEnabled()) {
                         final long accountId = pref.getAccountId();
                         /**
@@ -1111,14 +1106,14 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 
     private int removeUnreadItems(final int type, final long account_id, final long... ids) {
         if (type < 0 || account_id == 0 || ids == null || ids.length == 0) return 0;
-        final UnreadItem[] items = new UnreadItem[ids.length];
+        final TwitterUnreadItem[] items = new TwitterUnreadItem[ids.length];
         for (int i = 0, j = ids.length; i < j; i++) {
-            items[i] = new UnreadItem(ids[i], account_id);
+            items[i] = new TwitterUnreadItem(ids[i], account_id);
         }
         return removeUnreadItems(type, items);
     }
 
-    private synchronized int removeUnreadItems(final int type, final UnreadItem... items) {
+    private synchronized int removeUnreadItems(final int type, final TwitterUnreadItem... items) {
         if (type < 0 || items == null || items.length == 0) return 0;
         final int result, size;
 
@@ -1163,11 +1158,11 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         restoreUnreadItemsFile(mUnreadMessages, UNREAD_MESSAGES_FILE_NAME);
     }
 
-    private void restoreUnreadItemsFile(final Collection<UnreadItem> items, final String name) {
+    private void restoreUnreadItemsFile(final Collection<TwitterUnreadItem> items, final String name) {
         if (items == null || name == null) return;
         try {
             final File file = JSONFileIO.getSerializationFile(getContext(), name);
-            final List<UnreadItem> restored = JSONFileIO.readArrayList(file);
+            final List<TwitterUnreadItem> restored = JSONFileIO.readArrayList(file);
             if (restored != null) {
                 items.addAll(restored);
             }
@@ -1176,11 +1171,11 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         }
     }
 
-    private void saveUnreadItemsFile(final Collection<UnreadItem> items, final String name) {
+    private void saveUnreadItemsFile(final Collection<TwitterUnreadItem> items, final String name) {
         if (items == null || name == null) return;
         try {
             final File file = JSONFileIO.getSerializationFile(getContext(), name);
-            JSONFileIO.writeArray(file, items.toArray(new UnreadItem[items.size()]));
+            JSONFileIO.writeArray(file, items.toArray(new TwitterUnreadItem[items.size()]));
         } catch (final IOException e) {
             e.printStackTrace();
         }
@@ -1197,10 +1192,10 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         mNickOnly = mPreferences.getBoolean(KEY_NICKNAME_ONLY, false);
     }
 
-    private static int clearUnreadCount(final List<UnreadItem> set, final long[] accountIds) {
+    private static int clearUnreadCount(final List<TwitterUnreadItem> set, final long[] accountIds) {
         if (accountIds == null) return 0;
         int count = 0;
-        for (final UnreadItem item : set.toArray(new UnreadItem[set.size()])) {
+        for (final TwitterUnreadItem item : set.toArray(new TwitterUnreadItem[set.size()])) {
             if (item != null && ArrayUtils.contains(accountIds, item.account_id) && set.remove(item)) {
                 count++;
             }
@@ -1208,11 +1203,11 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         return count;
     }
 
-    private static List<ParcelableDirectMessage> getMessagesForAccounts(final List<ParcelableDirectMessage> items,
+    private static List<TwitterDirectMessage> getMessagesForAccounts(final List<TwitterDirectMessage> items,
             final long accountId) {
         if (items == null) return Collections.emptyList();
-        final List<ParcelableDirectMessage> result = new ArrayList<ParcelableDirectMessage>();
-        for (final ParcelableDirectMessage item : items.toArray(new ParcelableDirectMessage[items.size()])) {
+        final List<TwitterDirectMessage> result = new ArrayList<TwitterDirectMessage>();
+        for (final TwitterDirectMessage item : items.toArray(new TwitterDirectMessage[items.size()])) {
             if (item.account_id == accountId) {
                 result.add(item);
             }
@@ -1252,11 +1247,11 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         return Preferences.TYPE_INVALID;
     }
 
-    private static List<ParcelableWithJSONStatus> getStatusesForAccounts(final List<ParcelableWithJSONStatus> items,
+    private static List<TwitterStatus> getStatusesForAccounts(final List<TwitterStatus> items,
             final long accountId) {
         if (items == null) return Collections.emptyList();
-        final List<ParcelableWithJSONStatus> result = new ArrayList<ParcelableWithJSONStatus>();
-        for (final ParcelableWithJSONStatus item : items.toArray(new ParcelableWithJSONStatus[items.size()])) {
+        final List<TwitterStatus> result = new ArrayList<TwitterStatus>();
+        for (final TwitterStatus item : items.toArray(new TwitterStatus[items.size()])) {
             if (item.account_id == accountId) {
                 result.add(item);
             }
@@ -1264,10 +1259,10 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         return result;
     }
 
-    private static int getUnreadCount(final List<UnreadItem> set, final long... accountIds) {
+    private static int getUnreadCount(final List<TwitterUnreadItem> set, final long... accountIds) {
         if (set == null || set.isEmpty()) return 0;
         int count = 0;
-        for (final UnreadItem item : set.toArray(new UnreadItem[set.size()])) {
+        for (final TwitterUnreadItem item : set.toArray(new TwitterUnreadItem[set.size()])) {
             if (item != null && ArrayUtils.contains(accountIds, item.account_id)) {
                 count++;
             }

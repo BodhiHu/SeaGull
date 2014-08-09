@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.seagull.twitter.model.ParcelableMedia;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterMedia;
 import com.shawnhu.seagull.utils.HtmlLinkExtractor;
 import com.shawnhu.seagull.utils.ParseUtils;
 import com.shawnhu.seagull.utils.StrictModeUtils;
@@ -178,12 +178,12 @@ public class MediaPreviewUtils {
     private static final String URL_PHOTOZOU_PHOTO_INFO = "https://api.photozou.jp/rest/photo_info.json";
 
     public static void addToLinearLayout(final LinearLayout container, final ImageLoaderWrapper loader,
-            final List<ParcelableMedia> medias, final int maxColumnCount, final OnMediaClickListener mediaClickListener) {
+            final List<TwitterMedia> medias, final int maxColumnCount, final OnMediaClickListener mediaClickListener) {
         if (container.getOrientation() != LinearLayout.VERTICAL) throw new IllegalArgumentException();
         final Context context = container.getContext();
         final ImageLoadingHandler loadingHandler = new ImageLoadingHandler();
         final LayoutInflater inflater = LayoutInflater.from(context);
-        final ListIterator<ParcelableMedia> iterator = medias.listIterator();
+        final ListIterator<TwitterMedia> iterator = medias.listIterator();
         final int imageCount = medias.size();
         final double imageCountSqrt = Math.sqrt(imageCount);
         final int bestColumnCount = imageCountSqrt % 1 == 0 ? (int) imageCountSqrt : maxColumnCount;
@@ -203,7 +203,7 @@ public class MediaPreviewUtils {
                     LinearLayout.LayoutParams.WRAP_CONTENT);
             final int columnCount = currentRow == 0 && firstColumn > 0 ? firstColumn : bestColumnCount;
             for (int currentColumn = 0; currentColumn < columnCount; currentColumn++) {
-                final ParcelableMedia media = iterator.next();
+                final TwitterMedia media = iterator.next();
                 final View item = inflater.inflate(R.layout.grid_item_image_preview, rowContainer, false);
                 item.setTag(media);
                 if (mediaClickListener != null) {
@@ -219,11 +219,11 @@ public class MediaPreviewUtils {
     }
 
     public static void addToLinearLayout(final LinearLayout container, final ImageLoaderWrapper loader,
-            final ParcelableMedia[] medias, final int maxColumnCount, final OnMediaClickListener listener) {
+            final TwitterMedia[] medias, final int maxColumnCount, final OnMediaClickListener listener) {
         addToLinearLayout(container, loader, Arrays.asList(medias), maxColumnCount, listener);
     }
 
-    public static ParcelableMedia getAllAvailableImage(final String link, final boolean fullImage) {
+    public static TwitterMedia getAllAvailableImage(final String link, final boolean fullImage) {
         try {
             return getAllAvailableImage(link, fullImage, null);
         } catch (final IOException e) {
@@ -231,7 +231,7 @@ public class MediaPreviewUtils {
         }
     }
 
-    public static ParcelableMedia getAllAvailableImage(final String link, final boolean fullImage,
+    public static TwitterMedia getAllAvailableImage(final String link, final boolean fullImage,
             final HttpClientWrapper client) throws IOException {
         if (link == null) return null;
         StrictModeUtils.checkLengthyOperation();
@@ -271,17 +271,17 @@ public class MediaPreviewUtils {
         return null;
     }
 
-    public static ParcelableMedia[] getImagesInStatus(final String status_string, final boolean fullImage) {
-        if (status_string == null) return new ParcelableMedia[0];
-        final List<ParcelableMedia> images = new ArrayList<ParcelableMedia>();
+    public static TwitterMedia[] getImagesInStatus(final String status_string, final boolean fullImage) {
+        if (status_string == null) return new TwitterMedia[0];
+        final List<TwitterMedia> images = new ArrayList<TwitterMedia>();
         final HtmlLinkExtractor extractor = new HtmlLinkExtractor();
         for (final HtmlLinkExtractor.HtmlLink link : extractor.grabLinks(status_string)) {
-            final ParcelableMedia spec = getAllAvailableImage(link.getLink(), fullImage);
+            final TwitterMedia spec = getAllAvailableImage(link.getLink(), fullImage);
             if (spec != null) {
                 images.add(spec);
             }
         }
-        return images.toArray(new ParcelableMedia[images.size()]);
+        return images.toArray(new TwitterMedia[images.size()]);
     }
 
     public static String getSupportedFirstLink(final Status status) {
@@ -341,54 +341,54 @@ public class MediaPreviewUtils {
         return false;
     }
 
-    private static ParcelableMedia getGoogleImage(final String server, final String id, final boolean fullImage) {
+    private static TwitterMedia getGoogleImage(final String server, final String id, final boolean fullImage) {
         if (isEmpty(server) || isEmpty(id)) return null;
         final String full = "https://" + server + id + "/s0/full";
         final String preview = fullImage ? full : "https://" + server + id + "/s480/full";
-        return ParcelableMedia.newImage(preview, full);
+        return TwitterMedia.newImage(preview, full);
     }
 
-    private static ParcelableMedia getGoogleProxyImage(final String server, final String id, final boolean fullImage) {
+    private static TwitterMedia getGoogleProxyImage(final String server, final String id, final boolean fullImage) {
         if (isEmpty(server) || isEmpty(id)) return null;
         final String full = "https://" + server + "/proxy/" + id + "=s0";
         final String preview = fullImage ? full : "https://" + server + "/proxy/" + id + "=s480";
-        return ParcelableMedia.newImage(preview, full);
+        return TwitterMedia.newImage(preview, full);
     }
 
-    private static ParcelableMedia getImglyImage(final String id, final String orig, final boolean fullImage) {
+    private static TwitterMedia getImglyImage(final String id, final String orig, final boolean fullImage) {
         if (isEmpty(id)) return null;
         final String preview = String.format("http://img.ly/show/%s/%s", fullImage ? "full" : "medium", id);
-        return ParcelableMedia.newImage(preview, orig);
+        return TwitterMedia.newImage(preview, orig);
     }
 
-    private static ParcelableMedia getImgurImage(final String id, final String orig, final boolean fullImage) {
+    private static TwitterMedia getImgurImage(final String id, final String orig, final boolean fullImage) {
         if (isEmpty(id)) return null;
         final String preview = fullImage ? String.format("http://i.imgur.com/%s.jpg", id) : String.format(
                 "http://i.imgur.com/%sl.jpg", id);
-        return ParcelableMedia.newImage(preview, orig);
+        return TwitterMedia.newImage(preview, orig);
     }
 
-    private static ParcelableMedia getInstagramImage(final String id, final String orig, final boolean fullImage) {
+    private static TwitterMedia getInstagramImage(final String id, final String orig, final boolean fullImage) {
         if (isEmpty(id)) return null;
         final String preview = String.format("https://instagram.com/p/%s/media/?size=%s", id, fullImage ? "l" : "t");
-        return ParcelableMedia.newImage(preview, orig);
+        return TwitterMedia.newImage(preview, orig);
     }
 
-    private static ParcelableMedia getLockerzAndPlixiImage(final String url, final boolean fullImage) {
+    private static TwitterMedia getLockerzAndPlixiImage(final String url, final boolean fullImage) {
         if (isEmpty(url)) return null;
         final String preview = String.format("https://api.plixi.com/api/tpapi.svc/imagefromurl?url=%s&size=%s", url,
                 fullImage ? "big" : "small");
-        return ParcelableMedia.newImage(preview, url);
+        return TwitterMedia.newImage(preview, url);
 
     }
 
-    private static ParcelableMedia getMobyPictureImage(final String id, final String orig, final boolean fullImage) {
+    private static TwitterMedia getMobyPictureImage(final String id, final String orig, final boolean fullImage) {
         if (isEmpty(id)) return null;
         final String preview = String.format("http://moby.to/%s:%s", id, fullImage ? "full" : "thumb");
-        return ParcelableMedia.newImage(preview, orig);
+        return TwitterMedia.newImage(preview, orig);
     }
 
-    private static ParcelableMedia getPhotozouImage(final HttpClientWrapper client, final String id, final String orig,
+    private static TwitterMedia getPhotozouImage(final HttpClientWrapper client, final String id, final String orig,
             final boolean fullImage) throws IOException {
         if (isEmpty(id)) return null;
         if (client != null) {
@@ -397,7 +397,7 @@ public class MediaPreviewUtils {
                 final HttpResponse resp = client.get(URL_PHOTOZOU_PHOTO_INFO, URL_PHOTOZOU_PHOTO_INFO, parameters);
                 final JSONObject json = resp.asJSONObject().getJSONObject("info").getJSONObject("photo");
                 final String key = fullImage ? "original_image_url" : "image_url";
-                return ParcelableMedia.newImage(json.getString(key), orig);
+                return TwitterMedia.newImage(json.getString(key), orig);
             } catch (final TwitterException e) {
                 return null;
             } catch (final JSONException e) {
@@ -405,45 +405,45 @@ public class MediaPreviewUtils {
             }
         }
         final String preview = String.format(Locale.US, "http://photozou.jp/p/img/%s", id);
-        return ParcelableMedia.newImage(preview, orig);
+        return TwitterMedia.newImage(preview, orig);
     }
 
-    private static ParcelableMedia getSinaWeiboImage(final String url, final boolean fullImage) {
+    private static TwitterMedia getSinaWeiboImage(final String url, final boolean fullImage) {
         if (isEmpty(url)) return null;
         final String full = url.replaceAll("\\/" + SINA_WEIBO_IMAGES_AVAILABLE_SIZES + "\\/", "/woriginal/");
         final String preview = fullImage ? full : url.replaceAll("\\/" + SINA_WEIBO_IMAGES_AVAILABLE_SIZES + "\\/",
                 "/bmiddle/");
-        return ParcelableMedia.newImage(preview, full);
+        return TwitterMedia.newImage(preview, full);
     }
 
-    private static ParcelableMedia getTwitgooImage(final String id, final String orig, final boolean fullImage) {
+    private static TwitterMedia getTwitgooImage(final String id, final String orig, final boolean fullImage) {
         if (isEmpty(id)) return null;
         final String preview = String.format("http://twitgoo.com/show/%s/%s", fullImage ? "img" : "thumb", id);
-        return ParcelableMedia.newImage(preview, orig);
+        return TwitterMedia.newImage(preview, orig);
     }
 
-    private static ParcelableMedia getTwitpicImage(final String id, final String orig, final boolean fullImage) {
+    private static TwitterMedia getTwitpicImage(final String id, final String orig, final boolean fullImage) {
         if (isEmpty(id)) return null;
         final String preview = String.format("http://twitpic.com/show/%s/%s", fullImage ? "large" : "thumb", id);
-        return ParcelableMedia.newImage(preview, orig);
+        return TwitterMedia.newImage(preview, orig);
     }
 
-    private static ParcelableMedia getTwitterImage(final String url, final boolean fullImage) {
+    private static TwitterMedia getTwitterImage(final String url, final boolean fullImage) {
         if (isEmpty(url)) return null;
         final String full = (url + ":large").replaceFirst("https?://", "https://");
         final String preview = fullImage ? full : (url + ":medium").replaceFirst("https?://", "https://");
-        return ParcelableMedia.newImage(preview, full);
+        return TwitterMedia.newImage(preview, full);
     }
 
-    private static ParcelableMedia getYfrogImage(final String id, final String orig, final boolean fullImage) {
+    private static TwitterMedia getYfrogImage(final String id, final String orig, final boolean fullImage) {
         if (isEmpty(id)) return null;
         final String preview = String.format("http://yfrog.com/%s:%s", id, fullImage ? "medium" : "iphone");
-        return ParcelableMedia.newImage(preview, orig);
+        return TwitterMedia.newImage(preview, orig);
 
     }
 
     public interface OnMediaClickListener {
-        void onMediaClick(View view, ParcelableMedia media);
+        void onMediaClick(View view, TwitterMedia media);
     }
 
     private static class ImageGridClickListener implements View.OnClickListener {
@@ -456,7 +456,7 @@ public class MediaPreviewUtils {
         @Override
         public void onClick(final View v) {
             if (mListener == null) return;
-            mListener.onMediaClick(v, (ParcelableMedia) v.getTag());
+            mListener.onMediaClick(v, (TwitterMedia) v.getTag());
         }
 
     }

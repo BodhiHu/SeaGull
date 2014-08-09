@@ -109,7 +109,7 @@ public abstract class HomeNavDrawerActivity
         Class targetClass = i.mActionClass;
 
         if (targetClass != null) {
-            //TODO: Fragment, Activity or whatever, might need args passed which might be put in the adapter
+            //TODO: Fragment, TwitterActivity or whatever, might need args passed which might be put in the adapter
             if (Fragment.class.isAssignableFrom(targetClass)) {
                 //Fragment, transform to it
                 try {
@@ -131,7 +131,7 @@ public abstract class HomeNavDrawerActivity
                 }
 
             } else if (Activity.class.isAssignableFrom(targetClass)) {
-                //Activity, start it
+                //TwitterActivity, start it
                 mNavigationDrawerFragment.setCurrentPosition(mLastFragmentPosition);
                 startActivity(new Intent(this, targetClass));
             } else {

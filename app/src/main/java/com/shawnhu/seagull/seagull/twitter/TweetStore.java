@@ -105,7 +105,7 @@ public interface TweetStore {
 		public static final String CONSUMER_SECRET = "consumer_secret";
 
 		/**
-		 * User's profile image URL of the status. <br>
+		 * TwitterUser's profile image URL of the status. <br>
 		 * Type: TEXT
 		 */
 		public static final String PROFILE_IMAGE_URL = "profile_image_url";
@@ -218,13 +218,13 @@ public interface TweetStore {
 		public static final String FAVORITES_COUNT = "favorites_count";
 
 		/**
-		 * User's screen name of the status.<br>
+		 * TwitterUser's screen name of the status.<br>
 		 * Type: TEXT
 		 */
 		public static final String SCREEN_NAME = "screen_name";
 
 		/**
-		 * User's profile image URL of the status.<br>
+		 * TwitterUser's profile image URL of the status.<br>
 		 * Type: TEXT NOT NULL
 		 */
 		public static final String PROFILE_IMAGE_URL = "profile_image_url";
@@ -399,13 +399,13 @@ public interface TweetStore {
 		public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, CONTENT_PATH);
 
 		/**
-		 * Status content.<br>
+		 * TwitterStatus content.<br>
 		 * Type: TEXT
 		 */
 		public static final String TEXT = "text";
 
 		/**
-		 * Account IDs of unsent status.<br>
+		 * TwitterAccount IDs of unsent status.<br>
 		 * Type: TEXT
 		 */
 		public static final String ACCOUNT_IDS = "account_ids";
@@ -571,13 +571,13 @@ public interface TweetStore {
 
 		public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, CONTENT_PATH);
 		/**
-		 * Account ID of the status.<br>
+		 * TwitterAccount ID of the status.<br>
 		 * Type: TEXT
 		 */
 		public static final String ACCOUNT_ID = "account_id";
 
 		/**
-		 * Status content, in HTML. Please note, this is not actually original
+		 * TwitterStatus content, in HTML. Please note, this is not actually original
 		 * text.<br>
 		 * Type: TEXT
 		 */
@@ -591,19 +591,19 @@ public interface TweetStore {
 		public static final String TEXT_UNESCAPED = "text_unescaped";
 
 		/**
-		 * User name of the status.<br>
+		 * TwitterUser name of the status.<br>
 		 * Type: TEXT
 		 */
 		public static final String USER_NAME = "name";
 
 		/**
-		 * User's screen name of the status.<br>
+		 * TwitterUser's screen name of the status.<br>
 		 * Type: TEXT
 		 */
 		public static final String USER_SCREEN_NAME = "screen_name";
 
 		/**
-		 * User's profile image URL of the status.<br>
+		 * TwitterUser's profile image URL of the status.<br>
 		 * Type: TEXT NOT NULL
 		 */
 		public static final String USER_PROFILE_IMAGE_URL = "profile_image_url";
@@ -645,7 +645,7 @@ public interface TweetStore {
 		public static final String LOCATION = "location";
 
 		/**
-		 * User's ID of the status.<br>
+		 * TwitterUser's ID of the status.<br>
 		 * Type: INTEGER (long)
 		 */
 		public static final String USER_ID = "user_id";

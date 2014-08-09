@@ -43,7 +43,7 @@ public final class MessagesManager {
 
     static public void setVisibleActivity(Activity a) {
         if (a == null)  {
-            throw new NullPointerException("Activity can not be null");
+            throw new NullPointerException("TwitterActivity can not be null");
         }
 
         mContext = a;
