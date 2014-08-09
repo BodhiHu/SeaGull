@@ -22,7 +22,7 @@ import twitter4j.http.HttpResponse;
 import twitter4j.internal.util.InternalParseUtil;
 
 /**
- * Super interface of Twitter TwitterResponse data interfaces which indicates that rate
+ * Super interface of Twitter Response data interfaces which indicates that rate
  * limit status is available.
  * 
  * @author Yusuke Yamamoto - yusuke at mac.com

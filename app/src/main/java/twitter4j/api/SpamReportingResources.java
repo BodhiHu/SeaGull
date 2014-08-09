@@ -30,7 +30,7 @@ public interface SpamReportingResources {
 	 * This method calls http://api.twitter.com/1.1/report_spam.json
 	 * 
 	 * @param userId The ID of the user you want to report as a spammer.
-	 * @return The TwitterUser reported as a spammer.
+	 * @return The User reported as a spammer.
 	 * @throws twitter4j.TwitterException when Twitter service or network is unavailable
 	 * @see <a href="https://dev.twitter.com/docs/api/1.1/post/report_spam">POST
 	 *      report_spam | Twitter Developers</a>
@@ -45,7 +45,7 @@ public interface SpamReportingResources {
 	 *
 	 * @param screenName The screen name of the user you want to report as a
 	 *            spammer.
-	 * @return The TwitterUser reported as a spammer.
+	 * @return The User reported as a spammer.
 	 * @throws twitter4j.TwitterException when Twitter service or network is unavailable
 	 * @see <a href="https://dev.twitter.com/docs/api/1.1/post/report_spam">POST
 	 *      report_spam | Twitter Developers</a>

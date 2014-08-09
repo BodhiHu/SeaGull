@@ -104,7 +104,7 @@ public interface DirectMessagesResources {
 	 *
 	 * @param userId the screen name of the user to whom send the direct message
 	 * @param text The text of your direct message.
-	 * @return TwitterDirectMessage
+	 * @return DirectMessage
 	 * @throws twitter4j.TwitterException when Twitter service or network is unavailable
 	 * @see <a
 	 *      href="https://dev.twitter.com/docs/api/1.1/post/direct_messages/new">POST
@@ -124,7 +124,7 @@ public interface DirectMessagesResources {
 	 * @param screenName the screen name of the user to whom send the direct
 	 *            message
 	 * @param text The text of your direct message.
-	 * @return TwitterDirectMessage
+	 * @return DirectMessage
 	 * @throws twitter4j.TwitterException when Twitter service or network is unavailable
 	 * @see <a
 	 *      href="https://dev.twitter.com/docs/api/1.1/post/direct_messages/new">POST
@@ -140,7 +140,7 @@ public interface DirectMessagesResources {
 	 * http://api.twitter.com/1.1/direct_messages/show/:id.json
 	 *
 	 * @param id message id
-	 * @return TwitterDirectMessage
+	 * @return DirectMessage
 	 * @throws twitter4j.TwitterException when Twitter service or network is unavailable
 	 * @see <a
 	 *      href="http://groups.google.com/group/twitter-api-announce/msg/34909da7c399169e">#newtwitter

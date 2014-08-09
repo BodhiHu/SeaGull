@@ -166,7 +166,7 @@ public class HttpClientImpl extends HttpClientBase implements HttpClient, HttpRe
 					res = new HttpResponseImpl(con, CONF);
 					responseCode = con.getResponseCode();
 					if (logger.isDebugEnabled()) {
-						logger.debug("TwitterResponse: ");
+						logger.debug("Response: ");
 						final Map<String, List<String>> responseHeaders = con.getHeaderFields();
 						for (final String key : responseHeaders.keySet()) {
 							final List<String> values = responseHeaders.get(key);

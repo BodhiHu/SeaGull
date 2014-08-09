@@ -830,7 +830,7 @@ class ConfigurationBase implements TwitterConstants, Configuration {
 			requestHeaders.put("X-Twitter-Client", getClientName());
 		}
 
-		requestHeaders.put("TwitterUser-Agent", getHttpUserAgent());
+		requestHeaders.put("User-Agent", getHttpUserAgent());
 		if (gzipEnabled) {
 			requestHeaders.put("Accept-Encoding", "gzip");
 		}

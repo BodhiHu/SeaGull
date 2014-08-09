@@ -19,7 +19,7 @@ package twitter4j;
 import java.io.Serializable;
 
 /**
- * Super interface of Twitter TwitterResponse data interfaces which indicates that rate
+ * Super interface of Twitter Response data interfaces which indicates that rate
  * limit status is avaialble.
  * 
  * @author Yusuke Yamamoto - yusuke at mac.com

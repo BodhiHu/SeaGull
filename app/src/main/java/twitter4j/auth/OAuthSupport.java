@@ -19,7 +19,7 @@ public interface OAuthSupport {
 	 * @see <a href="https://dev.twitter.com/docs/auth/oauth/faq">OAuth FAQ |
 	 *      dev.twitter.com - How long does an access token last?</a>
 	 * @see <a href="http://oauth.net/core/1.0a/#auth_step2">OAuth Core 1.0a -
-	 *      6.2. Obtaining TwitterUser Authorization</a>
+	 *      6.2. Obtaining User Authorization</a>
 	 * @see <a
 	 *      href="https://dev.twitter.com/docs/api/1.1/post/oauth/access_token">POST
 	 *      oauth/access_token | Twitter Developers</a>
@@ -38,7 +38,7 @@ public interface OAuthSupport {
 	 * @see <a href="https://dev.twitter.com/docs/auth/oauth/faq">OAuth FAQ |
 	 *      dev.twitter.com - How long does an access token last?</a>
 	 * @see <a href="http://oauth.net/core/1.0a/#auth_step2">OAuth Core 1.0a -
-	 *      6.2. Obtaining TwitterUser Authorization</a>
+	 *      6.2. Obtaining User Authorization</a>
 	 * @see <a
 	 *      href="https://dev.twitter.com/docs/api/1.1/post/oauth/access_token">POST
 	 *      oauth/access_token | Twitter Developers</a>
@@ -56,7 +56,7 @@ public interface OAuthSupport {
 	 * @throws twitter4j.TwitterException when Twitter service or network is unavailable,
 	 *             or the user has not authorized
 	 * @see <a href="http://oauth.net/core/1.0a/#auth_step2">OAuth Core 1.0a -
-	 *      6.2. Obtaining TwitterUser Authorization</a>
+	 *      6.2. Obtaining User Authorization</a>
 	 * @see <a
 	 *      href="https://dev.twitter.com/docs/api/1.1/post/oauth/access_token">POST
 	 *      oauth/access_token | Twitter Developers</a>
@@ -74,7 +74,7 @@ public interface OAuthSupport {
 	 * @see <a href="https://dev.twitter.com/docs/auth/oauth/faq">OAuth FAQ |
 	 *      dev.twitter.com - How long does an access token last?</a>
 	 * @see <a href="http://oauth.net/core/1.0a/#auth_step2">OAuth Core 1.0a -
-	 *      6.2. Obtaining TwitterUser Authorization</a>
+	 *      6.2. Obtaining User Authorization</a>
 	 * @see <a
 	 *      href="https://dev.twitter.com/docs/api/1.1/post/oauth/access_token">POST
 	 *      oauth/access_token | Twitter Developers</a>

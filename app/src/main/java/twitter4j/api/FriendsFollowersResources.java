@@ -116,7 +116,7 @@ public interface FriendsFollowersResources {
 	 * http://api.twitter.com/1.1/friendships/destroy/[id].json
 	 *
 	 * @param userId the ID of the user for whom to request a list of friends
-	 * @return TwitterUser
+	 * @return User
 	 * @throws twitter4j.TwitterException when Twitter service or network is unavailable
 	 * @see <a
 	 *      href="https://dev.twitter.com/docs/api/1.1/post/friendships/destroy">POST
@@ -135,7 +135,7 @@ public interface FriendsFollowersResources {
 	 *
 	 * @param screenName the screen name of the user for whom to request a list
 	 *            of friends
-	 * @return TwitterUser
+	 * @return User
 	 * @throws twitter4j.TwitterException when Twitter service or network is unavailable
 	 * @see <a
 	 *      href="https://dev.twitter.com/docs/api/1.1/post/friendships/destroy">POST
