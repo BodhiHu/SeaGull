@@ -1,22 +1,3 @@
-/*
- * 				Twidere - Twitter client for Android
- * 
- *  Copyright (C) 2012-2014 Mariotaku Lee <mariotaku.lee@gmail.com>
- * 
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- * 
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- * 
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package com.shawnhu.seagull.seagull.twitter.providers;
 
 import android.app.Notification;
@@ -95,13 +76,14 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
     private static final String UNREAD_MENTIONS_FILE_NAME = "unread_mentions";
     private static final String UNREAD_MESSAGES_FILE_NAME = "unread_messages";
 
-    private ContentResolver mContentResolver;
-    private SQLiteDatabaseWrapper mDatabaseWrapper;
-    private PermissionsManager mPermissionsManager;
-    private NotificationManager mNotificationManager;
-    private SharedPreferencesWrapper mPreferences;
-    private ImagePreloader mImagePreloader;
-    private HostAddressResolver mHostAddressResolver;
+    private ContentResolver             mContentResolver;
+    private SQLiteDatabaseWrapper       mDatabaseWrapper;
+    private PermissionsManager          mPermissionsManager;
+    private NotificationManager         mNotificationManager;
+    private SharedPreferencesWrapper    mPreferences;
+    private ImagePreloader              mImagePreloader;
+    private HostAddressResolver         mHostAddressResolver;
+    private TwitterManager              mTwitterManager;
 
     private final List<ParcelableWithJSONStatus> mNewStatuses = new CopyOnWriteArrayList<ParcelableWithJSONStatus>();
     private final List<ParcelableWithJSONStatus> mNewMentions = new CopyOnWriteArrayList<ParcelableWithJSONStatus>();
@@ -252,12 +234,13 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
     public boolean onCreate() {
         final Context context = getContext();
         mDatabaseWrapper = new SQLiteDatabaseWrapper(this);
-        mHostAddressResolver = TwitterManager.getHostAddressResolver();
+        mTwitterManager  = TwitterManager.getInstance(getContext());
+        mHostAddressResolver = mTwitterManager.getHostAddressResolver();
         mPreferences = SharedPreferencesWrapper.getInstance(context, SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         mPreferences.registerOnSharedPreferenceChangeListener(this);
         updatePreferences();
         mPermissionsManager = new PermissionsManager(context);
-        mImagePreloader = new ImagePreloader(context, TwitterManager.getImageLoader());
+        mImagePreloader = new ImagePreloader(context, mTwitterManager.getImageLoader());
         final IntentFilter filter = new IntentFilter();
         filter.addAction(BROADCAST_HOME_ACTIVITY_ONSTART);
         filter.addAction(BROADCAST_HOME_ACTIVITY_ONSTOP);
@@ -271,7 +254,7 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
 
     @Override
     public SQLiteDatabase onCreateSQLiteDatabase() {
-        final SQLiteOpenHelper helper = TwitterManager.getSQLiteOpenHelper();
+        final SQLiteOpenHelper helper = mTwitterManager.getSQLiteOpenHelper();
         return helper.getWritableDatabase();
     }
 

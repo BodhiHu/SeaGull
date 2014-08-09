@@ -1857,7 +1857,7 @@ public final class Utils {
     public static Twitter getTwitterInstance(final Context context, final long accountId,
             final boolean includeEntities, final boolean includeRetweets, final boolean apacheHttp) {
         if (context == null) return null;
-        final Application app = TwitterManager.getApplicationContext();
+        final Application app = (Application) context.getApplicationContext();
         final SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         final int connection_timeout = prefs.getInt(KEY_CONNECTION_TIMEOUT, 10) * 1000;
         final boolean enableGzip = prefs.getBoolean(KEY_GZIP_COMPRESSING, true);

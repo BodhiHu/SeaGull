@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.shawnhu.home"
-        minSdkVersion 10
+        minSdkVersion 14 //ICE_CREAM_SANDWICH
         targetSdkVersion 20
         versionCode 1
         versionName "1.0"

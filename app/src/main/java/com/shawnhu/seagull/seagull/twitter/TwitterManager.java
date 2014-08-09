@@ -91,7 +91,6 @@ public class TwitterManager {
 
     public HostAddressResolver getHostAddressResolver() {
         if (sHostAddrResolver == null) {
-            //TODO: new instance
             sHostAddrResolver = new TwidereHostAddressResolver(sAppContext);
         }
         return sHostAddrResolver;
@@ -119,7 +118,6 @@ public class TwitterManager {
 
     public MultiSelectManager getMultiSelectManager() {
         if (sMultiSelectManager == null) {
-            //TODO: newInstance
             sMultiSelectManager = new MultiSelectManager();
         }
 
@@ -135,7 +133,6 @@ public class TwitterManager {
 
     public SQLiteOpenHelper getSQLiteOpenHelper() {
         if (sSQLiteOpenHelper == null) {
-            //TODO
             sSQLiteOpenHelper = new TwitterSQLiteOpenHelper(sAppContext,
                     SeagullTwitterConstants.DATABASES_NAME,
                     SeagullTwitterConstants.DATABASES_VERSION);
