@@ -1,7 +1,9 @@
-package com.shawnhu.seagull.seagull.twitter;
+package com.shawnhu.seagull.seagull.twitter.auth;
 
 import android.text.TextUtils;
 import android.util.Xml;
+
+import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
