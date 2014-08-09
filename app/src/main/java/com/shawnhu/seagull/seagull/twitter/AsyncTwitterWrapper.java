@@ -10,12 +10,16 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.seagull.twitter.model.ListResponse;
+import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterLocation;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterMediaUpdate;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterMessageListResponse;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusListResponse;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusUpdate;
-import com.shawnhu.seagull.seagull.twitter.model.TwitterResponse;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterUser;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterUserList;
 import com.shawnhu.seagull.seagull.twitter.services.BackgroundOperationService;
@@ -365,7 +369,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         return sInstance = new AsyncTwitterWrapper(context);
     }
 
-    public static class UpdateProfileBannerImageTask extends ManagedAsyncTask<Void, Void, TwitterResponse<Boolean>> {
+    public static class UpdateProfileBannerImageTask extends ManagedAsyncTask<Void, Void, Response<Boolean>> {
 
         private final long mAccountId;
         private final Uri mImageUri;
@@ -382,12 +386,12 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<Boolean> doInBackground(final Void... params) {
+        protected Response<Boolean> doInBackground(final Void... params) {
             return TwitterWrapper.updateProfileBannerImage(mContext, mAccountId, mImageUri, mDeleteImage);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<Boolean> result) {
+        protected void onPostExecute(final Response<Boolean> result) {
             if (result.hasData() && result.getData()) {
                 showOkMessage(mContext, R.string.profile_banner_image_updated, false);
             } else {
@@ -403,7 +407,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    public static class UpdateProfileImageTask extends ManagedAsyncTask<Void, Void, TwitterResponse<TwitterUser>> {
+    public static class UpdateProfileImageTask extends ManagedAsyncTask<Void, Void, Response<TwitterUser>> {
 
         private final long account_id;
         private final Uri image_uri;
@@ -420,12 +424,12 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<TwitterUser> doInBackground(final Void... params) {
+        protected Response<TwitterUser> doInBackground(final Void... params) {
             return TwitterWrapper.updateProfileImage(context, account_id, image_uri, delete_image);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<TwitterUser> result) {
+        protected void onPostExecute(final Response<TwitterUser> result) {
             if (result.hasData()) {
                 showOkMessage(context, R.string.profile_image_updated, false);
             } else {
@@ -440,7 +444,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    public static class UpdateProfileTask extends ManagedAsyncTask<Void, Void, TwitterResponse<TwitterUser>> {
+    public static class UpdateProfileTask extends ManagedAsyncTask<Void, Void, Response<TwitterUser>> {
 
         private final long account_id;
         private final String name, url, location, description;
@@ -458,12 +462,12 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<TwitterUser> doInBackground(final Void... params) {
+        protected Response<TwitterUser> doInBackground(final Void... params) {
             return updateProfile(context, account_id, name, url, location, description);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<TwitterUser> result) {
+        protected void onPostExecute(final Response<TwitterUser> result) {
             if (result.hasData()) {
                 showOkMessage(context, R.string.profile_updated, false);
             } else {
@@ -479,7 +483,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class AcceptFriendshipTask extends ManagedAsyncTask<Void, Void, TwitterResponse<twitter4j.User>> {
+    class AcceptFriendshipTask extends ManagedAsyncTask<Void, Void, Response<User>> {
 
         private final long mAccountId;
         private final long mUserId;
@@ -499,20 +503,20 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<twitter4j.User> doInBackground(final Void... params) {
+        protected Response<User> doInBackground(final Void... params) {
 
             final Twitter twitter = getTwitterInstance(mContext, mAccountId, false);
-            if (twitter == null) return new TwitterResponse<twitter4j.User>(null, null);
+            if (twitter == null) return new Response<User>(null, null);
             try {
                 final twitter4j.User user = twitter.acceptFriendship(mUserId);
-                return new TwitterResponse<twitter4j.User>(user, null);
+                return new Response<User>(user, null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<twitter4j.User>(null, e);
+                return new Response<User>(null, e);
             }
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<twitter4j.User> result) {
+        protected void onPostExecute(final Response<User> result) {
             if (result.hasData()) {
                 final twitter4j.User user = result.getData();
                 final String message = mContext.getString(R.string.accepted_users_follow_request,
@@ -531,7 +535,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class AddUserListMembersTask extends ManagedAsyncTask<Void, Void, TwitterResponse<TwitterUserList>> {
+    class AddUserListMembersTask extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>> {
 
         private final long accountId;
         private final long listId;
@@ -545,9 +549,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<TwitterUserList> doInBackground(final Void... params) {
+        protected Response<TwitterUserList> doInBackground(final Void... params) {
             final Twitter twitter = getTwitterInstance(mContext, accountId, false);
-            if (twitter == null || users == null) return new TwitterResponse<TwitterUserList>(null, null);
+            if (twitter == null || users == null) return new Response<TwitterUserList>(null, null);
             try {
                 final long[] userIds = new long[users.length];
                 for (int i = 0, j = users.length; i < j; i++) {
@@ -555,14 +559,14 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                 }
                 final TwitterUserList list = new TwitterUserList(twitter.addUserListMembers(listId, userIds),
                         accountId);
-                return new TwitterResponse<TwitterUserList>(list, null);
+                return new Response<TwitterUserList>(list, null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<TwitterUserList>(null, e);
+                return new Response<TwitterUserList>(null, e);
             }
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<TwitterUserList> result) {
+        protected void onPostExecute(final Response<TwitterUserList> result) {
             final boolean succeed = result.hasData() && result.getData().id > 0;
             if (succeed) {
                 final String message;
@@ -619,7 +623,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class CreateBlockTask extends ManagedAsyncTask<Void, Void, TwitterResponse<twitter4j.User>> {
+    class CreateBlockTask extends ManagedAsyncTask<Void, Void, Response<User>> {
 
         private final long account_id, user_id;
 
@@ -630,9 +634,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<twitter4j.User> doInBackground(final Void... params) {
+        protected Response<User> doInBackground(final Void... params) {
             final Twitter twitter = getTwitterInstance(mContext, account_id, false);
-            if (twitter == null) return new TwitterResponse<twitter4j.User>(null, null);
+            if (twitter == null) return new Response<User>(null, null);
             try {
                 final twitter4j.User user = twitter.createBlock(user_id);
                 for (final Uri uri : STATUSES_URIS) {
@@ -646,14 +650,14 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                 // list.
                 final String where = CachedUsers.USER_ID + " = " + user_id;
                 mResolver.delete(CachedUsers.CONTENT_URI, where, null);
-                return new TwitterResponse<twitter4j.User>(user, null);
+                return new Response<User>(user, null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<twitter4j.User>(null, e);
+                return new Response<User>(null, e);
             }
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<twitter4j.User> result) {
+        protected void onPostExecute(final Response<User> result) {
             if (result.hasData() && result.getData().getId() > 0) {
                 final String message = mContext.getString(R.string.blocked_user,
                         getUserName(mContext, result.getData()));
@@ -670,7 +674,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class CreateFavoriteTask extends ManagedAsyncTask<Void, Void, TwitterResponse<TwitterStatus>> {
+    class CreateFavoriteTask extends ManagedAsyncTask<Void, Void, Response<TwitterStatus>> {
 
         private final long account_id, status_id;
 
@@ -681,10 +685,10 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<TwitterStatus> doInBackground(final Void... params) {
-            if (account_id < 0) return new TwitterResponse<TwitterStatus>(null, null);
+        protected Response<TwitterStatus> doInBackground(final Void... params) {
+            if (account_id < 0) return new Response<TwitterStatus>(null, null);
             final Twitter twitter = getTwitterInstance(mContext, account_id, false);
-            if (twitter == null) return new TwitterResponse<TwitterStatus>(null, null);
+            if (twitter == null) return new Response<TwitterStatus>(null, null);
             try {
                 final twitter4j.Status status = twitter.createFavorite(status_id);
                 final ContentValues values = new ContentValues();
@@ -700,14 +704,14 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                 for (final Uri uri : TweetStore.STATUSES_URIS) {
                     mResolver.update(uri, values, where.toString(), null);
                 }
-                return new TwitterResponse<TwitterStatus>(new TwitterStatus(status, account_id, false), null);
+                return new Response<TwitterStatus>(new TwitterStatus(status, account_id, false), null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<TwitterStatus>(null, e);
+                return new Response<TwitterStatus>(null, e);
             }
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<TwitterStatus> result) {
+        protected void onPostExecute(final Response<TwitterStatus> result) {
             if (result.hasData()) {
                 final Intent intent = new Intent(BROADCAST_FAVORITE_CHANGED);
                 intent.putExtra(EXTRA_STATUS, result.getData());
@@ -722,7 +726,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class CreateFriendshipTask extends ManagedAsyncTask<Void, Void, TwitterResponse<twitter4j.User>> {
+    class CreateFriendshipTask extends ManagedAsyncTask<Void, Void, Response<User>> {
 
         private final long account_id;
         private final long user_id;
@@ -742,20 +746,20 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<twitter4j.User> doInBackground(final Void... params) {
+        protected Response<User> doInBackground(final Void... params) {
 
             final Twitter twitter = getTwitterInstance(mContext, account_id, false);
-            if (twitter == null) return new TwitterResponse<twitter4j.User>(null, null);
+            if (twitter == null) return new Response<User>(null, null);
             try {
                 final twitter4j.User user = twitter.createFriendship(user_id);
-                return new TwitterResponse<twitter4j.User>(user, null);
+                return new Response<User>(user, null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<twitter4j.User>(null, e);
+                return new Response<User>(null, e);
             }
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<twitter4j.User> result) {
+        protected void onPostExecute(final Response<User> result) {
             if (result.hasData()) {
                 final twitter4j.User user = result.getData();
                 final String message;
@@ -777,7 +781,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class CreateMultiBlockTask extends ManagedAsyncTask<Void, Void, com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Long>> {
+    class CreateMultiBlockTask extends ManagedAsyncTask<Void, Void, ListResponse<Long>> {
 
         private final long account_id;
         private final long[] user_ids;
@@ -789,7 +793,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Long> doInBackground(final Void... params) {
+        protected ListResponse<Long> doInBackground(final Void... params) {
             final List<Long> blocked_users = new ArrayList<Long>();
             final Twitter twitter = getTwitterInstance(mContext, account_id, false);
             if (twitter != null) {
@@ -802,16 +806,16 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                         blocked_users.add(user.getId());
                     } catch (final TwitterException e) {
                         deleteCaches(blocked_users);
-                        return new com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Long>(null, e, null);
+                        return new ListResponse<Long>(null, e, null);
                     }
                 }
             }
             deleteCaches(blocked_users);
-            return new com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Long>(blocked_users, null, null);
+            return new ListResponse<Long>(blocked_users, null, null);
         }
 
         @Override
-        protected void onPostExecute(final com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Long> result) {
+        protected void onPostExecute(final ListResponse<Long> result) {
             if (result.getList() != null) {
                 mMessagesManager.showInfoMessage(R.string.users_blocked, false);
             } else {
@@ -834,7 +838,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
     }
 
-    class CreateSavedSearchTask extends ManagedAsyncTask<Void, Void, TwitterResponse<SavedSearch>> {
+    class CreateSavedSearchTask extends ManagedAsyncTask<Void, Void, Response<SavedSearch>> {
 
         private final long mAccountId;
         private final String mQuery;
@@ -846,18 +850,18 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<SavedSearch> doInBackground(final Void... params) {
+        protected Response<SavedSearch> doInBackground(final Void... params) {
             final Twitter twitter = getTwitterInstance(mContext, mAccountId, false);
             if (twitter == null) return null;
             try {
-                return new TwitterResponse<SavedSearch>(twitter.createSavedSearch(mQuery), null);
+                return new Response<SavedSearch>(twitter.createSavedSearch(mQuery), null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<SavedSearch>(null, e);
+                return new Response<SavedSearch>(null, e);
             }
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<SavedSearch> result) {
+        protected void onPostExecute(final Response<SavedSearch> result) {
             if (result.hasData()) {
                 final String message = mContext.getString(R.string.search_name_saved, result.getData().getQuery());
                 mMessagesManager.showOkMessage(message, false);
@@ -869,7 +873,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class CreateUserListSubscriptionTask extends ManagedAsyncTask<Void, Void, TwitterResponse<TwitterUserList>> {
+    class CreateUserListSubscriptionTask extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>> {
 
         private final long accountId;
         private final long listId;
@@ -881,21 +885,21 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<TwitterUserList> doInBackground(final Void... params) {
+        protected Response<TwitterUserList> doInBackground(final Void... params) {
             final Twitter twitter = getTwitterInstance(mContext, accountId, false);
-            if (twitter == null) return new TwitterResponse<TwitterUserList>(null, null);
+            if (twitter == null) return new Response<TwitterUserList>(null, null);
 
             try {
                 final TwitterUserList list = new TwitterUserList(twitter.createUserListSubscription(listId),
                         accountId);
-                return new TwitterResponse<TwitterUserList>(list, null);
+                return new Response<TwitterUserList>(list, null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<TwitterUserList>(null, e);
+                return new Response<TwitterUserList>(null, e);
             }
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<TwitterUserList> result) {
+        protected void onPostExecute(final Response<TwitterUserList> result) {
             final boolean succeed = result.hasData();
             if (succeed) {
                 final String message = mContext.getString(R.string.subscribed_to_list, result.getData().name);
@@ -912,7 +916,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class CreateUserListTask extends ManagedAsyncTask<Void, Void, TwitterResponse<twitter4j.UserList>> {
+    class CreateUserListTask extends ManagedAsyncTask<Void, Void, Response<UserList>> {
 
         private final long account_id;
         private final String list_name, description;
@@ -928,19 +932,19 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<twitter4j.UserList> doInBackground(final Void... params) {
+        protected Response<UserList> doInBackground(final Void... params) {
             final Twitter twitter = getTwitterInstance(mContext, account_id, false);
-            if (twitter == null || list_name == null) return new TwitterResponse<UserList>(null, null);
+            if (twitter == null || list_name == null) return new Response<UserList>(null, null);
             try {
                 final twitter4j.UserList list = twitter.createUserList(list_name, is_public, description);
-                return new TwitterResponse<UserList>(list, null);
+                return new Response<UserList>(list, null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<UserList>(null, e);
+                return new Response<UserList>(null, e);
             }
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<twitter4j.UserList> result) {
+        protected void onPostExecute(final Response<UserList> result) {
             final boolean succeed = result.hasData() && result.getData().getId() > 0;
             if (succeed) {
                 final String message = mContext.getString(R.string.created_list, result.getData().getName());
@@ -956,7 +960,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DeleteUserListMembersTask extends ManagedAsyncTask<Void, Void, TwitterResponse<TwitterUserList>> {
+    class DeleteUserListMembersTask extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>> {
 
         private final long mAccountId;
         private final long mUserListId;
@@ -970,9 +974,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<TwitterUserList> doInBackground(final Void... params) {
+        protected Response<TwitterUserList> doInBackground(final Void... params) {
             final Twitter twitter = getTwitterInstance(mContext, mAccountId, false);
-            if (twitter == null) return new TwitterResponse<TwitterUserList>(null, null);
+            if (twitter == null) return new Response<TwitterUserList>(null, null);
             try {
                 final long[] userIds = new long[users.length];
                 for (int i = 0, j = users.length; i < j; i++) {
@@ -980,14 +984,14 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                 }
                 final TwitterUserList list = new TwitterUserList(twitter.deleteUserListMembers(mUserListId,
                         userIds), mAccountId);
-                return new TwitterResponse<TwitterUserList>(list, null);
+                return new Response<TwitterUserList>(list, null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<TwitterUserList>(null, e);
+                return new Response<TwitterUserList>(null, e);
             }
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<TwitterUserList> result) {
+        protected void onPostExecute(final Response<TwitterUserList> result) {
             final boolean succeed = result.hasData() && result.getData().id > 0;
             final String message;
             if (succeed) {
@@ -1014,7 +1018,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DenyFriendshipTask extends ManagedAsyncTask<Void, Void, TwitterResponse<twitter4j.User>> {
+    class DenyFriendshipTask extends ManagedAsyncTask<Void, Void, Response<User>> {
 
         private final long mAccountId;
         private final long mUserId;
@@ -1034,20 +1038,20 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<twitter4j.User> doInBackground(final Void... params) {
+        protected Response<User> doInBackground(final Void... params) {
 
             final Twitter twitter = getTwitterInstance(mContext, mAccountId, false);
-            if (twitter == null) return new TwitterResponse<twitter4j.User>(null, null);
+            if (twitter == null) return new Response<User>(null, null);
             try {
                 final twitter4j.User user = twitter.denyFriendship(mUserId);
-                return new TwitterResponse<twitter4j.User>(user, null);
+                return new Response<User>(user, null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<twitter4j.User>(null, e);
+                return new Response<User>(null, e);
             }
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<twitter4j.User> result) {
+        protected void onPostExecute(final Response<User> result) {
             if (result.hasData()) {
                 final twitter4j.User user = result.getData();
                 final String message = mContext.getString(R.string.denied_users_follow_request,
@@ -1065,7 +1069,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroyBlockTask extends ManagedAsyncTask<Void, Void, TwitterResponse<twitter4j.User>> {
+    class DestroyBlockTask extends ManagedAsyncTask<Void, Void, Response<User>> {
 
         private final long mAccountId;
         private final long mUserId;
@@ -1077,20 +1081,20 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<twitter4j.User> doInBackground(final Void... params) {
+        protected Response<User> doInBackground(final Void... params) {
             final Twitter twitter = getTwitterInstance(mContext, mAccountId, false);
-            if (twitter == null) return new TwitterResponse<twitter4j.User>(null, null);
+            if (twitter == null) return new Response<User>(null, null);
             try {
                 final twitter4j.User user = twitter.destroyBlock(mUserId);
-                return new TwitterResponse<twitter4j.User>(user, null);
+                return new Response<User>(user, null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<twitter4j.User>(null, e);
+                return new Response<User>(null, e);
             }
 
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<twitter4j.User> result) {
+        protected void onPostExecute(final Response<User> result) {
             if (result.hasData()) {
                 final String message = mContext.getString(R.string.unblocked_user,
                         getUserName(mContext, result.getData()));
@@ -1107,7 +1111,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroyDirectMessageTask extends ManagedAsyncTask<Void, Void, TwitterResponse<DirectMessage>> {
+    class DestroyDirectMessageTask extends ManagedAsyncTask<Void, Void, Response<DirectMessage>> {
 
         private final long message_id;
         private final long account_id;
@@ -1120,23 +1124,23 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<DirectMessage> doInBackground(final Void... args) {
+        protected Response<DirectMessage> doInBackground(final Void... args) {
             final Twitter twitter = getTwitterInstance(mContext, account_id, false);
-            if (twitter == null) return new TwitterResponse<DirectMessage>(null, null);
+            if (twitter == null) return new Response<DirectMessage>(null, null);
             try {
                 final DirectMessage message = twitter.destroyDirectMessage(message_id);
                 deleteMessages(message_id);
-                return new TwitterResponse<DirectMessage>(message, null);
+                return new Response<DirectMessage>(message, null);
             } catch (final TwitterException e) {
                 if (isMessageNotFound(e)) {
                     deleteMessages(message_id);
                 }
-                return new TwitterResponse<DirectMessage>(null, e);
+                return new Response<DirectMessage>(null, e);
             }
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<DirectMessage> result) {
+        protected void onPostExecute(final Response<DirectMessage> result) {
             super.onPostExecute(result);
             if (result == null) return;
             if (result.hasData() || isMessageNotFound(result.getException())) {
@@ -1160,7 +1164,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
     }
 
-    class DestroyFavoriteTask extends ManagedAsyncTask<Void, Void, TwitterResponse<TwitterStatus>> {
+    class DestroyFavoriteTask extends ManagedAsyncTask<Void, Void, Response<TwitterStatus>> {
 
         private final long account_id;
 
@@ -1173,8 +1177,8 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<TwitterStatus> doInBackground(final Void... params) {
-            if (account_id < 0) return new TwitterResponse<TwitterStatus>(null, null);
+        protected Response<TwitterStatus> doInBackground(final Void... params) {
+            if (account_id < 0) return new Response<TwitterStatus>(null, null);
             final Twitter twitter = getTwitterInstance(mContext, account_id, false);
             if (twitter != null) {
                 try {
@@ -1192,16 +1196,16 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                     for (final Uri uri : TweetStore.STATUSES_URIS) {
                         mResolver.update(uri, values, where.toString(), null);
                     }
-                    return new TwitterResponse<TwitterStatus>(new TwitterStatus(status, account_id, false), null);
+                    return new Response<TwitterStatus>(new TwitterStatus(status, account_id, false), null);
                 } catch (final TwitterException e) {
-                    return new TwitterResponse<TwitterStatus>(null, e);
+                    return new Response<TwitterStatus>(null, e);
                 }
             }
-            return new TwitterResponse<TwitterStatus>(null, null);
+            return new Response<TwitterStatus>(null, null);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<TwitterStatus> result) {
+        protected void onPostExecute(final Response<TwitterStatus> result) {
             if (result.hasData()) {
                 final Intent intent = new Intent(BROADCAST_FAVORITE_CHANGED);
                 intent.putExtra(EXTRA_STATUS, result.getData());
@@ -1216,7 +1220,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroyFriendshipTask extends ManagedAsyncTask<Void, Void, TwitterResponse<twitter4j.User>> {
+    class DestroyFriendshipTask extends ManagedAsyncTask<Void, Void, Response<User>> {
 
         private final long account_id;
         private final long user_id;
@@ -1236,7 +1240,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<twitter4j.User> doInBackground(final Void... params) {
+        protected Response<User> doInBackground(final Void... params) {
 
             final Twitter twitter = getTwitterInstance(mContext, account_id, false);
             if (twitter != null) {
@@ -1245,16 +1249,16 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                     final String where = Statuses.ACCOUNT_ID + " = " + account_id + " AND " + Statuses.USER_ID + " = "
                             + user_id;
                     mResolver.delete(Statuses.CONTENT_URI, where, null);
-                    return new TwitterResponse<twitter4j.User>(user, null);
+                    return new Response<User>(user, null);
                 } catch (final TwitterException e) {
-                    return new TwitterResponse<twitter4j.User>(null, e);
+                    return new Response<User>(null, e);
                 }
             }
-            return new TwitterResponse<twitter4j.User>(null, null);
+            return new Response<User>(null, null);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<twitter4j.User> result) {
+        protected void onPostExecute(final Response<User> result) {
             if (result.hasData()) {
                 final String message = mContext.getString(R.string.unfollowed_user,
                         getUserName(mContext, result.getData()));
@@ -1271,7 +1275,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroySavedSearchTask extends ManagedAsyncTask<Void, Void, TwitterResponse<SavedSearch>> {
+    class DestroySavedSearchTask extends ManagedAsyncTask<Void, Void, Response<SavedSearch>> {
 
         private final long mAccountId;
         private final int mSearchId;
@@ -1283,18 +1287,18 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<SavedSearch> doInBackground(final Void... params) {
+        protected Response<SavedSearch> doInBackground(final Void... params) {
             final Twitter twitter = getTwitterInstance(mContext, mAccountId, false);
-            if (twitter == null) return new TwitterResponse<SavedSearch>(null, null);
+            if (twitter == null) return new Response<SavedSearch>(null, null);
             try {
-                return new TwitterResponse<SavedSearch>(twitter.destroySavedSearch(mSearchId), null);
+                return new Response<SavedSearch>(twitter.destroySavedSearch(mSearchId), null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<SavedSearch>(null, e);
+                return new Response<SavedSearch>(null, e);
             }
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<SavedSearch> result) {
+        protected void onPostExecute(final Response<SavedSearch> result) {
             if (result.hasData()) {
                 final String message = mContext.getString(R.string.search_name_deleted, result.getData().getQuery());
                 mMessagesManager.showOkMessage(message, false);
@@ -1306,7 +1310,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroyStatusTask extends ManagedAsyncTask<Void, Void, TwitterResponse<twitter4j.Status>> {
+    class DestroyStatusTask extends ManagedAsyncTask<Void, Void, Response<Status>> {
 
         private final long account_id;
 
@@ -1319,9 +1323,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<twitter4j.Status> doInBackground(final Void... params) {
+        protected Response<twitter4j.Status> doInBackground(final Void... params) {
             final Twitter twitter = getTwitterInstance(mContext, account_id, false);
-            if (twitter == null) return new TwitterResponse<twitter4j.Status>(null, null);
+            if (twitter == null) return new Response<twitter4j.Status>(null, null);
             try {
                 final twitter4j.Status status = twitter.destroyStatus(status_id);
                 final ContentValues values = new ContentValues();
@@ -1330,14 +1334,14 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                     mResolver.delete(uri, Statuses.STATUS_ID + " = " + status_id, null);
                     mResolver.update(uri, values, Statuses.MY_RETWEET_ID + " = " + status_id, null);
                 }
-                return new TwitterResponse<twitter4j.Status>(status, null);
+                return new Response<twitter4j.Status>(status, null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<twitter4j.Status>(null, e);
+                return new Response<twitter4j.Status>(null, e);
             }
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<twitter4j.Status> result) {
+        protected void onPostExecute(final Response<twitter4j.Status> result) {
             final Intent intent = new Intent(BROADCAST_STATUS_DESTROYED);
             if (result.hasData() && result.getData().getId() > 0) {
                 intent.putExtra(EXTRA_STATUS_ID, status_id);
@@ -1356,7 +1360,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroyUserListSubscriptionTask extends ManagedAsyncTask<Void, Void, TwitterResponse<TwitterUserList>> {
+    class DestroyUserListSubscriptionTask extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>> {
 
         private final long mAccountId;
         private final long mListId;
@@ -1368,23 +1372,23 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<TwitterUserList> doInBackground(final Void... params) {
+        protected Response<TwitterUserList> doInBackground(final Void... params) {
 
             final Twitter twitter = getTwitterInstance(mContext, mAccountId, false);
             if (twitter != null) {
                 try {
                     final TwitterUserList list = new TwitterUserList(
                             twitter.destroyUserListSubscription(mListId), mAccountId);
-                    return new TwitterResponse<TwitterUserList>(list, null);
+                    return new Response<TwitterUserList>(list, null);
                 } catch (final TwitterException e) {
-                    return new TwitterResponse<TwitterUserList>(null, e);
+                    return new Response<TwitterUserList>(null, e);
                 }
             }
-            return new TwitterResponse<TwitterUserList>(null, null);
+            return new Response<TwitterUserList>(null, null);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<TwitterUserList> result) {
+        protected void onPostExecute(final Response<TwitterUserList> result) {
             final boolean succeed = result.hasData();
             if (succeed) {
                 final String message = mContext.getString(R.string.unsubscribed_from_list, result.getData().name);
@@ -1401,7 +1405,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroyUserListTask extends ManagedAsyncTask<Void, Void, TwitterResponse<TwitterUserList>> {
+    class DestroyUserListTask extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>> {
 
         private final long mAccountId;
         private final long mListId;
@@ -1413,7 +1417,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<TwitterUserList> doInBackground(final Void... params) {
+        protected Response<TwitterUserList> doInBackground(final Void... params) {
 
             final Twitter twitter = getTwitterInstance(mContext, mAccountId, false);
             if (twitter != null) {
@@ -1421,17 +1425,17 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                     if (mListId > 0) {
                         final TwitterUserList list = new TwitterUserList(twitter.destroyUserList(mListId),
                                 mAccountId);
-                        return new TwitterResponse<TwitterUserList>(list, null);
+                        return new Response<TwitterUserList>(list, null);
                     }
                 } catch (final TwitterException e) {
-                    return new TwitterResponse<TwitterUserList>(null, e);
+                    return new Response<TwitterUserList>(null, e);
                 }
             }
-            return new TwitterResponse<TwitterUserList>(null, null);
+            return new Response<TwitterUserList>(null, null);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<TwitterUserList> result) {
+        protected void onPostExecute(final Response<TwitterUserList> result) {
             final boolean succeed = result.hasData();
             if (succeed) {
                 final String message = mContext.getString(R.string.deleted_list, result.getData().name);
@@ -1448,7 +1452,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    abstract class GetDirectMessagesTask extends ManagedAsyncTask<Void, Void, List<MessageListResponse>> {
+    abstract class GetDirectMessagesTask extends ManagedAsyncTask<Void, Void, List<TwitterMessageListResponse>> {
 
         private final long[] account_ids, max_ids, since_ids;
 
@@ -1464,9 +1468,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                 throws TwitterException;
 
         @Override
-        protected List<MessageListResponse> doInBackground(final Void... params) {
+        protected List<TwitterMessageListResponse> doInBackground(final Void... params) {
 
-            final List<MessageListResponse> result = new ArrayList<MessageListResponse>();
+            final List<TwitterMessageListResponse> result = new ArrayList<TwitterMessageListResponse>();
 
             if (account_ids == null) return result;
 
@@ -1490,10 +1494,10 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                         final List<DirectMessage> messages = new ArrayList<DirectMessage>();
                         final boolean truncated = truncateMessages(getDirectMessages(twitter, paging), messages,
                                 since_id);
-                        result.add(new MessageListResponse(account_id, max_id, since_id, load_item_limit, messages,
+                        result.add(new TwitterMessageListResponse(account_id, max_id, since_id, load_item_limit, messages,
                                 truncated));
                     } catch (final TwitterException e) {
-                        result.add(new MessageListResponse(account_id, e));
+                        result.add(new TwitterMessageListResponse(account_id, e));
                     }
                 }
                 idx++;
@@ -1503,7 +1507,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected void onPostExecute(final List<MessageListResponse> result) {
+        protected void onPostExecute(final List<TwitterMessageListResponse> result) {
             super.onPostExecute(result);
             for (final TwitterListResponse response : result) {
                 if (response.getList() == null) {
@@ -1536,11 +1540,11 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected void onPostExecute(final List<StatusListResponse> responses) {
+        protected void onPostExecute(final List<TwitterStatusListResponse> responses) {
             super.onPostExecute(responses);
             mAsyncTaskManager.add(new StoreHomeTimelineTask(responses, !isMaxIdsValid()), true);
             mGetHomeTimelineTaskId = -1;
-            for (final StatusListResponse response : responses) {
+            for (final TwitterStatusListResponse response : responses) {
                 if (response.getList() == null) {
                     mMessagesManager.showErrorMessage(R.string.action_refreshing_home_timeline,
                             response.getException(), true);
@@ -1577,7 +1581,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected void onPostExecute(final com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Trends> result) {
+        protected void onPostExecute(final ListResponse<Trends> result) {
             mAsyncTaskManager.add(new StoreLocalTrendsTask(result), true);
             super.onPostExecute(result);
 
@@ -1598,11 +1602,11 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected void onPostExecute(final List<StatusListResponse> responses) {
+        protected void onPostExecute(final List<TwitterStatusListResponse> responses) {
             super.onPostExecute(responses);
             mAsyncTaskManager.add(new StoreMentionsTask(responses, !isMaxIdsValid()), true);
             mGetMentionsTaskId = -1;
-            for (final StatusListResponse response : responses) {
+            for (final TwitterStatusListResponse response : responses) {
                 if (response.getList() == null) {
                     mMessagesManager.showErrorMessage(R.string.action_refreshing_mentions, response.getException(),
                             true);
@@ -1634,7 +1638,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected void onPostExecute(final List<MessageListResponse> responses) {
+        protected void onPostExecute(final List<TwitterMessageListResponse> responses) {
             super.onPostExecute(responses);
             mAsyncTaskManager.add(new StoreReceivedDirectMessagesTask(responses, !isMaxIdsValid()), true);
             mGetReceivedDirectMessagesTaskId = -1;
@@ -1662,7 +1666,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected void onPostExecute(final List<MessageListResponse> responses) {
+        protected void onPostExecute(final List<TwitterMessageListResponse> responses) {
             super.onPostExecute(responses);
             mAsyncTaskManager.add(new StoreSentDirectMessagesTask(responses, !isMaxIdsValid()), true);
             mGetSentDirectMessagesTaskId = -1;
@@ -1670,7 +1674,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    abstract class GetStatusesTask extends ManagedAsyncTask<Void, Void, List<StatusListResponse>> {
+    abstract class GetStatusesTask extends ManagedAsyncTask<Void, Void, List<TwitterStatusListResponse>> {
 
         private final long[] mAccountIds, mMaxIds, mSinceIds;
 
@@ -1685,9 +1689,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                 throws TwitterException;
 
         @Override
-        protected List<StatusListResponse> doInBackground(final Void... params) {
+        protected List<TwitterStatusListResponse> doInBackground(final Void... params) {
 
-            final List<StatusListResponse> result = new ArrayList<StatusListResponse>();
+            final List<TwitterStatusListResponse> result = new ArrayList<TwitterStatusListResponse>();
 
             if (mAccountIds == null) return result;
 
@@ -1714,10 +1718,10 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                         }
                         final List<twitter4j.Status> statuses = new ArrayList<twitter4j.Status>();
                         final boolean truncated = truncateStatuses(getStatuses(twitter, paging), statuses, sinceId);
-                        result.add(new StatusListResponse(account_id, maxId, sinceId, load_item_limit, statuses,
+                        result.add(new TwitterStatusListResponse(account_id, maxId, sinceId, load_item_limit, statuses,
                                 truncated));
                     } catch (final TwitterException e) {
-                        result.add(new StatusListResponse(account_id, e));
+                        result.add(new TwitterStatusListResponse(account_id, e));
                     }
                 }
                 idx++;
@@ -1735,7 +1739,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    abstract class GetTrendsTask extends ManagedAsyncTask<Void, Void, com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Trends>> {
+    abstract class GetTrendsTask extends ManagedAsyncTask<Void, Void, ListResponse<Trends>> {
 
         private final long account_id;
 
@@ -1747,18 +1751,18 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         public abstract List<Trends> getTrends(Twitter twitter) throws TwitterException;
 
         @Override
-        protected com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Trends> doInBackground(final Void... params) {
+        protected ListResponse<Trends> doInBackground(final Void... params) {
             final Twitter twitter = getTwitterInstance(mContext, account_id, false);
             final Bundle extras = new Bundle();
             extras.putLong(EXTRA_ACCOUNT_ID, account_id);
             if (twitter != null) {
                 try {
-                    return new com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Trends>(getTrends(twitter), null, extras);
+                    return new ListResponse<Trends>(getTrends(twitter), null, extras);
                 } catch (final TwitterException e) {
-                    return new com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Trends>(null, e, extras);
+                    return new ListResponse<Trends>(null, e, extras);
                 }
             }
-            return new com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Trends>(null, null, extras);
+            return new ListResponse<Trends>(null, null, extras);
         }
 
     }
@@ -1779,7 +1783,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class ReportMultiSpamTask extends ManagedAsyncTask<Void, Void, com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Long>> {
+    class ReportMultiSpamTask extends ManagedAsyncTask<Void, Void, ListResponse<Long>> {
 
         private final long account_id;
         private final long[] user_ids;
@@ -1791,7 +1795,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Long> doInBackground(final Void... params) {
+        protected ListResponse<Long> doInBackground(final Void... params) {
 
             final Bundle extras = new Bundle();
             extras.putLong(EXTRA_ACCOUNT_ID, account_id);
@@ -1806,15 +1810,15 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                         }
                         reported_users.add(user.getId());
                     } catch (final TwitterException e) {
-                        return new com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Long>(null, e, extras);
+                        return new ListResponse<Long>(null, e, extras);
                     }
                 }
             }
-            return new com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Long>(reported_users, null, extras);
+            return new ListResponse<Long>(reported_users, null, extras);
         }
 
         @Override
-        protected void onPostExecute(final com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Long> result) {
+        protected void onPostExecute(final ListResponse<Long> result) {
             if (result != null) {
                 final String user_id_where = ListUtils.toString(result.getList(), ',', false);
                 for (final Uri uri : STATUSES_URIS) {
@@ -1834,7 +1838,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class ReportSpamTask extends ManagedAsyncTask<Void, Void, TwitterResponse<twitter4j.User>> {
+    class ReportSpamTask extends ManagedAsyncTask<Void, Void, Response<User>> {
 
         private final long account_id;
         private final long user_id;
@@ -1846,21 +1850,21 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<twitter4j.User> doInBackground(final Void... params) {
+        protected Response<User> doInBackground(final Void... params) {
             final Twitter twitter = getTwitterInstance(mContext, account_id, false);
             if (twitter != null) {
                 try {
                     final twitter4j.User user = twitter.reportSpam(user_id);
-                    return new TwitterResponse<twitter4j.User>(user, null);
+                    return new Response<User>(user, null);
                 } catch (final TwitterException e) {
-                    return new TwitterResponse<twitter4j.User>(null, e);
+                    return new Response<User>(null, e);
                 }
             }
-            return new TwitterResponse<twitter4j.User>(null, null);
+            return new Response<User>(null, null);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<twitter4j.User> result) {
+        protected void onPostExecute(final Response<User> result) {
             if (result.hasData() && result.getData().getId() > 0) {
                 for (final Uri uri : STATUSES_URIS) {
                     final String where = Statuses.ACCOUNT_ID + " = " + account_id + " AND " + Statuses.USER_ID + " = "
@@ -1880,7 +1884,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class RetweetStatusTask extends ManagedAsyncTask<Void, Void, TwitterResponse<twitter4j.Status>> {
+    class RetweetStatusTask extends ManagedAsyncTask<Void, Void, Response<Status>> {
 
         private final long account_id;
 
@@ -1893,24 +1897,24 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<twitter4j.Status> doInBackground(final Void... params) {
+        protected Response<twitter4j.Status> doInBackground(final Void... params) {
 
-            if (account_id < 0) return new TwitterResponse<twitter4j.Status>(null, null);
+            if (account_id < 0) return new Response<twitter4j.Status>(null, null);
 
             final Twitter twitter = getTwitterInstance(mContext, account_id, false);
             if (twitter != null) {
                 try {
                     final twitter4j.Status status = twitter.retweetStatus(status_id);
-                    return new TwitterResponse<twitter4j.Status>(status, null);
+                    return new Response<twitter4j.Status>(status, null);
                 } catch (final TwitterException e) {
-                    return new TwitterResponse<twitter4j.Status>(null, e);
+                    return new Response<twitter4j.Status>(null, e);
                 }
             }
-            return new TwitterResponse<twitter4j.Status>(null, null);
+            return new Response<twitter4j.Status>(null, null);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<twitter4j.Status> result) {
+        protected void onPostExecute(final Response<twitter4j.Status> result) {
 
             if (result.hasData() && result.getData().getId() > 0) {
                 final ContentValues values = new ContentValues();
@@ -1934,7 +1938,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class SendDirectMessageTask extends ManagedAsyncTask<Void, Void, TwitterResponse<DirectMessage>> {
+    class SendDirectMessageTask extends ManagedAsyncTask<Void, Void, Response<DirectMessage>> {
 
         private final long user_id;
         private final String screen_name;
@@ -1951,22 +1955,22 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<DirectMessage> doInBackground(final Void... args) {
+        protected Response<DirectMessage> doInBackground(final Void... args) {
             final Twitter twitter = getTwitterInstance(mContext, account_id, true, true);
-            if (twitter == null) return new TwitterResponse<DirectMessage>(null, null);
+            if (twitter == null) return new Response<DirectMessage>(null, null);
             try {
                 if (user_id > 0)
-                    return new TwitterResponse<DirectMessage>(twitter.sendDirectMessage(user_id, message), null);
+                    return new Response<DirectMessage>(twitter.sendDirectMessage(user_id, message), null);
                 else if (screen_name != null)
-                    return new TwitterResponse<DirectMessage>(twitter.sendDirectMessage(screen_name, message), null);
+                    return new Response<DirectMessage>(twitter.sendDirectMessage(screen_name, message), null);
             } catch (final TwitterException e) {
-                return new TwitterResponse<DirectMessage>(null, e);
+                return new Response<DirectMessage>(null, e);
             }
-            return new TwitterResponse<DirectMessage>(null, null);
+            return new Response<DirectMessage>(null, null);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<DirectMessage> result) {
+        protected void onPostExecute(final Response<DirectMessage> result) {
             super.onPostExecute(result);
             if (result.hasData() && result.getData().getId() > 0) {
                 final ContentValues values = ContentValuesCreator.makeDirectMessageContentValues(result.getData(), account_id, true);
@@ -1982,13 +1986,13 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    abstract class StoreDirectMessagesTask extends ManagedAsyncTask<Void, Void, TwitterResponse<Bundle>> {
+    abstract class StoreDirectMessagesTask extends ManagedAsyncTask<Void, Void, Response<Bundle>> {
 
-        private final List<MessageListResponse> responses;
+        private final List<TwitterMessageListResponse> responses;
         private final Uri uri;
         private final boolean notify;
 
-        public StoreDirectMessagesTask(final List<MessageListResponse> result, final Uri uri, final boolean notify,
+        public StoreDirectMessagesTask(final List<TwitterMessageListResponse> result, final Uri uri, final boolean notify,
                 final String tag) {
             super(mContext, mAsyncTaskManager, tag);
             responses = result;
@@ -1997,7 +2001,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<Bundle> doInBackground(final Void... args) {
+        protected Response<Bundle> doInBackground(final Void... args) {
 
             boolean succeed = false;
             for (final TwitterListResponse response : responses) {
@@ -2034,7 +2038,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
             }
             final Bundle bundle = new Bundle();
             bundle.putBoolean(EXTRA_SUCCEED, succeed);
-            return new TwitterResponse<Bundle>(bundle, null);
+            return new Response<Bundle>(bundle, null);
         }
 
         abstract boolean isOutgoing();
@@ -2043,12 +2047,12 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     class StoreHomeTimelineTask extends StoreStatusesTask {
 
-        public StoreHomeTimelineTask(final List<StatusListResponse> result, final boolean notify) {
+        public StoreHomeTimelineTask(final List<TwitterStatusListResponse> result, final boolean notify) {
             super(result, Statuses.CONTENT_URI, notify, TASK_TAG_STORE_HOME_TIMELINE);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<Bundle> response) {
+        protected void onPostExecute(final Response<Bundle> response) {
             final boolean succeed = response != null && response.hasData()
                     && response.getData().getBoolean(EXTRA_SUCCEED);
             final Bundle extras = new Bundle();
@@ -2061,7 +2065,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     class StoreLocalTrendsTask extends StoreTrendsTask {
 
-        public StoreLocalTrendsTask(final com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Trends> result) {
+        public StoreLocalTrendsTask(final ListResponse<Trends> result) {
             super(result, CachedTrends.Local.CONTENT_URI);
         }
 
@@ -2069,12 +2073,12 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     class StoreMentionsTask extends StoreStatusesTask {
 
-        public StoreMentionsTask(final List<StatusListResponse> result, final boolean notify) {
+        public StoreMentionsTask(final List<TwitterStatusListResponse> result, final boolean notify) {
             super(result, Mentions.CONTENT_URI, notify, TASK_TAG_STORE_MENTIONS);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<Bundle> response) {
+        protected void onPostExecute(final Response<Bundle> response) {
             final boolean succeed = response != null && response.hasData()
                     && response.getData().getBoolean(EXTRA_SUCCEED);
             final Bundle extras = new Bundle();
@@ -2087,7 +2091,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     class StoreReceivedDirectMessagesTask extends StoreDirectMessagesTask {
 
-        public StoreReceivedDirectMessagesTask(final List<MessageListResponse> result, final boolean notify) {
+        public StoreReceivedDirectMessagesTask(final List<TwitterMessageListResponse> result, final boolean notify) {
             super(result, DirectMessages.Inbox.CONTENT_URI, notify, TASK_TAG_STORE_RECEIVED_DIRECT_MESSAGES);
         }
 
@@ -2100,7 +2104,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     class StoreSentDirectMessagesTask extends StoreDirectMessagesTask {
 
-        public StoreSentDirectMessagesTask(final List<MessageListResponse> result, final boolean notify) {
+        public StoreSentDirectMessagesTask(final List<TwitterMessageListResponse> result, final boolean notify) {
             super(result, DirectMessages.Outbox.CONTENT_URI, notify, TASK_TAG_STORE_SENT_DIRECT_MESSAGES);
         }
 
@@ -2111,14 +2115,14 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    abstract class StoreStatusesTask extends ManagedAsyncTask<Void, Void, TwitterResponse<Bundle>> {
+    abstract class StoreStatusesTask extends ManagedAsyncTask<Void, Void, Response<Bundle>> {
 
-        private final List<StatusListResponse> responses;
+        private final List<TwitterStatusListResponse> responses;
         private final Uri uri;
         private final ArrayList<ContentValues> all_statuses = new ArrayList<ContentValues>();
         private final boolean notify;
 
-        public StoreStatusesTask(final List<StatusListResponse> result, final Uri uri, final boolean notify,
+        public StoreStatusesTask(final List<TwitterStatusListResponse> result, final Uri uri, final boolean notify,
                 final String tag) {
             super(mContext, mAsyncTaskManager, tag);
             responses = result;
@@ -2127,9 +2131,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<Bundle> doInBackground(final Void... args) {
+        protected Response<Bundle> doInBackground(final Void... args) {
             boolean succeed = false;
-            for (final StatusListResponse response : responses) {
+            for (final TwitterStatusListResponse response : responses) {
                 final long account_id = response.account_id;
                 final List<twitter4j.Status> statuses = response.getList();
                 if (statuses == null || statuses.isEmpty()) {
@@ -2178,31 +2182,31 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
             final Bundle bundle = new Bundle();
             bundle.putBoolean(EXTRA_SUCCEED, succeed);
             getAllStatusesIds(mContext, uri);
-            return new TwitterResponse<Bundle>(bundle, null);
+            return new Response<Bundle>(bundle, null);
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            final StatusListResponse[] array = new StatusListResponse[responses.size()];
+            final TwitterStatusListResponse[] array = new TwitterStatusListResponse[responses.size()];
             new CacheUsersStatusesTask(mContext, responses.toArray(array)).execute();
         }
 
     }
 
-    class StoreTrendsTask extends ManagedAsyncTask<Void, Void, TwitterResponse<Bundle>> {
+    class StoreTrendsTask extends ManagedAsyncTask<Void, Void, Response<Bundle>> {
 
-        private final com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Trends> response;
+        private final ListResponse<Trends> response;
         private final Uri uri;
 
-        public StoreTrendsTask(final com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse<Trends> result, final Uri uri) {
+        public StoreTrendsTask(final ListResponse<Trends> result, final Uri uri) {
             super(mContext, mAsyncTaskManager, TASK_TAG_STORE_TRENDS);
             response = result;
             this.uri = uri;
         }
 
         @Override
-        protected TwitterResponse<Bundle> doInBackground(final Void... args) {
+        protected Response<Bundle> doInBackground(final Void... args) {
             final Bundle bundle = new Bundle();
             if (response != null) {
 
@@ -2229,11 +2233,11 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                     bundle.putBoolean(EXTRA_SUCCEED, true);
                 }
             }
-            return new TwitterResponse<Bundle>(bundle, null);
+            return new Response<Bundle>(bundle, null);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<Bundle> response) {
+        protected void onPostExecute(final Response<Bundle> response) {
             // if (response != null && response.data != null &&
             // response.data.getBoolean(EXTRA_SUCCEED)) {
             // final Intent intent = new Intent(BROADCAST_TRENDS_UPDATED);
@@ -2245,7 +2249,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class UpdateUserListDetailsTask extends ManagedAsyncTask<Void, Void, TwitterResponse<TwitterUserList>> {
+    class UpdateUserListDetailsTask extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>> {
 
         private final long accountId;
         private final long listId;
@@ -2263,22 +2267,22 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
 
         @Override
-        protected TwitterResponse<TwitterUserList> doInBackground(final Void... params) {
+        protected Response<TwitterUserList> doInBackground(final Void... params) {
 
             final Twitter twitter = getTwitterInstance(mContext, accountId, false);
             if (twitter != null) {
                 try {
                     final twitter4j.UserList list = twitter.updateUserList(listId, name, isPublic, description);
-                    return new TwitterResponse<TwitterUserList>(new TwitterUserList(list, accountId), null);
+                    return new Response<TwitterUserList>(new TwitterUserList(list, accountId), null);
                 } catch (final TwitterException e) {
-                    return new TwitterResponse<TwitterUserList>(null, e);
+                    return new Response<TwitterUserList>(null, e);
                 }
             }
-            return new TwitterResponse<TwitterUserList>(null, null);
+            return new Response<TwitterUserList>(null, null);
         }
 
         @Override
-        protected void onPostExecute(final TwitterResponse<TwitterUserList> result) {
+        protected void onPostExecute(final Response<TwitterUserList> result) {
             final Intent intent = new Intent(BROADCAST_USER_LIST_DETAILS_UPDATED);
             intent.putExtra(EXTRA_LIST_ID, listId);
             if (result.hasData() && result.getData().id > 0) {

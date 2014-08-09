@@ -2,16 +2,16 @@ package com.shawnhu.seagull.seagull.twitter.model;
 
 import android.os.Bundle;
 
-public class TwitterResponse<Data> {
+public class Response<Data> {
     protected final Exception exception;
     protected final Data data;
     protected final Bundle extras;
 
-    public TwitterResponse(final Data data, final Exception exception) {
+    public Response(final Data data, final Exception exception) {
         this(data, exception, null);
     }
 
-    public TwitterResponse(final Data data, final Exception exception, final Bundle extras) {
+    public Response(final Data data, final Exception exception, final Bundle extras) {
         this.data = data;
         this.exception = exception;
         this.extras = extras != null ? extras : new Bundle();
@@ -21,8 +21,8 @@ public class TwitterResponse<Data> {
     public boolean equals(final Object obj) {
         if (this == obj) return true;
         if (obj == null) return false;
-        if (!(obj instanceof TwitterResponse)) return false;
-        final TwitterResponse<?> other = (TwitterResponse<?>) obj;
+        if (!(obj instanceof Response)) return false;
+        final Response<?> other = (Response<?>) obj;
         if (getData() == null) {
             if (other.getData() != null) return false;
         } else if (!getData().equals(other.getData())) return false;

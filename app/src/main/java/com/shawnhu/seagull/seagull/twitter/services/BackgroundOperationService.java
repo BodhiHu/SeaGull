@@ -44,12 +44,12 @@ import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.*;
 import com.shawnhu.seagull.seagull.twitter.TweetStore;
 import static com.shawnhu.seagull.seagull.twitter.TweetStore.*;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
+import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterLocation;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterMediaUpdate;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusUpdate;
-import com.shawnhu.seagull.seagull.twitter.model.TwitterResponse;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterDirectMessage;
 import com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator;
 import com.shawnhu.seagull.seagull.twitter.utils.MessagesManager;
@@ -210,7 +210,7 @@ public class BackgroundOperationService extends IntentService {
 		builder.setOngoing(true);
 		final Notification notification = builder.build();
 		startForeground(NOTIFICATION_ID_SEND_DIRECT_MESSAGE, notification);
-		final TwitterResponse<TwitterDirectMessage> result = sendDirectMessage(builder, accountId, recipientId, text,
+		final Response<TwitterDirectMessage> result = sendDirectMessage(builder, accountId, recipientId, text,
 				imageUri);
 		if (result.getData() != null && result.getData().id > 0) {
 			final ContentValues values = makeDirectMessageContentValues(result.getData());
@@ -247,12 +247,12 @@ public class BackgroundOperationService extends IntentService {
 		for (final TwitterStatusUpdate item : statuses) {
 			mNotificationManager.notify(NOTIFICATION_ID_UPDATE_STATUS,
 					updateUpdateStatusNotificaion(this, builder, 0, item));
-			final List<TwitterResponse<TwitterStatus>> result = updateStatus(builder, item);
+			final List<Response<TwitterStatus>> result = updateStatus(builder, item);
 			boolean failed = false;
 			Exception exception = null;
 			final List<Long> failed_account_ids = ListUtils.fromArray(TwitterAccount.getAccountIds(item.accounts));
 
-			for (final TwitterResponse<TwitterStatus> response : result) {
+			for (final Response<TwitterStatus> response : result) {
 				if (response.getData() == null) {
 					failed = true;
 					if (exception == null) {
@@ -305,7 +305,7 @@ public class BackgroundOperationService extends IntentService {
 		mNotificationManager.notify(NOTIFICATION_ID_DRAFTS, notification);
 	}
 
-	private TwitterResponse<TwitterDirectMessage> sendDirectMessage(final NotificationCompat.Builder builder,
+	private Response<TwitterDirectMessage> sendDirectMessage(final NotificationCompat.Builder builder,
 			final long accountId, final long recipientId, final String text, final String imageUri) {
 		final Twitter twitter = getTwitterInstance(this, accountId, true, true);
 		try {
@@ -328,11 +328,11 @@ public class BackgroundOperationService extends IntentService {
 				directMessage = new TwitterDirectMessage(twitter.sendDirectMessage(recipientId, text), accountId,
 						true);
 			}
-			return new TwitterResponse<TwitterDirectMessage>(directMessage, null);
+			return new Response<TwitterDirectMessage>(directMessage, null);
 		} catch (final IOException e) {
-			return new TwitterResponse<TwitterDirectMessage>(null, e);
+			return new Response<TwitterDirectMessage>(null, e);
 		} catch (final TwitterException e) {
-			return new TwitterResponse<TwitterDirectMessage>(null, e);
+			return new Response<TwitterDirectMessage>(null, e);
 		}
 	}
 
@@ -340,7 +340,7 @@ public class BackgroundOperationService extends IntentService {
 		mHandler.post(new ToastRunnable(this, resId, duration));
 	}
 
-	private List<TwitterResponse<TwitterStatus>> updateStatus(final Builder builder,
+	private List<Response<TwitterStatus>> updateStatus(final Builder builder,
 			final TwitterStatusUpdate statusUpdate) {
 		final ArrayList<ContentValues> hashtag_values = new ArrayList<ContentValues>();
 		final Collection<String> hashtags = extractor.extractHashtags(statusUpdate.text);
@@ -356,7 +356,7 @@ public class BackgroundOperationService extends IntentService {
 		mResolver.bulkInsert(CachedHashtags.CONTENT_URI,
 				hashtag_values.toArray(new ContentValues[hashtag_values.size()]));
 
-		final List<TwitterResponse<TwitterStatus>> results = new ArrayList<TwitterResponse<TwitterStatus>>();
+		final List<Response<TwitterStatus>> results = new ArrayList<Response<TwitterStatus>>();
 
 		if (statusUpdate.accounts.length == 0) return Collections.emptyList();
 
@@ -415,7 +415,7 @@ public class BackgroundOperationService extends IntentService {
 						} catch (final FileNotFoundException e) {
 
 						} catch (final TwitterException e) {
-							final TwitterResponse<TwitterStatus> response = new TwitterResponse<TwitterStatus>(null, e);
+							final Response<TwitterStatus> response = new Response<TwitterStatus>(null, e);
 							results.add(response);
 							continue;
 						}
@@ -425,20 +425,20 @@ public class BackgroundOperationService extends IntentService {
 				status.setPossiblySensitive(statusUpdate.is_possibly_sensitive);
 
 				if (twitter == null) {
-					results.add(new TwitterResponse<TwitterStatus>(null, new NullPointerException()));
+					results.add(new Response<TwitterStatus>(null, new NullPointerException()));
 					continue;
 				}
 				try {
 					final twitter4j.Status resultStatus = twitter.updateStatus(status);
 					final TwitterStatus result = new TwitterStatus(resultStatus, account.account_id, false);
-					results.add(new TwitterResponse<TwitterStatus>(result, null));
+					results.add(new Response<TwitterStatus>(result, null));
 				} catch (final TwitterException e) {
-					final TwitterResponse<TwitterStatus> response = new TwitterResponse<TwitterStatus>(null, e);
+					final Response<TwitterStatus> response = new Response<TwitterStatus>(null, e);
 					results.add(response);
 				}
 			}
 		} catch (final Exception e) {
-			final TwitterResponse<TwitterStatus> response = new TwitterResponse<TwitterStatus>(null, e);
+			final Response<TwitterStatus> response = new Response<TwitterStatus>(null, e);
 			results.add(response);
 		}
 
