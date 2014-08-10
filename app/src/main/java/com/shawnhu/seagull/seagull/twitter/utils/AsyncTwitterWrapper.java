@@ -1,4 +1,4 @@
-package com.shawnhu.seagull.seagull.twitter;
+package com.shawnhu.seagull.seagull.twitter.utils;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -10,6 +10,9 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
+import com.shawnhu.seagull.seagull.twitter.TweetStore;
+import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.model.ListResponse;
 import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
@@ -25,16 +28,11 @@ import com.shawnhu.seagull.seagull.twitter.model.TwitterUserList;
 import com.shawnhu.seagull.seagull.twitter.services.BackgroundOperationService;
 import com.shawnhu.seagull.seagull.twitter.tasks.AsyncTask;
 import com.shawnhu.seagull.seagull.twitter.tasks.ManagedAsyncTask;
-import com.shawnhu.seagull.seagull.twitter.utils.AsyncTaskManager;
-import com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator;
-import com.shawnhu.seagull.seagull.twitter.utils.MessagesManager;
 
 import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.makeCachedUserContentValues;
 import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.makeStatusContentValues;
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.*;
 import com.shawnhu.seagull.seagull.twitter.TweetStore.*;
-import com.shawnhu.seagull.seagull.twitter.utils.NameValuePairImpl;
-import com.shawnhu.seagull.seagull.twitter.utils.StatusCodeMessageUtils;
 import com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils;
 import com.shawnhu.seagull.utils.ArrayUtils;
 import com.shawnhu.seagull.utils.ListUtils;
@@ -73,7 +71,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
     private static AsyncTwitterWrapper  sInstance;
 
     private final Context               mContext;
-    private final TwitterManager        mTwitterManager;
+    private final TwitterManager mTwitterManager;
     private final AsyncTaskManager      mAsyncTaskManager;
     private final SharedPreferences     mPreferences;
     private final MessagesManager       mMessagesManager;
@@ -369,6 +367,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         return sInstance = new AsyncTwitterWrapper(context);
     }
 
+    /**
+     * TODO: move tasks to tasks/
+     */
     public static class UpdateProfileBannerImageTask extends ManagedAsyncTask<Void, Void, Response<Boolean>> {
 
         private final long mAccountId;

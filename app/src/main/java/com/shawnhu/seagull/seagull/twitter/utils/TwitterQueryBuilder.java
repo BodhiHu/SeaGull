@@ -1,5 +1,6 @@
-package com.shawnhu.seagull.seagull.twitter;
+package com.shawnhu.seagull.seagull.twitter.utils;
 
+import com.shawnhu.seagull.seagull.twitter.TweetStore;
 import com.shawnhu.seagull.utils.querybuilder.Columns;
 import com.shawnhu.seagull.utils.querybuilder.OrderBy;
 import com.shawnhu.seagull.utils.querybuilder.SQLQueryBuilder;

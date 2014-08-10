@@ -38,7 +38,7 @@ import android.widget.Toast;
 import static android.text.TextUtils.isEmpty;
 
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.seagull.twitter.AsyncTwitterWrapper;
+import com.shawnhu.seagull.seagull.twitter.utils.AsyncTwitterWrapper;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.*;
 
 import com.shawnhu.seagull.seagull.twitter.TweetStore;

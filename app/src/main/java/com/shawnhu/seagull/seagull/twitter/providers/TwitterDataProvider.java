@@ -1,15 +1,12 @@
 package com.shawnhu.seagull.seagull.twitter.providers;
 
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -20,38 +17,29 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Binder;
-import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.TweetStore;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.*;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
-import com.shawnhu.seagull.seagull.twitter.TwitterQueryBuilder;
-import com.shawnhu.seagull.seagull.twitter.model.TwitterAccountPreferences;
-import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterDirectMessage;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterUnreadItem;
 import com.shawnhu.seagull.seagull.twitter.utils.ImagePreloader;
 import com.shawnhu.seagull.seagull.twitter.utils.MediaPreviewUtils;
-import com.shawnhu.seagull.seagull.twitter.utils.PermissionsManager;
 import com.shawnhu.seagull.seagull.twitter.utils.SQLiteDatabaseWrapper;
 import com.shawnhu.seagull.seagull.twitter.utils.SharedPreferencesWrapper;
+import com.shawnhu.seagull.seagull.twitter.utils.TwitterQueryBuilder;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
 import com.shawnhu.seagull.utils.ArrayUtils;
 import com.shawnhu.seagull.utils.JSON.JSONFileIO;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.*;
-import static com.shawnhu.seagull.seagull.twitter.utils.Utils.*;
-import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.utils.ParseUtils;
-import com.shawnhu.seagull.utils.collections.NoDuplicatesCopyOnWriteArrayList;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,64 +47,56 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import twitter4j.http.HostAddressResolver;
 
-public final class TwitterDataProvider extends ContentProvider implements OnSharedPreferenceChangeListener,
-        SQLiteDatabaseWrapper.LazyLoadCallback {
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_DATABASE_READY;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_HOME_ACTIVITY_ONSTART;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_HOME_ACTIVITY_ONSTOP;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_PRELOAD_PREVIEW_IMAGES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_PRELOAD_PROFILE_IMAGES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.QUERY_PARAM_URL;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.SHARED_PREFERENCES_NAME;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_CACHED_HASHTAGS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_CACHED_STATUSES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_CACHED_USERS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_DIRECT_MESSAGES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_DIRECT_MESSAGES_CONVERSATION;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_DIRECT_MESSAGES_CONVERSATION_SCREEN_NAME;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_FILTERED_KEYWORDS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_FILTERED_LINKS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_FILTERED_SOURCES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_FILTERED_USERS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.VIRTUAL_TABLE_ID_CACHED_IMAGES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.VIRTUAL_TABLE_ID_CACHE_FILES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.VIRTUAL_TABLE_ID_DATABASE_READY;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.VIRTUAL_TABLE_ID_DNS;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.DirectMessages;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.Preferences;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.Statuses;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getNotificationUri;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTableId;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTableNameById;
 
-    private static final String TAG = "TwitterDataProvider";
-    private static final String UNREAD_STATUSES_FILE_NAME = "unread_statuses";
-    private static final String UNREAD_MENTIONS_FILE_NAME = "unread_mentions";
-    private static final String UNREAD_MESSAGES_FILE_NAME = "unread_messages";
+public final class TwitterDataProvider extends      ContentProvider
+                                       implements   SQLiteDatabaseWrapper.LazyLoadCallback {
+
+    private static final String         TAG = "TwitterDataProvider";
 
     private ContentResolver             mContentResolver;
     private SQLiteDatabaseWrapper       mDatabaseWrapper;
-    private PermissionsManager          mPermissionsManager;
     private NotificationManager         mNotificationManager;
     private SharedPreferencesWrapper    mPreferences;
     private ImagePreloader              mImagePreloader;
     private HostAddressResolver         mHostAddressResolver;
     private TwitterManager              mTwitterManager;
 
-    private final List<TwitterStatus> mNewStatuses = new CopyOnWriteArrayList<TwitterStatus>();
-    private final List<TwitterStatus> mNewMentions = new CopyOnWriteArrayList<TwitterStatus>();
-    private final List<TwitterDirectMessage> mNewMessages = new CopyOnWriteArrayList<TwitterDirectMessage>();
-
-    private final List<TwitterUnreadItem> mUnreadStatuses = new NoDuplicatesCopyOnWriteArrayList<TwitterUnreadItem>();
-    private final List<TwitterUnreadItem> mUnreadMentions = new NoDuplicatesCopyOnWriteArrayList<TwitterUnreadItem>();
-    private final List<TwitterUnreadItem> mUnreadMessages = new NoDuplicatesCopyOnWriteArrayList<TwitterUnreadItem>();
-
-    private boolean mHomeActivityInBackground;
-
-    private boolean mNameFirst, mNickOnly;
-
-    private final BroadcastReceiver mHomeActivityStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(final Context context, final Intent intent) {
-            final String action = intent.getAction();
-            if (BROADCAST_HOME_ACTIVITY_ONSTART.equals(action)) {
-                mHomeActivityInBackground = false;
-            } else if (BROADCAST_HOME_ACTIVITY_ONSTOP.equals(action)) {
-                mHomeActivityInBackground = true;
-            }
-        }
-
-    };
-
     @Override
     public int bulkInsert(final Uri uri, final ContentValues[] values) {
         try {
             final int tableId = getTableId(uri);
             final String table = getTableNameById(tableId);
-            checkWritePermission(tableId, table);
-            switch (tableId) {
-                case TABLE_ID_DIRECT_MESSAGES_CONVERSATION:
-                case TABLE_ID_DIRECT_MESSAGES:
-                case TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES:
-                    return 0;
-            }
             int result = 0;
             if (table != null && values != null) {
                 mDatabaseWrapper.beginTransaction();
@@ -136,7 +116,6 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
             if (result > 0) {
                 onDatabaseUpdated(tableId, uri);
             }
-            onNewItemsInserted(uri, values);
             return result;
         } catch (final SQLException e) {
             throw new IllegalStateException(e);
@@ -148,38 +127,11 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         try {
             final int tableId = getTableId(uri);
             final String table = getTableNameById(tableId);
-            checkWritePermission(tableId, table);
             switch (tableId) {
                 case TABLE_ID_DIRECT_MESSAGES_CONVERSATION:
                 case TABLE_ID_DIRECT_MESSAGES:
                 case TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES:
                     return 0;
-                case VIRTUAL_TABLE_ID_NOTIFICATIONS: {
-                    final List<String> segments = uri.getPathSegments();
-                    if (segments.size() == 1) {
-                        clearNotification();
-                    } else if (segments.size() == 2) {
-                        final int notificationType = ParseUtils.parseInt(segments.get(1));
-                        clearNotification(notificationType, 0);
-                    } else if (segments.size() == 3) {
-                        final int notificationType = ParseUtils.parseInt(segments.get(1));
-                        final long accountId = ParseUtils.parseLong(segments.get(2));
-                        clearNotification(notificationType, accountId);
-                    }
-                    return 1;
-                }
-                case VIRTUAL_TABLE_ID_UNREAD_COUNTS: {
-                    final List<String> segments = uri.getPathSegments();
-                    final int segmentsSize = segments.size();
-                    if (segmentsSize == 1)
-                        return clearUnreadCount();
-                    else if (segmentsSize == 2)
-                        return clearUnreadCount(ParseUtils.parseInt(segments.get(1)));
-                    else if (segmentsSize == 4)
-                        return removeUnreadItems(ParseUtils.parseInt(segments.get(1)),
-                                ParseUtils.parseLong(segments.get(2)), ArrayUtils.parseLongArray(segments.get(3), ','));
-                    return 0;
-                }
             }
             if (table == null) return 0;
             final int result = mDatabaseWrapper.delete(table, selection, selectionArgs);
@@ -202,7 +154,6 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         try {
             final int tableId = getTableId(uri);
             final String table = getTableNameById(tableId);
-            checkWritePermission(tableId, table);
             switch (tableId) {
                 case TABLE_ID_DIRECT_MESSAGES_CONVERSATION:
                 case TABLE_ID_DIRECT_MESSAGES:
@@ -218,7 +169,6 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
                 rowId = mDatabaseWrapper.insert(table, null, values);
             }
             onDatabaseUpdated(tableId, uri);
-            onNewItemsInserted(uri, values);
             return Uri.withAppendedPath(uri, String.valueOf(rowId));
         } catch (final SQLException e) {
             throw new IllegalStateException(e);
@@ -232,18 +182,10 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         mTwitterManager  = TwitterManager.getInstance(getContext());
         mHostAddressResolver = mTwitterManager.getHostAddressResolver();
         mPreferences = SharedPreferencesWrapper.getInstance(context, SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        mPreferences.registerOnSharedPreferenceChangeListener(this);
-        updatePreferences();
-        mPermissionsManager = new PermissionsManager(context);
         mImagePreloader = new ImagePreloader(context, mTwitterManager.getImageLoader());
         final IntentFilter filter = new IntentFilter();
         filter.addAction(BROADCAST_HOME_ACTIVITY_ONSTART);
         filter.addAction(BROADCAST_HOME_ACTIVITY_ONSTOP);
-        context.registerReceiver(mHomeActivityStateReceiver, filter);
-        restoreUnreadItems();
-        // final GetWritableDatabaseTask task = new
-        // GetWritableDatabaseTask(context, helper, mDatabaseWrapper);
-        // task.execute();
         return true;
     }
 
@@ -254,30 +196,10 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
     }
 
     @Override
-    public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
-        updatePreferences();
-    }
-
-    @Override
     public ParcelFileDescriptor openFile(final Uri uri, final String mode) throws FileNotFoundException {
         if (uri == null || mode == null) throw new IllegalArgumentException();
         final int table_id = getTableId(uri);
-        final String table = getTableNameById(table_id);
-        final int mode_code;
-        if ("r".equals(mode)) {
-            mode_code = ParcelFileDescriptor.MODE_READ_ONLY;
-        } else if ("rw".equals(mode)) {
-            mode_code = ParcelFileDescriptor.MODE_READ_WRITE;
-        } else if ("rwt".equals(mode)) {
-            mode_code = ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_TRUNCATE;
-        } else
-            throw new IllegalArgumentException();
-        if (mode_code == ParcelFileDescriptor.MODE_READ_ONLY) {
-            checkReadPermission(table_id, table, null);
-        } else if ((mode_code & ParcelFileDescriptor.MODE_READ_WRITE) != 0) {
-            checkReadPermission(table_id, table, null);
-            checkWritePermission(table_id, table);
-        }
+
         switch (table_id) {
             case VIRTUAL_TABLE_ID_CACHED_IMAGES: {
                 return getCachedImageFd(uri.getQueryParameter(QUERY_PARAM_URL));
@@ -295,46 +217,17 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         try {
             final int tableId = getTableId(uri);
             final String table = getTableNameById(tableId);
-            checkReadPermission(tableId, table, projection);
             switch (tableId) {
                 case VIRTUAL_TABLE_ID_DATABASE_READY: {
                     if (mDatabaseWrapper.isReady())
                         return new MatrixCursor(projection != null ? projection : new String[0]);
                     return null;
                 }
-                case VIRTUAL_TABLE_ID_PERMISSIONS: {
-                    final MatrixCursor c = new MatrixCursor(TweetStore.Permissions.MATRIX_COLUMNS);
-                    final Map<String, String> map = mPermissionsManager.getAll();
-                    for (final Map.Entry<String, String> item : map.entrySet()) {
-                        c.addRow(new Object[] { item.getKey(), item.getValue() });
-                    }
-                    return c;
-                }
-                case VIRTUAL_TABLE_ID_ALL_PREFERENCES: {
-                    return getPreferencesCursor(mPreferences, null);
-                }
-                case VIRTUAL_TABLE_ID_PREFERENCES: {
-                    return getPreferencesCursor(mPreferences, uri.getLastPathSegment());
-                }
                 case VIRTUAL_TABLE_ID_DNS: {
                     return getDNSCursor(uri.getLastPathSegment());
                 }
                 case VIRTUAL_TABLE_ID_CACHED_IMAGES: {
                     return getCachedImageCursor(uri.getQueryParameter(QUERY_PARAM_URL));
-                }
-                case VIRTUAL_TABLE_ID_NOTIFICATIONS: {
-                    final List<String> segments = uri.getPathSegments();
-                    if (segments.size() == 2)
-                        return getNotificationsCursor(ParseUtils.parseInt(segments.get(1), -1));
-                    else
-                        return getNotificationsCursor();
-                }
-                case VIRTUAL_TABLE_ID_UNREAD_COUNTS: {
-                    final List<String> segments = uri.getPathSegments();
-                    if (segments.size() == 2)
-                        return getUnreadCountsCursor(ParseUtils.parseInt(segments.get(1), -1));
-                    else
-                        return getUnreadCountsCursor();
                 }
                 case TABLE_ID_DIRECT_MESSAGES_CONVERSATION: {
                     final List<String> segments = uri.getPathSegments();
@@ -392,402 +285,6 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         }
     }
 
-
-    private boolean checkPermission(final String... permissions) {
-        return mPermissionsManager.checkCallingPermission(permissions);
-    }
-
-    private void checkReadPermission(final int id, final String table, final String[] projection) {
-        switch (id) {
-            case VIRTUAL_TABLE_ID_PREFERENCES:
-            case VIRTUAL_TABLE_ID_DNS: {
-                if (!checkPermission(PERMISSION_PREFERENCES))
-                    throw new SecurityException("Access preferences requires level PERMISSION_LEVEL_PREFERENCES");
-                break;
-            }
-            case TABLE_ID_ACCOUNTS: {
-                // Reading some infomation like user_id, screen_name etc is
-                // okay, but reading columns like password requires higher
-                // permission level.
-                final String[] credentialsCols = { Accounts.BASIC_AUTH_PASSWORD, Accounts.OAUTH_TOKEN,
-                        Accounts.OAUTH_TOKEN_SECRET, Accounts.CONSUMER_KEY, Accounts.CONSUMER_SECRET };
-                if (projection == null || ArrayUtils.contains(projection, credentialsCols)
-                        && !checkPermission(PERMISSION_ACCOUNTS))
-                    throw new SecurityException("Access column " + ArrayUtils.toString(projection, ',', true)
-                            + " in database accounts requires level PERMISSION_LEVEL_ACCOUNTS");
-                if (!checkPermission(PERMISSION_READ))
-                    throw new SecurityException("Access database " + table + " requires level PERMISSION_LEVEL_READ");
-                break;
-            }
-            case TABLE_ID_DIRECT_MESSAGES:
-            case TABLE_ID_DIRECT_MESSAGES_INBOX:
-            case TABLE_ID_DIRECT_MESSAGES_OUTBOX:
-            case TABLE_ID_DIRECT_MESSAGES_CONVERSATION:
-            case TABLE_ID_DIRECT_MESSAGES_CONVERSATION_SCREEN_NAME:
-            case TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES: {
-                if (!checkPermission(PERMISSION_DIRECT_MESSAGES))
-                    throw new SecurityException("Access database " + table
-                            + " requires level PERMISSION_LEVEL_DIRECT_MESSAGES");
-                break;
-            }
-            case TABLE_ID_STATUSES:
-            case TABLE_ID_MENTIONS:
-            case TABLE_ID_TABS:
-            case TABLE_ID_DRAFTS:
-            case TABLE_ID_CACHED_USERS:
-            case TABLE_ID_FILTERED_USERS:
-            case TABLE_ID_FILTERED_KEYWORDS:
-            case TABLE_ID_FILTERED_SOURCES:
-            case TABLE_ID_FILTERED_LINKS:
-            case TABLE_ID_TRENDS_LOCAL:
-            case TABLE_ID_CACHED_STATUSES:
-            case TABLE_ID_CACHED_HASHTAGS: {
-                if (!checkPermission(PERMISSION_READ))
-                    throw new SecurityException("Access database " + table + " requires level PERMISSION_LEVEL_READ");
-                break;
-            }
-        }
-    }
-
-    private void checkWritePermission(final int id, final String table) {
-        switch (id) {
-            case TABLE_ID_ACCOUNTS: {
-                // Writing to accounts database is not allowed for third-party
-                // applications.
-                if (!mPermissionsManager.checkSignature(Binder.getCallingUid()))
-                    throw new SecurityException(
-                            "Writing to accounts database is not allowed for third-party applications");
-                break;
-            }
-            case TABLE_ID_DIRECT_MESSAGES:
-            case TABLE_ID_DIRECT_MESSAGES_INBOX:
-            case TABLE_ID_DIRECT_MESSAGES_OUTBOX:
-            case TABLE_ID_DIRECT_MESSAGES_CONVERSATION:
-            case TABLE_ID_DIRECT_MESSAGES_CONVERSATION_SCREEN_NAME:
-            case TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES: {
-                if (!checkPermission(PERMISSION_DIRECT_MESSAGES))
-                    throw new SecurityException("Access database " + table
-                            + " requires level PERMISSION_LEVEL_DIRECT_MESSAGES");
-                break;
-            }
-            case TABLE_ID_STATUSES:
-            case TABLE_ID_MENTIONS:
-            case TABLE_ID_TABS:
-            case TABLE_ID_DRAFTS:
-            case TABLE_ID_CACHED_USERS:
-            case TABLE_ID_FILTERED_USERS:
-            case TABLE_ID_FILTERED_KEYWORDS:
-            case TABLE_ID_FILTERED_SOURCES:
-            case TABLE_ID_FILTERED_LINKS:
-            case TABLE_ID_TRENDS_LOCAL:
-            case TABLE_ID_CACHED_STATUSES:
-            case TABLE_ID_CACHED_HASHTAGS: {
-                if (!checkPermission(PERMISSION_WRITE))
-                    throw new SecurityException("Access database " + table + " requires level PERMISSION_LEVEL_WRITE");
-                break;
-            }
-        }
-    }
-
-    private void clearNotification() {
-        mNewStatuses.clear();
-        mNewMentions.clear();
-        mNewMessages.clear();
-        getNotificationManager().cancelAll();
-    }
-
-    private void clearNotification(final int notificationType, final long accountId) {
-        final NotificationManager nm = getNotificationManager();
-        final boolean isAccountSpecific;
-        switch (notificationType) {
-            case NOTIFICATION_ID_HOME_TIMELINE: {
-                mNewStatuses.clear();
-                isAccountSpecific = true;
-                break;
-            }
-            case NOTIFICATION_ID_MENTIONS: {
-                mNewMentions.clear();
-                isAccountSpecific = true;
-                break;
-            }
-            case NOTIFICATION_ID_DIRECT_MESSAGES: {
-                mNewMessages.clear();
-                isAccountSpecific = true;
-                break;
-            }
-            default: {
-                isAccountSpecific = false;
-            }
-        }
-        if (isAccountSpecific) {
-            if (accountId > 0) {
-                nm.cancel(getAccountNotificationId(notificationType, accountId));
-            } else {
-                for (final long id : getAccountIds(getContext())) {
-                    nm.cancel(getAccountNotificationId(notificationType, id));
-                }
-            }
-        } else {
-            nm.cancel(notificationType);
-        }
-    }
-
-    private int clearUnreadCount() {
-        int result = 0;
-        result += mUnreadStatuses.size();
-        result += mUnreadMentions.size();
-        result += mUnreadMentions.size();
-        mUnreadStatuses.clear();
-        mUnreadMentions.clear();
-        mUnreadMessages.clear();
-        saveUnreadItemsFile(mUnreadStatuses, UNREAD_STATUSES_FILE_NAME);
-        saveUnreadItemsFile(mUnreadMentions, UNREAD_MENTIONS_FILE_NAME);
-        saveUnreadItemsFile(mUnreadMessages, UNREAD_MESSAGES_FILE_NAME);
-        notifyContentObserver(UnreadCounts.CONTENT_URI);
-        return result;
-    }
-
-    private int clearUnreadCount(final int notification_type) {
-        final Context context = getContext();
-        final int result;
-        final long[] account_ids = getActivatedAccountIds(context);
-        switch (notification_type) {
-            case NOTIFICATION_ID_HOME_TIMELINE:
-                result = clearUnreadCount(mUnreadStatuses, account_ids);
-                saveUnreadItemsFile(mUnreadStatuses, UNREAD_STATUSES_FILE_NAME);
-                break;
-            case NOTIFICATION_ID_MENTIONS:
-                result = clearUnreadCount(mUnreadMentions, account_ids);
-                mUnreadMentions.clear();
-                saveUnreadItemsFile(mUnreadMentions, UNREAD_MENTIONS_FILE_NAME);
-                break;
-            case NOTIFICATION_ID_DIRECT_MESSAGES:
-                result = clearUnreadCount(mUnreadMessages, account_ids);
-                mUnreadMessages.clear();
-                saveUnreadItemsFile(mUnreadMessages, UNREAD_MESSAGES_FILE_NAME);
-                break;
-            default:
-                return 0;
-        }
-
-        if (result > 0) {
-            notifyUnreadCountChanged(notification_type);
-        }
-        return result;
-    }
-
-    /** TODO:
-     *
-     private void buildNotification(final NotificationCompat.Builder builder, final TwitterAccountPreferences accountPrefs,
-            final int notificationType, final String ticker, final String title, final String message, final long when,
-            final int icon, final Bitmap largeIcon, final Intent contentIntent, final Intent deleteIntent) {
-        final Context context = getContext();
-        builder.setTicker(ticker);
-        builder.setContentTitle(title);
-        builder.setContentText(message);
-        builder.setAutoCancel(true);
-        builder.setWhen(System.currentTimeMillis());
-        builder.setSmallIcon(icon);
-        if (largeIcon != null) {
-            builder.setLargeIcon(largeIcon);
-        }
-        if (deleteIntent != null) {
-            builder.setDeleteIntent(PendingIntent.getBroadcast(context, 0, deleteIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT));
-        }
-        if (contentIntent != null) {
-            builder.setContentIntent(PendingIntent.getActivity(context, 0, contentIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT));
-        }
-        int defaults = 0;
-        if (isNotificationAudible()) {
-            if (TwitterAccountPreferences.isNotificationHasRingtone(notificationType)) {
-                final Uri ringtone = accountPrefs.getNotificationRingtone();
-                builder.setSound(ringtone, Notification.STREAM_DEFAULT);
-            }
-            if (TwitterAccountPreferences.isNotificationHasVibration(notificationType)) {
-                defaults |= Notification.DEFAULT_VIBRATE;
-            } else {
-                defaults &= ~Notification.DEFAULT_VIBRATE;
-            }
-        }
-        if (TwitterAccountPreferences.isNotificationHasLight(notificationType)) {
-            final int color = accountPrefs.getNotificationLightColor();
-            builder.setLights(color, 1000, 2000);
-        }
-        builder.setDefaults(defaults);
-    }
-
-    private void displayMessagesNotification(final int notifiedCount, final TwitterAccountPreferences accountPrefs,
-            final int notificationType, final int icon, final List<TwitterDirectMessage> messages) {
-        final NotificationManager nm = getNotificationManager();
-        if (notifiedCount == 0 || accountPrefs == null || messages.isEmpty()) return;
-        final long accountId = accountPrefs.getAccountId();
-        final Context context = getContext();
-        final Resources resources = context.getResources();
-        final NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(context);
-        final TwitterDirectMessage firstItem = messages.get(0);
-        final int messagesCount = messages.size();
-        final Intent deleteIntent = new Intent(BROADCAST_NOTIFICATION_DELETED);
-        deleteIntent.putExtra(EXTRA_NOTIFICATION_ID, NOTIFICATION_ID_DIRECT_MESSAGES);
-        deleteIntent.putExtra(EXTRA_NOTIFICATION_ACCOUNT, accountId);
-        final Intent contentIntent;
-        final String title;
-        if (messagesCount > 1) {
-            notifBuilder.setNumber(messagesCount);
-        }
-        final int usersCount = getSendersCount(messages);
-        contentIntent = new Intent(context, HomeActivity.class);
-        contentIntent.setAction(Intent.ACTION_MAIN);
-        contentIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        contentIntent.putExtra(EXTRA_TAB_TYPE, TAB_TYPE_DIRECT_MESSAGES);
-        if (messagesCount == 1) {
-            final Uri.Builder uriBuilder = new Uri.Builder();
-            uriBuilder.scheme(SCHEME_TWIDERE);
-            uriBuilder.authority(AUTHORITY_DIRECT_MESSAGES_CONVERSATION);
-            uriBuilder.appendQueryParameter(QUERY_PARAM_ACCOUNT_ID, String.valueOf(firstItem.account_id));
-            uriBuilder.appendQueryParameter(QUERY_PARAM_RECIPIENT_ID, String.valueOf(firstItem.sender_id));
-            final Intent statusIntent = new Intent(Intent.ACTION_VIEW, uriBuilder.build());
-            statusIntent.setExtrasClassLoader(context.getClassLoader());
-            contentIntent.putExtra(EXTRA_EXTRA_INTENT, statusIntent);
-        }
-
-        final String displayName = getDisplayName(context, firstItem.sender_id, firstItem.sender_name,
-                firstItem.sender_screen_name, mNameFirst, mNickOnly);
-        if (usersCount > 1) {
-            title = resources.getString(R.string.notification_direct_message_multiple_users, displayName,
-                    usersCount - 1, messagesCount);
-        } else if (messagesCount > 1) {
-            title = resources.getString(R.string.notification_direct_message_multiple_messages, displayName,
-                    messagesCount);
-        } else {
-            title = resources.getString(R.string.notification_direct_message, displayName);
-        }
-        notifBuilder.setLargeIcon(getProfileImageForNotification(firstItem.sender_profile_image_url));
-        buildNotification(notifBuilder, accountPrefs, notificationType, title, title, firstItem.text_plain,
-                firstItem.timestamp, R.drawable.ic_stat_direct_message, null, contentIntent, deleteIntent);
-        final NotificationCompat.Style notifStyle;
-        if (messagesCount > 1) {
-            final NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle(notifBuilder);
-            final int max = Math.min(4, messagesCount);
-            for (int i = 0; i < max; i++) {
-                final TwitterDirectMessage item = messages.get(i);
-                if (item == null) return;
-                final String nameEscaped = HtmlEscapeHelper.escape(getDisplayName(context, item.sender_id,
-                        item.sender_name, item.sender_name, mNameFirst, mNickOnly));
-                final String textEscaped = HtmlEscapeHelper.escape(stripMentionText(item.text_unescaped,
-                        getAccountScreenName(context, item.account_id)));
-                inboxStyle.addLine(Html.fromHtml(String.format("<b>%s</b>: %s", nameEscaped, textEscaped)));
-            }
-            if (max == 4 && messagesCount - max > 0) {
-                inboxStyle.addLine(context.getString(R.string.and_more, messagesCount - max));
-            }
-            inboxStyle.setSummaryText(getAccountDisplayName(context, accountId, mNameFirst));
-            notifStyle = inboxStyle;
-        } else {
-            final NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle(notifBuilder);
-            bigTextStyle.bigText(firstItem.text_unescaped);
-            bigTextStyle.setSummaryText(getAccountDisplayName(context, accountId, mNameFirst));
-            notifStyle = bigTextStyle;
-        }
-        final int accountNotificationId = getAccountNotificationId(NOTIFICATION_ID_DIRECT_MESSAGES, accountId);
-        nm.notify(accountNotificationId, notifStyle.build());
-    }
-
-
-    private void displayStatusesNotification(final int notifiedCount, final TwitterAccountPreferences accountPreferences,
-            final int notificationType, final int notificationId, final List<TwitterStatus> statuses,
-            final int titleSingle, final int titleMutiple, final int icon) {
-        final NotificationManager nm = getNotificationManager();
-        if (notifiedCount == 0 || accountPreferences == null || statuses.isEmpty()) return;
-        final long accountId = accountPreferences.getAccountId();
-        final Context context = getContext();
-        final Resources resources = context.getResources();
-        final NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(context);
-        final TwitterStatus firstItem = statuses.get(0);
-        final int statusesSize = statuses.size();
-        final Intent deleteIntent = new Intent(BROADCAST_NOTIFICATION_DELETED);
-        deleteIntent.putExtra(EXTRA_NOTIFICATION_ID, notificationId);
-        deleteIntent.putExtra(EXTRA_NOTIFICATION_ACCOUNT, accountId);
-        final Intent contentIntent;
-        final String title;
-        if (statusesSize > 1) {
-            notifBuilder.setNumber(statusesSize);
-        }
-        final int usersCount = getUsersCount(statuses);
-        contentIntent = new Intent(context, HomeActivity.class);
-        contentIntent.setAction(Intent.ACTION_MAIN);
-        contentIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        contentIntent.putExtra(EXTRA_TAB_TYPE, TAB_TYPE_MENTIONS_TIMELINE);
-        if (statusesSize == 1) {
-            final Uri.Builder uriBuilder = new Uri.Builder();
-            uriBuilder.scheme(SCHEME_TWIDERE);
-            uriBuilder.authority(AUTHORITY_STATUS);
-            uriBuilder.appendQueryParameter(QUERY_PARAM_ACCOUNT_ID, String.valueOf(firstItem.account_id));
-            uriBuilder.appendQueryParameter(QUERY_PARAM_STATUS_ID, String.valueOf(firstItem.id));
-            final Intent statusIntent = new Intent(Intent.ACTION_VIEW, uriBuilder.build());
-            statusIntent.setExtrasClassLoader(context.getClassLoader());
-            statusIntent.putExtra(EXTRA_STATUS, firstItem);
-            contentIntent.putExtra(EXTRA_EXTRA_INTENT, statusIntent);
-        }
-
-        final String displayName = getDisplayName(context, firstItem.user_id, firstItem.user_name,
-                firstItem.user_screen_name, mNameFirst, mNickOnly);
-        if (usersCount > 1) {
-            title = resources.getString(titleMutiple, displayName, usersCount - 1);
-        } else {
-            title = resources.getString(titleSingle, displayName);
-        }
-        notifBuilder.setLargeIcon(getProfileImageForNotification(firstItem.user_profile_image_url));
-        buildNotification(notifBuilder, accountPreferences, notificationType, title, title, firstItem.text_plain,
-                firstItem.timestamp, icon, null, contentIntent, deleteIntent);
-        final NotificationCompat.Style notifStyle;
-        if (statusesSize > 1) {
-            final NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle(notifBuilder);
-            final int max = Math.min(4, statusesSize);
-            for (int i = 0; i < max; i++) {
-                final TwitterStatus s = safeGet(statuses, i);
-                if (s == null) return;
-                final String nameEscaped = HtmlEscapeHelper.escape(getDisplayName(context, s.user_id, s.user_name,
-                        s.user_screen_name, mNameFirst, mNickOnly));
-                final String textEscaped = HtmlEscapeHelper.escape(stripMentionText(s.text_unescaped,
-                        getAccountScreenName(context, s.account_id)));
-                inboxStyle.addLine(Html.fromHtml(String.format("<b>%s</b>: %s", nameEscaped, textEscaped)));
-            }
-            if (max == 4 && statusesSize - max > 0) {
-                inboxStyle.addLine(context.getString(R.string.and_more, statusesSize - max));
-            }
-            inboxStyle.setSummaryText(getAccountDisplayName(context, accountId, mNameFirst));
-            notifStyle = inboxStyle;
-        } else {
-            final Intent replyIntent = new Intent(INTENT_ACTION_REPLY);
-            replyIntent.setExtrasClassLoader(context.getClassLoader());
-            replyIntent.putExtra(EXTRA_NOTIFICATION_ID, notificationType);
-            replyIntent.putExtra(EXTRA_NOTIFICATION_ACCOUNT, accountId);
-            replyIntent.putExtra(EXTRA_STATUS, firstItem);
-            replyIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            final Uri.Builder viewProfileBuilder = new Uri.Builder();
-            viewProfileBuilder.scheme(SCHEME_TWIDERE);
-            viewProfileBuilder.authority(AUTHORITY_USER);
-            viewProfileBuilder.appendQueryParameter(QUERY_PARAM_ACCOUNT_ID, String.valueOf(firstItem.account_id));
-            viewProfileBuilder.appendQueryParameter(QUERY_PARAM_USER_ID, String.valueOf(firstItem.user_id));
-            final Intent viewProfileIntent = new Intent(Intent.ACTION_VIEW, viewProfileBuilder.build());
-            viewProfileIntent.setPackage(APP_PACKAGE_NAME);
-            notifBuilder.addAction(R.drawable.ic_action_reply, context.getString(R.string.reply),
-                    PendingIntent.getActivity(context, 0, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT));
-            notifBuilder.addAction(R.drawable.ic_action_profile, context.getString(R.string.view_user_profile),
-                    PendingIntent.getActivity(context, 0, viewProfileIntent, PendingIntent.FLAG_UPDATE_CURRENT));
-            final NotificationCompat.BigTextStyle bigTextStyle = new NotificationCompat.BigTextStyle(notifBuilder);
-            bigTextStyle.bigText(stripMentionText(firstItem.text_unescaped,
-                    getAccountScreenName(context, firstItem.account_id)));
-            bigTextStyle.setSummaryText(getAccountDisplayName(context, accountId, mNameFirst));
-            notifStyle = bigTextStyle;
-        }
-        final int accountNotificationId = getAccountNotificationId(notificationId, accountId);
-        nm.notify(accountNotificationId, notifStyle.build());
-    }
-    */
-
     private Cursor getCachedImageCursor(final String url) {
         if (Utils.isDebugBuild()) {
             Log.d(TAG, String.format("getCachedImageCursor(%s)", url));
@@ -843,26 +340,6 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         return mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
-    private Cursor getNotificationsCursor() {
-        final MatrixCursor c = new MatrixCursor(TweetStore.Notifications.MATRIX_COLUMNS);
-        c.addRow(new Integer[] { NOTIFICATION_ID_HOME_TIMELINE, mUnreadStatuses.size() });
-        c.addRow(new Integer[] { NOTIFICATION_ID_MENTIONS, mNewMentions.size() });
-        c.addRow(new Integer[] { NOTIFICATION_ID_DIRECT_MESSAGES, mNewMessages.size() });
-        return c;
-    }
-
-    private Cursor getNotificationsCursor(final int id) {
-        final MatrixCursor c = new MatrixCursor(TweetStore.Notifications.MATRIX_COLUMNS);
-        if (id == NOTIFICATION_ID_HOME_TIMELINE) {
-            c.addRow(new Integer[] { id, mNewStatuses.size() });
-        } else if (id == NOTIFICATION_ID_MENTIONS) {
-            c.addRow(new Integer[] { id, mNewMentions.size() });
-        } else if (id == NOTIFICATION_ID_DIRECT_MESSAGES) {
-            c.addRow(new Integer[] { id, mNewMessages.size() });
-        }
-        return c;
-    }
-
     private Bitmap getProfileImageForNotification(final String profile_image_url) {
         final Context context = getContext();
         final Resources res = context.getResources();
@@ -890,29 +367,6 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         return c;
     }
 
-    private Cursor getUnreadCountsCursor(final int notification_type) {
-        final MatrixCursor c = new MatrixCursor(TweetStore.UnreadCounts.MATRIX_COLUMNS);
-        final Context context = getContext();
-        final int count;
-        final long[] account_ids = getActivatedAccountIds(context);
-        switch (notification_type) {
-            case NOTIFICATION_ID_HOME_TIMELINE:
-                count = getUnreadCount(mUnreadStatuses, account_ids);
-                break;
-            case NOTIFICATION_ID_MENTIONS:
-                count = getUnreadCount(mUnreadMentions, account_ids);
-                break;
-            case NOTIFICATION_ID_DIRECT_MESSAGES:
-                count = getUnreadCount(mUnreadMessages, account_ids);
-                break;
-            default:
-                return null;
-        }
-
-        c.addRow(new Object[] { notification_type, count });
-        return c;
-    }
-
     private int getUsersCount(final List<TwitterStatus> items) {
         if (items == null || items.isEmpty()) return 0;
         final Set<Long> ids = new HashSet<Long>();
@@ -922,169 +376,15 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         return ids.size();
     }
 
-    private boolean isNotificationAudible() {
-        return mHomeActivityInBackground && !isNotificationsSilent(getContext());
-    }
-
     private void notifyContentObserver(final Uri uri) {
         final ContentResolver cr = getContentResolver();
         if (uri == null || cr == null) return;
         cr.notifyChange(uri, null);
     }
 
-    private int notifyIncomingMessagesInserted(final ContentValues... values) {
-        if (values == null || values.length == 0) return 0;
-        // Add statuses that not filtered to list for future use.
-        int result = 0;
-        for (final ContentValues value : values) {
-            final TwitterDirectMessage message = new TwitterDirectMessage(value);
-            mNewMessages.add(message);
-            if (mUnreadMessages.add(new TwitterUnreadItem(message.sender_id, message.account_id))) {
-                result++;
-            }
-        }
-        if (result > 0) {
-            saveUnreadItemsFile(mUnreadMessages, UNREAD_MESSAGES_FILE_NAME);
-        }
-        return result;
-    }
-
-    private int notifyMentionsInserted(final TwitterAccountPreferences[] prefs, final ContentValues... values) {
-        if (values == null || values.length == 0) return 0;
-        // Add statuses that not filtered to list for future use.
-        int result = 0;
-        final boolean enabled = mPreferences.getBoolean(KEY_FILTERS_IN_MENTIONS, true);
-        final boolean filtersForRts = mPreferences.getBoolean(KEY_FILTERS_FOR_RTS, true);
-        for (final ContentValues value : values) {
-            final TwitterStatus status = new TwitterStatus(value);
-            if (!enabled || !isFiltered(mDatabaseWrapper.getSQLiteDatabase(), status, filtersForRts)) {
-                final TwitterAccountPreferences pref = TwitterAccountPreferences.getAccountPreferences(prefs, status.account_id);
-                if (pref == null || status.user_is_following || !pref.isMyFollowingOnly()) {
-                    mNewMentions.add(status);
-                }
-                if (mUnreadMentions.add(new TwitterUnreadItem(status.id, status.account_id))) {
-                    result++;
-                }
-            }
-        }
-        if (result > 0) {
-            saveUnreadItemsFile(mUnreadMentions, UNREAD_MENTIONS_FILE_NAME);
-        }
-        return result;
-    }
-
-    private int notifyStatusesInserted(final ContentValues... values) {
-        if (values == null || values.length == 0) return 0;
-        // Add statuses that not filtered to list for future use.
-        int result = 0;
-        final boolean enabled = mPreferences.getBoolean(KEY_FILTERS_IN_HOME_TIMELINE, true);
-        final boolean filtersForRts = mPreferences.getBoolean(KEY_FILTERS_FOR_RTS, true);
-        for (final ContentValues value : values) {
-            final TwitterStatus status = new TwitterStatus(value);
-            if (!enabled || !isFiltered(mDatabaseWrapper.getSQLiteDatabase(), status, filtersForRts)) {
-                mNewStatuses.add(status);
-                if (mUnreadStatuses.add(new TwitterUnreadItem(status.id, status.account_id))) {
-                    result++;
-                }
-            }
-        }
-        if (result > 0) {
-            saveUnreadItemsFile(mUnreadStatuses, UNREAD_STATUSES_FILE_NAME);
-        }
-        return result;
-    }
-
-    private void notifyUnreadCountChanged(final int type) {
-        final Intent intent = new Intent(BROADCAST_UNREAD_COUNT_UPDATED);
-        intent.putExtra(EXTRA_NOTIFICATION_ID, type);
-        final Context context = getContext();
-        context.sendBroadcast(intent);
-        notifyContentObserver(UnreadCounts.CONTENT_URI);
-    }
-
     private void onDatabaseUpdated(final int tableId, final Uri uri) {
         if (uri == null) return;
-        switch (tableId) {
-            case TABLE_ID_ACCOUNTS: {
-                clearAccountColor();
-                clearAccountName();
-                break;
-            }
-        }
         notifyContentObserver(getNotificationUri(tableId, uri));
-    }
-
-    private void onNewItemsInserted(final Uri uri, final ContentValues... values) {
-        if (uri == null || values == null || values.length == 0) return;
-        preloadImages(values);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            if (!uri.getBooleanQueryParameter(QUERY_PARAM_NOTIFY, true)) return;
-        } else {
-            String p = uri.getQueryParameter(QUERY_PARAM_NOTIFY);
-            if (p != null && (p == "false" || p == "0")) {
-                return;
-            }
-        }
-        switch (getTableId(uri)) {
-            case TABLE_ID_STATUSES: {
-                final int notifiedCount = notifyStatusesInserted(values);
-                final List<TwitterStatus> items = new ArrayList<TwitterStatus>(mNewStatuses);
-                Collections.sort(items);
-                final TwitterAccountPreferences[] prefs = TwitterAccountPreferences.getNotificationEnabledAccountPreferences(getContext(),
-                        getAccountIds(getContext()));
-                for (final TwitterAccountPreferences pref : prefs) {
-                    if (pref.isHomeTimelineNotificationEnabled()) {
-                        final long accountId = pref.getAccountId();
-                        /**
-                        displayStatusesNotification(notifiedCount, pref, pref.getHomeTimelineNotificationType(),
-                                NOTIFICATION_ID_HOME_TIMELINE, getStatusesForAccounts(items, accountId),
-                                R.string.notification_status, R.string.notification_status_multiple,
-                                R.drawable.ic_stat_twitter);
-                         */
-                    }
-                }
-                notifyUnreadCountChanged(NOTIFICATION_ID_HOME_TIMELINE);
-                break;
-            }
-            case TABLE_ID_MENTIONS: {
-                final TwitterAccountPreferences[] prefs = TwitterAccountPreferences.getNotificationEnabledAccountPreferences(getContext(),
-                        getAccountIds(getContext()));
-                final int notifiedCount = notifyMentionsInserted(prefs, values);
-                final List<TwitterStatus> items = new ArrayList<TwitterStatus>(mNewMentions);
-                Collections.sort(items);
-                for (final TwitterAccountPreferences pref : prefs) {
-                    if (pref.isMentionsNotificationEnabled()) {
-                        final long accountId = pref.getAccountId();
-                        /**
-                        displayStatusesNotification(notifiedCount, pref, pref.getMentionsNotificationType(),
-                                NOTIFICATION_ID_MENTIONS, getStatusesForAccounts(items, accountId),
-                                R.string.notification_mention, R.string.notification_mention_multiple,
-                                R.drawable.ic_stat_mention);
-                         */
-                    }
-                }
-                notifyUnreadCountChanged(NOTIFICATION_ID_MENTIONS);
-                break;
-            }
-            case TABLE_ID_DIRECT_MESSAGES_INBOX: {
-                final int notifiedCount = notifyIncomingMessagesInserted(values);
-                final List<TwitterDirectMessage> items = new ArrayList<TwitterDirectMessage>(mNewMessages);
-                Collections.sort(items);
-                final TwitterAccountPreferences[] prefs = TwitterAccountPreferences.getNotificationEnabledAccountPreferences(getContext(),
-                        getAccountIds(getContext()));
-                for (final TwitterAccountPreferences pref : prefs) {
-                    if (pref.isDirectMessagesNotificationEnabled()) {
-                        final long accountId = pref.getAccountId();
-                        /**
-                        displayMessagesNotification(notifiedCount, pref, pref.getDirectMessagesNotificationType(),
-                                R.drawable.ic_stat_mention, getMessagesForAccounts(items, accountId));
-                         */
-                    }
-                }
-                notifyUnreadCountChanged(NOTIFICATION_ID_DIRECT_MESSAGES);
-                break;
-            }
-        }
     }
 
     private void preloadImages(final ContentValues... values) {
@@ -1102,60 +402,6 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
                 }
             }
         }
-    }
-
-    private int removeUnreadItems(final int type, final long account_id, final long... ids) {
-        if (type < 0 || account_id == 0 || ids == null || ids.length == 0) return 0;
-        final TwitterUnreadItem[] items = new TwitterUnreadItem[ids.length];
-        for (int i = 0, j = ids.length; i < j; i++) {
-            items[i] = new TwitterUnreadItem(ids[i], account_id);
-        }
-        return removeUnreadItems(type, items);
-    }
-
-    private synchronized int removeUnreadItems(final int type, final TwitterUnreadItem... items) {
-        if (type < 0 || items == null || items.length == 0) return 0;
-        final int result, size;
-
-        switch (type) {
-            case NOTIFICATION_ID_HOME_TIMELINE:
-                size = mUnreadStatuses.size();
-                mUnreadStatuses.removeAll(Arrays.asList(items));
-                result = size - mUnreadStatuses.size();
-                if (result != 0) {
-                    saveUnreadItemsFile(mUnreadStatuses, UNREAD_STATUSES_FILE_NAME);
-                }
-                break;
-            case NOTIFICATION_ID_MENTIONS:
-                size = mUnreadMentions.size();
-                mUnreadMentions.removeAll(Arrays.asList(items));
-                result = size - mUnreadMentions.size();
-                if (result != 0) {
-                    saveUnreadItemsFile(mUnreadMentions, UNREAD_MENTIONS_FILE_NAME);
-                }
-                break;
-            case NOTIFICATION_ID_DIRECT_MESSAGES:
-                size = mUnreadMessages.size();
-                mUnreadMessages.removeAll(Arrays.asList(items));
-                result = size - mUnreadMessages.size();
-                if (result != 0) {
-                    saveUnreadItemsFile(mUnreadMessages, UNREAD_MESSAGES_FILE_NAME);
-                }
-                break;
-            default:
-                return 0;
-        }
-
-        if (result > 0) {
-            notifyUnreadCountChanged(type);
-        }
-        return result;
-    }
-
-    private void restoreUnreadItems() {
-        restoreUnreadItemsFile(mUnreadStatuses, UNREAD_STATUSES_FILE_NAME);
-        restoreUnreadItemsFile(mUnreadMentions, UNREAD_MENTIONS_FILE_NAME);
-        restoreUnreadItemsFile(mUnreadMessages, UNREAD_MESSAGES_FILE_NAME);
     }
 
     private void restoreUnreadItemsFile(final Collection<TwitterUnreadItem> items, final String name) {
@@ -1185,11 +431,6 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
         final ContentResolver cr = getContentResolver();
         if (cr == null || c == null || uri == null) return;
         c.setNotificationUri(cr, uri);
-    }
-
-    private void updatePreferences() {
-        mNameFirst = mPreferences.getBoolean(KEY_NAME_FIRST, false);
-        mNickOnly = mPreferences.getBoolean(KEY_NICKNAME_ONLY, false);
     }
 
     private static int clearUnreadCount(final List<TwitterUnreadItem> set, final long[] accountIds) {
@@ -1268,10 +509,6 @@ public final class TwitterDataProvider extends ContentProvider implements OnShar
             }
         }
         return count;
-    }
-
-    private static <T> T safeGet(final List<T> list, final int index) {
-        return index >= 0 && index < list.size() ? list.get(index) : null;
     }
 
     private static boolean shouldReplaceOnConflict(final int table_id) {

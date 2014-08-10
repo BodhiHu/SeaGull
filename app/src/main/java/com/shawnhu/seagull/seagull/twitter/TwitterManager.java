@@ -23,28 +23,16 @@ import android.app.Application;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.AsyncTask;
 
-import com.nostra13.universalimageloader.cache.disc.DiskCache;
-import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
-import com.nostra13.universalimageloader.core.download.ImageDownloader;
-import com.nostra13.universalimageloader.utils.L;
 import com.shawnhu.seagull.seagull.twitter.utils.AsyncTaskManager;
+import com.shawnhu.seagull.seagull.twitter.utils.AsyncTwitterWrapper;
 import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
 import com.shawnhu.seagull.seagull.twitter.utils.MessagesManager;
 import com.shawnhu.seagull.seagull.twitter.utils.MultiSelectManager;
-import com.shawnhu.seagull.seagull.twitter.utils.Utils;
-import static com.shawnhu.seagull.seagull.twitter.utils.Utils.*;
 import com.shawnhu.seagull.seagull.twitter.utils.content.TwitterSQLiteOpenHelper;
-import com.shawnhu.seagull.seagull.twitter.utils.imageloader.TwitterImageDownloader;
-import com.shawnhu.seagull.seagull.twitter.utils.imageloader.URLFileNameGenerator;
 import com.shawnhu.seagull.seagull.twitter.utils.net.TwidereHostAddressResolver;
 import com.shawnhu.seagull.utils.StrictModeUtils;
-
-import java.io.File;
 
 import twitter4j.http.HostAddressResolver;
 
@@ -70,7 +58,7 @@ public class TwitterManager {
 
     static private ImageLoaderWrapper   sImageLoaderWrapper;
     static private AsyncTaskManager     sAsyncTaskManager;
-    static private AsyncTwitterWrapper  sTwitterWrapper;
+    static private AsyncTwitterWrapper sTwitterWrapper;
     static private MultiSelectManager   sMultiSelectManager;
     static private MessagesManager      sCroutonsManager;
     static private SQLiteOpenHelper     sSQLiteOpenHelper;

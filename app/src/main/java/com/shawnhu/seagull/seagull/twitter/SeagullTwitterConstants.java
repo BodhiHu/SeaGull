@@ -14,7 +14,7 @@ public class SeagullTwitterConstants {
     public static final String APP_PROJECT_EMAIL = "";
 
     public static final String DATABASES_NAME = "twidere.sqlite";
-    public static final int DATABASES_VERSION = 66;
+    public static final int DATABASES_VERSION = 1;
 
     public static final String TWITTER_SIGNUP_URL = "https://twitter.com/signup";
 

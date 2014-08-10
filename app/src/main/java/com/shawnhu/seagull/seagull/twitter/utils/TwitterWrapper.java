@@ -1,9 +1,10 @@
-package com.shawnhu.seagull.seagull.twitter;
+package com.shawnhu.seagull.seagull.twitter.utils;
 
 import android.content.Context;
 import android.net.Uri;
 
 
+import com.shawnhu.seagull.seagull.twitter.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterUser;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
@@ -12,13 +13,10 @@ import com.shawnhu.seagull.utils.ListUtils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import twitter4j.DirectMessage;
-import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
