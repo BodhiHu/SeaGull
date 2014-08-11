@@ -175,24 +175,22 @@ import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_UC
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.METADATA_KEY_EXTENSION_USE_JSON;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.SHARED_PREFERENCES_NAME;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.SILENT_NOTIFICATIONS_PREFERENCE_NAME;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_ACCOUNTS;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_CACHED_HASHTAGS;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_CACHED_STATUSES;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_CACHED_USERS;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_DIRECT_MESSAGES;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_DIRECT_MESSAGES_CONVERSATION;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_DIRECT_MESSAGES_CONVERSATION_SCREEN_NAME;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_DIRECT_MESSAGES_INBOX;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_DIRECT_MESSAGES_OUTBOX;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_DRAFTS;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_FILTERED_KEYWORDS;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_FILTERED_LINKS;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_FILTERED_SOURCES;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_FILTERED_USERS;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_MENTIONS;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_STATUSES;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TABLE_ID_TRENDS_LOCAL;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_ACCOUNTS;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_CACHED_HASHTAGS;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_CACHED_STATUSES;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_CACHED_USERS;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_DIRECT_MESSAGES;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATION;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATION_SCREEN_NAME;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_DRAFTS;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_FILTERED_KEYWORDS;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_FILTERED_LINKS;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_FILTERED_SOURCES;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_FILTERED_USERS;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_MENTIONS;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_STATUSES;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_TRENDS_LOCAL;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TWITTER_CONSUMER_KEY;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TWITTER_CONSUMER_SECRET;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TWITTER_MAX_IMAGE_HEIGHT;
@@ -243,56 +241,52 @@ public final class Utils {
     static {
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Accounts.CONTENT_PATH,
-                                            SeagullTwitterConstants.TABLE_ID_ACCOUNTS);
+                                            TABLE_ID_ACCOUNTS);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Statuses.CONTENT_PATH,
-                                            SeagullTwitterConstants.TABLE_ID_STATUSES);
+                                            TABLE_ID_STATUSES);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Mentions.CONTENT_PATH,
-                                            SeagullTwitterConstants.TABLE_ID_MENTIONS);
+                                            TABLE_ID_MENTIONS);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Drafts.CONTENT_PATH,
-                                            SeagullTwitterConstants.TABLE_ID_DRAFTS);
+                                            TABLE_ID_DRAFTS);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.CachedUsers.CONTENT_PATH,
-                                            SeagullTwitterConstants.TABLE_ID_CACHED_USERS);
+                                            TABLE_ID_CACHED_USERS);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Filters.Users.CONTENT_PATH,
-                                            SeagullTwitterConstants.TABLE_ID_FILTERED_USERS);
+                                            TABLE_ID_FILTERED_USERS);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Filters.Keywords.CONTENT_PATH,
-                                            SeagullTwitterConstants.TABLE_ID_FILTERED_KEYWORDS);
+                                            TABLE_ID_FILTERED_KEYWORDS);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Filters.Sources.CONTENT_PATH,
-                                            SeagullTwitterConstants.TABLE_ID_FILTERED_SOURCES);
+                                            TABLE_ID_FILTERED_SOURCES);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Filters.Links.CONTENT_PATH,
-                                            SeagullTwitterConstants.TABLE_ID_FILTERED_LINKS);
+                                            TABLE_ID_FILTERED_LINKS);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.DirectMessages.CONTENT_PATH,
-                                            SeagullTwitterConstants.TABLE_ID_DIRECT_MESSAGES);
+                                            TABLE_ID_DIRECT_MESSAGES);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.CachedTrends.Local.CONTENT_PATH,
-                                            SeagullTwitterConstants.TABLE_ID_TRENDS_LOCAL);
+                                            TABLE_ID_TRENDS_LOCAL);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.CachedStatuses.CONTENT_PATH,
-                                            SeagullTwitterConstants.TABLE_ID_CACHED_STATUSES);
+                                            TABLE_ID_CACHED_STATUSES);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.CachedHashtags.CONTENT_PATH,
-                                            SeagullTwitterConstants.TABLE_ID_CACHED_HASHTAGS);
+                                            TABLE_ID_CACHED_HASHTAGS);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.DNS.CONTENT_PATH + "/*",
-                                            SeagullTwitterConstants.VIRTUAL_TABLE_ID_DNS);
+                                            TweetStore.VIRTUAL_TABLE_ID_DNS);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.CachedImages.CONTENT_PATH,
-                                            SeagullTwitterConstants.VIRTUAL_TABLE_ID_CACHED_IMAGES);
+                                            TweetStore.VIRTUAL_TABLE_ID_CACHED_IMAGES);
         CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.CacheFiles.CONTENT_PATH + "/*",
-                                            SeagullTwitterConstants.VIRTUAL_TABLE_ID_CACHE_FILES);
-
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
-                                            TweetStore.CONTENT_PATH_DATABASE_READY,
-                                            SeagullTwitterConstants.VIRTUAL_TABLE_ID_DATABASE_READY);
+                                            TweetStore.VIRTUAL_TABLE_ID_CACHE_FILES);
 
 
         LINK_HANDLER_URI_MATCHER.addURI(SeagullTwitterConstants.AUTHORITY_STATUS,
@@ -2124,18 +2118,6 @@ public final class Utils {
     public static boolean isCompactCards(final Context context) {
         final SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         return prefs != null && prefs.getBoolean(KEY_COMPACT_CARDS, false);
-    }
-
-    public static boolean isDatabaseReady(final Context context) {
-        final Cursor c = context.getContentResolver().query(TweetStore.CONTENT_URI_DATABASE_READY, null, null, null,
-                null);
-        try {
-            return c != null;
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
     }
 
     public static boolean isDebugBuild() {

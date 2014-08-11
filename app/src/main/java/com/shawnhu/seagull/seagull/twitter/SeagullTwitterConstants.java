@@ -147,35 +147,6 @@ public class SeagullTwitterConstants {
     public static final int REQUEST_OPEN_DOCUMENT = 20;
     public static final int REQUEST_SWIPEBACK_ACTIVITY = 101;
 
-    public static final int TABLE_ID_ACCOUNTS = 1;
-    public static final int TABLE_ID_STATUSES = 12;
-    public static final int TABLE_ID_MENTIONS = 13;
-    public static final int TABLE_ID_DIRECT_MESSAGES = 21;
-    public static final int TABLE_ID_DIRECT_MESSAGES_INBOX = 22;
-    public static final int TABLE_ID_DIRECT_MESSAGES_OUTBOX = 23;
-    public static final int TABLE_ID_DIRECT_MESSAGES_CONVERSATION = 24;
-    public static final int TABLE_ID_DIRECT_MESSAGES_CONVERSATION_SCREEN_NAME = 25;
-    public static final int TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES = 26;
-    public static final int TABLE_ID_FILTERED_USERS = 31;
-    public static final int TABLE_ID_FILTERED_KEYWORDS = 32;
-    public static final int TABLE_ID_FILTERED_SOURCES = 33;
-    public static final int TABLE_ID_FILTERED_LINKS = 34;
-    public static final int TABLE_ID_TRENDS_LOCAL = 41;
-    public static final int TABLE_ID_DRAFTS = 51;
-    public static final int TABLE_ID_TABS = 52;
-    public static final int TABLE_ID_CACHED_USERS = 61;
-    public static final int TABLE_ID_CACHED_STATUSES = 62;
-    public static final int TABLE_ID_CACHED_HASHTAGS = 63;
-    public static final int VIRTUAL_TABLE_ID_DATABASE_READY = 100;
-    public static final int VIRTUAL_TABLE_ID_NOTIFICATIONS = 101;
-    public static final int VIRTUAL_TABLE_ID_PREFERENCES = 102;
-    public static final int VIRTUAL_TABLE_ID_ALL_PREFERENCES = 103;
-    public static final int VIRTUAL_TABLE_ID_PERMISSIONS = 104;
-    public static final int VIRTUAL_TABLE_ID_DNS = 105;
-    public static final int VIRTUAL_TABLE_ID_CACHED_IMAGES = 106;
-    public static final int VIRTUAL_TABLE_ID_CACHE_FILES = 107;
-    public static final int VIRTUAL_TABLE_ID_UNREAD_COUNTS = 108;
-
     public static final int NOTIFICATION_ID_HOME_TIMELINE = 1;
     public static final int NOTIFICATION_ID_MENTIONS = 2;
     public static final int NOTIFICATION_ID_DIRECT_MESSAGES = 3;

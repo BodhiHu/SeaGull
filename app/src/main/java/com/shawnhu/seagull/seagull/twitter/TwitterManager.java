@@ -58,7 +58,7 @@ public class TwitterManager {
 
     static private ImageLoaderWrapper   sImageLoaderWrapper;
     static private AsyncTaskManager     sAsyncTaskManager;
-    static private AsyncTwitterWrapper sTwitterWrapper;
+    static private AsyncTwitterWrapper  sTwitterWrapper;
     static private MultiSelectManager   sMultiSelectManager;
     static private MessagesManager      sCroutonsManager;
     static private SQLiteOpenHelper     sSQLiteOpenHelper;
@@ -112,7 +112,7 @@ public class TwitterManager {
         return sMultiSelectManager = new MultiSelectManager();
     }
 
-    public SQLiteDatabase getSQLiteDatabase() {
+    public SQLiteDatabase getWritableSQLiteDatabase() {
         if (sDatabase != null) return sDatabase;
 
         StrictModeUtils.checkDiskIO();

@@ -18,13 +18,11 @@ public interface TweetStore {
     public static final String TYPE_TEXT_NOT_NULL_UNIQUE    = "TEXT NOT NULL UNIQUE";
 
     public static final String CONTENT_PATH_NULL            = "null_content";
-    public static final String CONTENT_PATH_DATABASE_READY  = "database_ready";
 
     public static final Uri    BASE_CONTENT_URI             = new Uri.Builder()
                                                                 .scheme(ContentResolver.SCHEME_CONTENT)
                                                                 .authority(AUTHORITY).build();
     public static final Uri    CONTENT_URI_NULL             = Uri.withAppendedPath(BASE_CONTENT_URI, CONTENT_PATH_NULL);
-    public static final Uri    CONTENT_URI_DATABASE_READY   = Uri.withAppendedPath(BASE_CONTENT_URI, CONTENT_PATH_DATABASE_READY);
 
     public static final Uri[]  STATUSES_URIS                = new Uri[] {
                                                                 Statuses.CONTENT_URI,
@@ -41,6 +39,35 @@ public interface TweetStore {
                                                                 DirectMessages.CONTENT_URI,
     };
 
+    int TABLE_ID_ACCOUNTS = 1;
+    int TABLE_ID_STATUSES = 12;
+    int TABLE_ID_MENTIONS = 13;
+    int TABLE_ID_DIRECT_MESSAGES = 21;
+    int TABLE_ID_DIRECT_MESSAGES_INBOX = 22;
+    int TABLE_ID_DIRECT_MESSAGES_OUTBOX = 23;
+    int TABLE_ID_DIRECT_MESSAGES_CONVERSATION = 24;
+    int TABLE_ID_DIRECT_MESSAGES_CONVERSATION_SCREEN_NAME = 25;
+    int TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES = 26;
+    int TABLE_ID_FILTERED_USERS = 31;
+    int TABLE_ID_FILTERED_KEYWORDS = 32;
+    int TABLE_ID_FILTERED_SOURCES = 33;
+    int TABLE_ID_FILTERED_LINKS = 34;
+    int TABLE_ID_TRENDS_LOCAL = 41;
+    int TABLE_ID_DRAFTS = 51;
+    int TABLE_ID_TABS = 52;
+    int TABLE_ID_CACHED_USERS = 61;
+    int TABLE_ID_CACHED_STATUSES = 62;
+    int TABLE_ID_CACHED_HASHTAGS = 63;
+    int VIRTUAL_TABLE_ID_DATABASE_READY = 100;
+    int VIRTUAL_TABLE_ID_NOTIFICATIONS = 101;
+    int VIRTUAL_TABLE_ID_PREFERENCES = 102;
+    int VIRTUAL_TABLE_ID_ALL_PREFERENCES = 103;
+    int VIRTUAL_TABLE_ID_PERMISSIONS = 104;
+    int VIRTUAL_TABLE_ID_DNS = 105;
+    int VIRTUAL_TABLE_ID_CACHED_IMAGES = 106;
+    int VIRTUAL_TABLE_ID_CACHE_FILES = 107;
+    int VIRTUAL_TABLE_ID_UNREAD_COUNTS = 108;
+
     public static interface Accounts extends BaseColumns {
 
         public static final int AUTH_TYPE_OAUTH = 0;
@@ -48,9 +75,10 @@ public interface TweetStore {
         public static final int AUTH_TYPE_BASIC = 2;
         public static final int AUTH_TYPE_TWIP_O_MODE = 3;
 
-        public static final String TABLE_NAME = "accounts";
-        public static final String CONTENT_PATH = TABLE_NAME;
-        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, CONTENT_PATH);
+        public static final String  TABLE_NAME      = "accounts";
+        public static final String  CONTENT_PATH    = TABLE_NAME;
+        public static final Uri     CONTENT_URI     =
+                Uri.withAppendedPath(BASE_CONTENT_URI, CONTENT_PATH);
 
         /**
          * Login name of the account<br>

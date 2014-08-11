@@ -5,12 +5,10 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.shawnhu.seagull.seagull.twitter.utils.TwitterQueryBuilder;
 import com.shawnhu.seagull.seagull.twitter.TweetStore;
 import com.shawnhu.seagull.utils.querybuilder.NewColumn;
 import com.shawnhu.seagull.utils.querybuilder.SQLQueryBuilder;
 import com.shawnhu.seagull.utils.querybuilder.query.SQLCreateTableQuery;
-import com.shawnhu.seagull.utils.querybuilder.query.SQLCreateViewQuery;
 
 
 public final class TwitterSQLiteOpenHelper extends SQLiteOpenHelper {
@@ -89,28 +87,18 @@ public final class TwitterSQLiteOpenHelper extends SQLiteOpenHelper {
                         true)
         );
         db.execSQL(
-                createTableSQL(TweetStore.DirectMessages.Inbox.TABLE_NAME,
-                        TweetStore.DirectMessages.Inbox.COLUMNS,
-                        TweetStore.DirectMessages.Inbox.TYPES,
-                        true)
-        );
-        db.execSQL(
-                createTableSQL(TweetStore.DirectMessages.Outbox.TABLE_NAME,
-                        TweetStore.DirectMessages.Outbox.COLUMNS,
-                        TweetStore.DirectMessages.Outbox.TYPES,
-                        true));
-        db.execSQL(
                 createTableSQL(TweetStore.CachedTrends.Local.TABLE_NAME,
                         TweetStore.CachedTrends.Local.COLUMNS,
                         TweetStore.CachedTrends.Local.TYPES,
                         true)
         );
         db.execSQL(
-                createDirectMessagesViewSQL().getSQL()
+                createTableSQL(TweetStore.DirectMessages.TABLE_NAME,
+                        TweetStore.DirectMessages.COLUMNS,
+                        TweetStore.DirectMessages.TYPES,
+                        true)
         );
-        db.execSQL(
-                createDirectMessageConversationEntriesViewSQL().getSQL()
-        );
+
         db.setTransactionSuccessful();
         db.endTransaction();
     }
@@ -123,19 +111,6 @@ public final class TwitterSQLiteOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
         //TODO
-    }
-
-    private SQLCreateViewQuery createDirectMessageConversationEntriesViewSQL() {
-        final SQLCreateViewQuery.Builder qb = SQLQueryBuilder.createView(true,
-                TweetStore.DirectMessages.ConversationEntries.TABLE_NAME);
-        qb.as(TwitterQueryBuilder.ConversationsEntryQueryBuilder.build());
-        return qb.build();
-    }
-
-    private SQLCreateViewQuery createDirectMessagesViewSQL() {
-        final SQLCreateViewQuery.Builder qb = SQLQueryBuilder.createView(true, TweetStore.DirectMessages.TABLE_NAME);
-        qb.as(TwitterQueryBuilder.DirectMessagesQueryBuilder.build());
-        return qb.build();
     }
 
     private static String createTableSQL(final String tableName, final String[] columns, final String[] types,
