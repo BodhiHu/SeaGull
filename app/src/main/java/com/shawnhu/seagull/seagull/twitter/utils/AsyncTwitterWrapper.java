@@ -11,7 +11,6 @@ import android.os.Bundle;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
-import com.shawnhu.seagull.seagull.twitter.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.model.ListResponse;
 import com.shawnhu.seagull.seagull.twitter.model.Response;
@@ -25,14 +24,18 @@ import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusListResponse;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusUpdate;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterUser;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterUserList;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CachedHashtags;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CachedStatuses;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CachedTrends;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CachedUsers;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.DirectMessages;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Filters;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Mentions;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Statuses;
 import com.shawnhu.seagull.seagull.twitter.services.BackgroundOperationService;
 import com.shawnhu.seagull.seagull.twitter.tasks.AsyncTask;
 import com.shawnhu.seagull.seagull.twitter.tasks.ManagedAsyncTask;
-
-import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.makeCachedUserContentValues;
-import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.makeStatusContentValues;
-import static com.shawnhu.seagull.seagull.twitter.utils.Utils.*;
-import com.shawnhu.seagull.seagull.twitter.TweetStore.*;
 import com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils;
 import com.shawnhu.seagull.utils.ArrayUtils;
 import com.shawnhu.seagull.utils.ListUtils;
@@ -40,11 +43,6 @@ import com.shawnhu.seagull.utils.querybuilder.Columns;
 import com.shawnhu.seagull.utils.querybuilder.RawItemArray;
 import com.shawnhu.seagull.utils.querybuilder.Where;
 import com.twitter.Extractor;
-
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.*;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.*;
-import static com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils.bulkDelete;
-import static com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils.bulkInsert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,12 +64,82 @@ import twitter4j.User;
 import twitter4j.UserList;
 import twitter4j.http.HttpResponseCode;
 
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_BLOCKSTATE_CHANGED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_FAVORITE_CHANGED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_FRIENDSHIP_ACCEPTED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_FRIENDSHIP_CHANGED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_FRIENDSHIP_DENIED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_HOME_TIMELINE_REFRESHED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_MENTIONS_REFRESHED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_MULTI_BLOCKSTATE_CHANGED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_PROFILE_BANNER_UPDATED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_PROFILE_IMAGE_UPDATED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_PROFILE_UPDATED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_RESCHEDULE_DIRECT_MESSAGES_REFRESHING;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_RESCHEDULE_HOME_TIMELINE_REFRESHING;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_RESCHEDULE_MENTIONS_REFRESHING;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_RETWEET_CHANGED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_STATUS_DESTROYED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_USER_LIST_CREATED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_USER_LIST_DELETED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_USER_LIST_DETAILS_UPDATED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_USER_LIST_MEMBERS_ADDED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_USER_LIST_MEMBERS_DELETED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_USER_LIST_SUBSCRIBED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_USER_LIST_UNSUBSCRIBED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.DEFAULT_LOAD_ITEM_LIMIT;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_ACCOUNT_ID;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_FAVORITED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_IMAGE_URI;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_LIST_ID;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_RECIPIENT_ID;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_RETWEETED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_STATUS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_STATUSES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_STATUS_ID;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_SUCCEED;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_TEXT;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_USERS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_USER_ID;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_USER_IDS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_USER_LIST;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.INTENT_ACTION_SEND_DIRECT_MESSAGE;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.INTENT_ACTION_UPDATE_STATUS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_LOAD_ITEM_LIMIT;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.QUERY_PARAM_NOTIFY;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.SHARED_PREFERENCES_NAME;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TASK_TAG_GET_HOME_TIMELINE;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TASK_TAG_GET_MENTIONS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TASK_TAG_GET_RECEIVED_DIRECT_MESSAGES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TASK_TAG_GET_SENT_DIRECT_MESSAGES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TASK_TAG_GET_TRENDS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TASK_TAG_STORE_HOME_TIMELINE;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TASK_TAG_STORE_MENTIONS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TASK_TAG_STORE_RECEIVED_DIRECT_MESSAGES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TASK_TAG_STORE_SENT_DIRECT_MESSAGES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TASK_TAG_STORE_TRENDS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.STATUSES_URIS;
+import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.makeCachedUserContentValues;
+import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.makeStatusContentValues;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.appendQueryParameters;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getAllStatusesIds;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getDisplayName;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getStatusIdsInDatabase;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTwitterInstance;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getUserName;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.showErrorMessage;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.showOkMessage;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.truncateMessages;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.truncateStatuses;
+import static com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils.bulkDelete;
+import static com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils.bulkInsert;
+
 public class AsyncTwitterWrapper extends TwitterWrapper {
 
     private static AsyncTwitterWrapper  sInstance;
 
     private final Context               mContext;
-    private final TwitterManager mTwitterManager;
+    private final TwitterManager        mTwitterManager;
     private final AsyncTaskManager      mAsyncTaskManager;
     private final SharedPreferences     mPreferences;
     private final MessagesManager       mMessagesManager;
@@ -103,20 +171,6 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
     public int addUserListMembersAsync(final long accountId, final long listId, final TwitterUser... users) {
         final AddUserListMembersTask task = new AddUserListMembersTask(accountId, listId, users);
         return mAsyncTaskManager.add(task, true);
-    }
-
-    public void clearNotificationAsync(final int notificationType) {
-        clearNotificationAsync(notificationType, 0);
-    }
-
-    public void clearNotificationAsync(final int notificationId, final long notificationAccount) {
-        final ClearNotificationTask task = new ClearNotificationTask(notificationId, notificationAccount);
-        task.execute();
-    }
-
-    public void clearUnreadCountAsync(final int position) {
-        final ClearUnreadCountTask task = new ClearUnreadCountTask(position);
-        task.execute();
     }
 
     public int createBlockAsync(final long accountId, final long user_id) {
@@ -261,11 +315,6 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
             }
         }
         return false;
-    }
-
-    public void removeUnreadCountsAsync(final int position, final Map<Long, Set<Long>> counts) {
-        final RemoveUnreadCountsTask task = new RemoveUnreadCountsTask(position, counts);
-        task.execute();
     }
 
     public int reportMultiSpam(final long accountId, final long[] user_ids) {
@@ -569,36 +618,6 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
             intent.putExtra(EXTRA_SUCCEED, succeed);
             mContext.sendBroadcast(intent);
             super.onPostExecute(result);
-        }
-
-    }
-
-    final class ClearNotificationTask extends AsyncTask<Void, Void, Integer> {
-        private final int notificationType;
-        private final long accountId;
-
-        ClearNotificationTask(final int notificationType, final long accountId) {
-            this.notificationType = notificationType;
-            this.accountId = accountId;
-        }
-
-        @Override
-        protected Integer doInBackground(final Void... params) {
-            return clearNotification(mContext, notificationType, accountId);
-        }
-
-    }
-
-    final class ClearUnreadCountTask extends AsyncTask<Void, Void, Integer> {
-        private final int position;
-
-        ClearUnreadCountTask(final int position) {
-            this.position = position;
-        }
-
-        @Override
-        protected Integer doInBackground(final Void... params) {
-            return clearUnreadCount(mContext, position);
         }
 
     }
@@ -1742,22 +1761,6 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                 }
             }
             return new ListResponse<Trends>(null, null, extras);
-        }
-
-    }
-
-    final class RemoveUnreadCountsTask extends AsyncTask<Void, Void, Integer> {
-        private final int position;
-        private final Map<Long, Set<Long>> counts;
-
-        RemoveUnreadCountsTask(final int position, final Map<Long, Set<Long>> counts) {
-            this.position = position;
-            this.counts = counts;
-        }
-
-        @Override
-        protected Integer doInBackground(final Void... params) {
-            return removeUnreadCounts(mContext, position, counts);
         }
 
     }

@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.shawnhu.seagull.seagull.twitter.TweetStore;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
 import com.shawnhu.seagull.utils.HtmlEscapeHelper;
 import com.shawnhu.seagull.utils.JSON.JSONParcel;

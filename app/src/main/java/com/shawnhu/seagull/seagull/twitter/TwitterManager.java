@@ -25,13 +25,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.shawnhu.seagull.seagull.twitter.providers.TwitterSQLiteOpenHelper;
 import com.shawnhu.seagull.seagull.twitter.utils.AsyncTaskManager;
 import com.shawnhu.seagull.seagull.twitter.utils.AsyncTwitterWrapper;
 import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
 import com.shawnhu.seagull.seagull.twitter.utils.MessagesManager;
 import com.shawnhu.seagull.seagull.twitter.utils.MultiSelectManager;
-import com.shawnhu.seagull.seagull.twitter.utils.content.TwitterSQLiteOpenHelper;
-import com.shawnhu.seagull.seagull.twitter.utils.net.TwidereHostAddressResolver;
+import com.shawnhu.seagull.seagull.twitter.utils.net.TwitterHostAddressResolver;
 
 import twitter4j.http.HostAddressResolver;
 
@@ -41,12 +41,19 @@ public class TwitterManager {
     static private TwitterManager sTwitterManager;
 
     TwitterManager(Context context) {
-        if (context == null) {
+        if (sAppContext == null && context == null) {
             throw new NullPointerException("context must not be null");
         }
         sAppContext = context;
     }
 
+    public static TwitterManager getInstance() throws NullPointerException {
+        if (sTwitterManager == null) {
+            throw new NullPointerException("TwitterManager was not instantiated yet.");
+        }
+
+        return sTwitterManager;
+    }
     public static TwitterManager getInstance(Context context) {
         if (sTwitterManager == null) {
             sTwitterManager = new TwitterManager(context);
@@ -78,7 +85,7 @@ public class TwitterManager {
 
     public HostAddressResolver getHostAddressResolver() {
         if (sHostAddrResolver == null) {
-            sHostAddrResolver = new TwidereHostAddressResolver(sAppContext);
+            sHostAddrResolver = new TwitterHostAddressResolver(sAppContext);
         }
         return sHostAddrResolver;
     }

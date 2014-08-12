@@ -66,14 +66,14 @@ import com.etsy.android.grid.StaggeredGridView;
 import com.shawnhu.seagull.BuildConfig;
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
-import com.shawnhu.seagull.seagull.twitter.TweetStore;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterDirectMessage;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterUser;
 import com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils;
-import com.shawnhu.seagull.seagull.twitter.utils.net.TwidereHostResolverFactory;
-import com.shawnhu.seagull.seagull.twitter.utils.net.TwidereHttpClientFactory;
+import com.shawnhu.seagull.seagull.twitter.utils.net.TwitterHostResolverFactory;
+import com.shawnhu.seagull.seagull.twitter.utils.net.TwitterHttpClientFactory;
 import com.shawnhu.seagull.utils.ArrayUtils;
 import com.shawnhu.seagull.utils.BitmapDecodeHelper;
 import com.shawnhu.seagull.utils.HtmlBuilder;
@@ -175,22 +175,22 @@ import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_UC
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.METADATA_KEY_EXTENSION_USE_JSON;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.SHARED_PREFERENCES_NAME;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.SILENT_NOTIFICATIONS_PREFERENCE_NAME;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_ACCOUNTS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_CACHED_HASHTAGS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_CACHED_STATUSES;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_CACHED_USERS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_DIRECT_MESSAGES;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATION;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATION_SCREEN_NAME;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_DRAFTS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_FILTERED_KEYWORDS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_FILTERED_LINKS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_FILTERED_SOURCES;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_FILTERED_USERS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_MENTIONS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_STATUSES;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_TRENDS_LOCAL;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_ACCOUNTS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_HASHTAGS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_STATUSES;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_USERS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DIRECT_MESSAGES;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATION;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATION_SCREEN_NAME;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DRAFTS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_KEYWORDS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_LINKS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_SOURCES;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_USERS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_MENTIONS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_STATUSES;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_TRENDS_LOCAL;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TWITTER_CONSUMER_KEY;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TWITTER_CONSUMER_SECRET;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TWITTER_MAX_IMAGE_HEIGHT;
@@ -204,19 +204,19 @@ import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.VALUE_
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.VALUE_LINK_HIGHLIGHT_OPTION_HIGHLIGHT;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.VALUE_LINK_HIGHLIGHT_OPTION_NONE;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.VALUE_LINK_HIGHLIGHT_OPTION_UNDERLINE;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.Accounts;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.CACHE_URIS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.CachedHashtags;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.CachedStatuses;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.CachedTrends;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.CachedUsers;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.DIRECT_MESSAGES_URIS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.DirectMessages;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.Drafts;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.Filters;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.Mentions;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.STATUSES_URIS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.Statuses;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Accounts;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CACHE_URIS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CachedHashtags;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CachedStatuses;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CachedTrends;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CachedUsers;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.DIRECT_MESSAGES_URIS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.DirectMessages;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Drafts;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Filters;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Mentions;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.STATUSES_URIS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Statuses;
 import static com.shawnhu.seagull.seagull.twitter.text.TwitterLinkify.PATTERN_TWITTER_PROFILE_IMAGES;
 import static com.shawnhu.seagull.seagull.twitter.text.TwitterLinkify.TWITTER_PROFILE_IMAGES_AVAILABLE_SIZES;
 import static com.shawnhu.seagull.utils.HtmlEscapeHelper.toPlainText;
@@ -1297,7 +1297,7 @@ public final class Utils {
         if (userAgent != null) {
             cb.setHttpUserAgent(userAgent);
         }
-        cb.setHttpClientFactory(new TwidereHttpClientFactory(context));
+        cb.setHttpClientFactory(new TwitterHttpClientFactory(context));
         return new HttpClientWrapper(cb.build());
     }
 
@@ -1307,7 +1307,7 @@ public final class Utils {
         final int timeoutMillis = prefs.getInt(KEY_CONNECTION_TIMEOUT, 10000) * 1000;
         final Proxy proxy = getProxy(context);
         final String userAgent = generateBrowserUserAgent();
-        final HostAddressResolverFactory resolverFactory = new TwidereHostResolverFactory();
+        final HostAddressResolverFactory resolverFactory = new TwitterHostResolverFactory();
         return getHttpClient(context, timeoutMillis, true, proxy, resolverFactory, userAgent, false);
     }
 
@@ -1946,9 +1946,9 @@ public final class Utils {
         try {
             if (!c.moveToFirst()) return null;
             final ConfigurationBuilder cb = new ConfigurationBuilder();
-            cb.setHostAddressResolverFactory(new TwidereHostResolverFactory());
+            cb.setHostAddressResolverFactory(new TwitterHostResolverFactory());
             if (apacheHttp) {
-                cb.setHttpClientFactory(new TwidereHttpClientFactory(app));
+                cb.setHttpClientFactory(new TwitterHttpClientFactory(app));
             }
             cb.setHttpConnectionTimeout(connection_timeout);
             setUserAgent(context, cb);

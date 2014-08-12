@@ -20,6 +20,7 @@ public class TwitterStatusUpdate implements Parcelable {
         }
     };
 
+    //TODO: drop array
     public final TwitterAccount[] accounts;
     public final TwitterMediaUpdate[] medias;
     public final String text;

@@ -1,7 +1,12 @@
 package com.shawnhu.seagull.seagull.twitter;
 
 import com.shawnhu.seagull.seagull.twitter.annotations.Preference;
-import static com.shawnhu.seagull.seagull.twitter.annotations.Preference.Type.*;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
+
+import static com.shawnhu.seagull.seagull.twitter.annotations.Preference.Type.BOOLEAN;
+import static com.shawnhu.seagull.seagull.twitter.annotations.Preference.Type.INT;
+import static com.shawnhu.seagull.seagull.twitter.annotations.Preference.Type.LONG;
+import static com.shawnhu.seagull.seagull.twitter.annotations.Preference.Type.STRING;
 
 /**
  * Created by shawn on 14-7-31.
@@ -13,18 +18,13 @@ public class SeagullTwitterConstants {
     public static final String APP_PROJECT_URL = "";
     public static final String APP_PROJECT_EMAIL = "";
 
-    public static final String DATABASES_NAME = "twidere.sqlite";
-    public static final int DATABASES_VERSION = 1;
+    public static final String DATABASES_NAME = "seagull.db";
+    public static final int    DATABASES_VERSION = 1;
 
     public static final String TWITTER_SIGNUP_URL = "https://twitter.com/signup";
 
-    public static final String USER_NICKNAME_PREFERENCES_NAME = "user_nicknames";
-    public static final String USER_COLOR_PREFERENCES_NAME = "user_colors";
-    public static final String HOST_MAPPING_PREFERENCES_NAME = "host_mapping";
     public static final String SHARED_PREFERENCES_NAME = "twitter-preferences";
-    public static final String PERMISSION_PREFERENCES_NAME = "app_permissions";
     public static final String SILENT_NOTIFICATIONS_PREFERENCE_NAME = "silent_notifications";
-    public static final String TIMELINE_POSITIONS_PREFERENCES_NAME = "timeline_positions";
     public static final String ACCOUNT_PREFERENCES_NAME_PREFIX = "account_preferences_";
 
     public static final String TWITTER_CONSUMER_KEY = "";
@@ -644,6 +644,9 @@ public class SeagullTwitterConstants {
 
     public static final String BROADCAST_FAVORITE_CHANGED = INTENT_PACKAGE_PREFIX + "FAVORITE_CHANGED";
     public static final String BROADCAST_RETWEET_CHANGED = INTENT_PACKAGE_PREFIX + "RETWEET_CHANGED";
+    public static final String BROADCAST_STATUS_UPDATED         = INTENT_PACKAGE_PREFIX + "STATUS_UPDATED";
+    public static final String BROADCAST_DIRECT_MESSAGE_SENT    = INTENT_PACKAGE_PREFIX + "DIRECT_MESSAGE_SENT";
+
     public static final String BROADCAST_STATUS_DESTROYED = INTENT_PACKAGE_PREFIX + "STATUS_DESTROYED";
     public static final String BROADCAST_USER_LIST_MEMBERS_DELETED = INTENT_PACKAGE_PREFIX + "USER_LIST_MEMBER_DELETED";
     public static final String BROADCAST_USER_LIST_MEMBERS_ADDED = INTENT_PACKAGE_PREFIX + "USER_LIST_MEMBER_ADDED";

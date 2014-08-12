@@ -1,4 +1,4 @@
-package com.shawnhu.seagull.seagull.twitter;
+package com.shawnhu.seagull.seagull.twitter.providers;
 
 import android.content.ContentResolver;
 import android.net.Uri;

@@ -14,13 +14,13 @@ import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 
 import java.io.FileNotFoundException;
 
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_CACHED_HASHTAGS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_CACHED_STATUSES;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_CACHED_USERS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_FILTERED_KEYWORDS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_FILTERED_LINKS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_FILTERED_SOURCES;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.TABLE_ID_FILTERED_USERS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_HASHTAGS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_STATUSES;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_USERS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_KEYWORDS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_LINKS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_SOURCES;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_USERS;
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTableId;
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTableNameById;
 

@@ -50,145 +50,145 @@ import javax.net.ssl.SSLSocket;
 @ThreadSafe
 public class HostResolvedSSLConnectionSocketFactory implements LayeredConnectionSocketFactory {
 
-	private static final String TAG = "HttpClient";
+    private static final String TAG = "HttpClient";
 
-	public static final String HTTP_CONTEXT_KEY_ORIGINAL_HOST = "original_host";
+    public static final String HTTP_CONTEXT_KEY_ORIGINAL_HOST = "original_host";
 
-	private final javax.net.ssl.SSLSocketFactory socketfactory;
+    private final javax.net.ssl.SSLSocketFactory socketfactory;
 
-	private final X509HostnameVerifier hostnameVerifier;
+    private final X509HostnameVerifier hostnameVerifier;
 
-	private final String[] supportedProtocols;
+    private final String[] supportedProtocols;
 
-	private final String[] supportedCipherSuites;
+    private final String[] supportedCipherSuites;
 
-	public HostResolvedSSLConnectionSocketFactory(final javax.net.ssl.SSLSocketFactory socketfactory,
-			final String[] supportedProtocols, final String[] supportedCipherSuites,
-			final X509HostnameVerifier hostnameVerifier) {
-		this.socketfactory = Args.notNull(socketfactory, "SSL socket factory");
-		this.supportedProtocols = supportedProtocols;
-		this.supportedCipherSuites = supportedCipherSuites;
-		this.hostnameVerifier = hostnameVerifier != null ? hostnameVerifier
-				: SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER;
-	}
+    public HostResolvedSSLConnectionSocketFactory(final javax.net.ssl.SSLSocketFactory socketfactory,
+            final String[] supportedProtocols, final String[] supportedCipherSuites,
+            final X509HostnameVerifier hostnameVerifier) {
+        this.socketfactory = Args.notNull(socketfactory, "SSL socket factory");
+        this.supportedProtocols = supportedProtocols;
+        this.supportedCipherSuites = supportedCipherSuites;
+        this.hostnameVerifier = hostnameVerifier != null ? hostnameVerifier
+                : SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER;
+    }
 
-	public HostResolvedSSLConnectionSocketFactory(final javax.net.ssl.SSLSocketFactory socketfactory,
-			final X509HostnameVerifier hostnameVerifier) {
-		this(socketfactory, null, null, hostnameVerifier);
-	}
+    public HostResolvedSSLConnectionSocketFactory(final javax.net.ssl.SSLSocketFactory socketfactory,
+            final X509HostnameVerifier hostnameVerifier) {
+        this(socketfactory, null, null, hostnameVerifier);
+    }
 
-	public HostResolvedSSLConnectionSocketFactory(final SSLContext sslContext) {
-		this(sslContext, SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
-	}
+    public HostResolvedSSLConnectionSocketFactory(final SSLContext sslContext) {
+        this(sslContext, SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+    }
 
-	public HostResolvedSSLConnectionSocketFactory(final SSLContext sslContext, final String[] supportedProtocols,
-			final String[] supportedCipherSuites, final X509HostnameVerifier hostnameVerifier) {
-		this(Args.notNull(sslContext, "SSL context").getSocketFactory(), supportedProtocols, supportedCipherSuites,
-				hostnameVerifier);
-	}
+    public HostResolvedSSLConnectionSocketFactory(final SSLContext sslContext, final String[] supportedProtocols,
+            final String[] supportedCipherSuites, final X509HostnameVerifier hostnameVerifier) {
+        this(Args.notNull(sslContext, "SSL context").getSocketFactory(), supportedProtocols, supportedCipherSuites,
+                hostnameVerifier);
+    }
 
-	public HostResolvedSSLConnectionSocketFactory(final SSLContext sslContext,
-			final X509HostnameVerifier hostnameVerifier) {
-		this(Args.notNull(sslContext, "SSL context").getSocketFactory(), null, null, hostnameVerifier);
-	}
+    public HostResolvedSSLConnectionSocketFactory(final SSLContext sslContext,
+            final X509HostnameVerifier hostnameVerifier) {
+        this(Args.notNull(sslContext, "SSL context").getSocketFactory(), null, null, hostnameVerifier);
+    }
 
-	@Override
-	public Socket connectSocket(final int connectTimeout, final Socket socket, final HttpHost host,
-			final InetSocketAddress remoteAddress, final InetSocketAddress localAddress, final HttpContext context)
-			throws IOException {
-		Args.notNull(host, "HTTP host");
-		Args.notNull(remoteAddress, "Remote address");
-		final Socket sock = socket != null ? socket : createSocket(context);
-		if (localAddress != null) {
-			sock.bind(localAddress);
-		}
-		try {
-			sock.connect(remoteAddress, connectTimeout);
-		} catch (final IOException ex) {
-			try {
-				sock.close();
-			} catch (final IOException ignore) {
-			}
-			throw ex;
-		}
-		// Setup SSL layering if necessary
-		if (sock instanceof SSLSocket) {
-			final SSLSocket sslsock = (SSLSocket) sock;
-			sslsock.startHandshake();
-			verifyHostname(sslsock, host.getHostName(), context);
-			return sock;
-		} else
-			return createLayeredSocket(sock, host.getHostName(), remoteAddress.getPort(), context);
-	}
+    @Override
+    public Socket connectSocket(final int connectTimeout, final Socket socket, final HttpHost host,
+            final InetSocketAddress remoteAddress, final InetSocketAddress localAddress, final HttpContext context)
+            throws IOException {
+        Args.notNull(host, "HTTP host");
+        Args.notNull(remoteAddress, "Remote address");
+        final Socket sock = socket != null ? socket : createSocket(context);
+        if (localAddress != null) {
+            sock.bind(localAddress);
+        }
+        try {
+            sock.connect(remoteAddress, connectTimeout);
+        } catch (final IOException ex) {
+            try {
+                sock.close();
+            } catch (final IOException ignore) {
+            }
+            throw ex;
+        }
+        // Setup SSL layering if necessary
+        if (sock instanceof SSLSocket) {
+            final SSLSocket sslsock = (SSLSocket) sock;
+            sslsock.startHandshake();
+            verifyHostname(sslsock, host.getHostName(), context);
+            return sock;
+        } else
+            return createLayeredSocket(sock, host.getHostName(), remoteAddress.getPort(), context);
+    }
 
-	@Override
-	public Socket createLayeredSocket(final Socket socket, final String target, final int port,
-			final HttpContext context) throws IOException {
-		final SSLSocket sslsock = (SSLSocket) socketfactory.createSocket(socket, target, port, true);
-		if (supportedProtocols != null) {
-			sslsock.setEnabledProtocols(supportedProtocols);
-		}
-		if (supportedCipherSuites != null) {
-			sslsock.setEnabledCipherSuites(supportedCipherSuites);
-		}
-		prepareSocket(sslsock);
+    @Override
+    public Socket createLayeredSocket(final Socket socket, final String target, final int port,
+            final HttpContext context) throws IOException {
+        final SSLSocket sslsock = (SSLSocket) socketfactory.createSocket(socket, target, port, true);
+        if (supportedProtocols != null) {
+            sslsock.setEnabledProtocols(supportedProtocols);
+        }
+        if (supportedCipherSuites != null) {
+            sslsock.setEnabledCipherSuites(supportedCipherSuites);
+        }
+        prepareSocket(sslsock);
 
-		// Android specific code to enable SNI
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        // Android specific code to enable SNI
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
 
-			if (socketfactory instanceof SSLCertificateSocketFactory) {
-				if (Log.isLoggable(TAG, Log.DEBUG)) {
-					Log.d(TAG, "Enabling SNI for " + target);
-				}
-				((SSLCertificateSocketFactory) socketfactory).setHostname(sslsock, target);
-			}
-		}
-		// End of Android specific code
+            if (socketfactory instanceof SSLCertificateSocketFactory) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Enabling SNI for " + target);
+                }
+                ((SSLCertificateSocketFactory) socketfactory).setHostname(sslsock, target);
+            }
+        }
+        // End of Android specific code
 
-		sslsock.startHandshake();
-		verifyHostname(sslsock, target, context);
-		return sslsock;
-	}
+        sslsock.startHandshake();
+        verifyHostname(sslsock, target, context);
+        return sslsock;
+    }
 
-	@Override
-	public Socket createSocket(final HttpContext context) throws IOException {
-		return SocketFactory.getDefault().createSocket();
-	}
+    @Override
+    public Socket createSocket(final HttpContext context) throws IOException {
+        return SocketFactory.getDefault().createSocket();
+    }
 
-	/**
-	 * Performs any custom initialization for a newly created SSLSocket (before
-	 * the SSL handshake happens).
-	 * 
-	 * The default implementation is a no-op, but could be overridden to, e.g.,
-	 * call {@link javax.net.ssl.SSLSocket#setEnabledCipherSuites(String[])}.
-	 */
-	protected void prepareSocket(final SSLSocket socket) throws IOException {
-	}
+    /**
+     * Performs any custom initialization for a newly created SSLSocket (before
+     * the SSL handshake happens).
+     *
+     * The default implementation is a no-op, but could be overridden to, e.g.,
+     * call {@link javax.net.ssl.SSLSocket#setEnabledCipherSuites(String[])}.
+     */
+    protected void prepareSocket(final SSLSocket socket) throws IOException {
+    }
 
-	private String getHostname(final String hostname, final HttpContext context) {
-		if (context == null) return hostname;
-		final Object attr = context.getAttribute(HTTP_CONTEXT_KEY_ORIGINAL_HOST);
-		if (attr instanceof String) return (String) attr;
-		return hostname;
-	}
+    private String getHostname(final String hostname, final HttpContext context) {
+        if (context == null) return hostname;
+        final Object attr = context.getAttribute(HTTP_CONTEXT_KEY_ORIGINAL_HOST);
+        if (attr instanceof String) return (String) attr;
+        return hostname;
+    }
 
-	private void verifyHostname(final SSLSocket sslsock, final String hostname, final HttpContext context)
-			throws IOException {
-		try {
-			hostnameVerifier.verify(getHostname(hostname, context), sslsock);
-			// verifyHostName() didn't blowup - good!
-		} catch (final IOException iox) {
-			// close the socket before re-throwing the exception
-			try {
-				sslsock.close();
-			} catch (final Exception x) { /* ignore */
-			}
-			throw iox;
-		}
-	}
+    private void verifyHostname(final SSLSocket sslsock, final String hostname, final HttpContext context)
+            throws IOException {
+        try {
+            hostnameVerifier.verify(getHostname(hostname, context), sslsock);
+            // verifyHostName() didn't blowup - good!
+        } catch (final IOException iox) {
+            // close the socket before re-throwing the exception
+            try {
+                sslsock.close();
+            } catch (final Exception x) { /* ignore */
+            }
+            throw iox;
+        }
+    }
 
-	X509HostnameVerifier getHostnameVerifier() {
-		return hostnameVerifier;
-	}
+    X509HostnameVerifier getHostnameVerifier() {
+        return hostnameVerifier;
+    }
 
 }

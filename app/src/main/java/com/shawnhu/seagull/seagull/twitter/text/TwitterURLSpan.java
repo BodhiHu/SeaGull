@@ -26,47 +26,47 @@ import android.view.View;
 public class TwitterURLSpan extends URLSpan {
 
     private final int                               type;
-	private final long                              accountId;
-	private final String                            url;
+    private final long                              accountId;
+    private final String                            url;
     private final String                            orig;
-	private final boolean                           sensitive;
-	private final OnLinkClickListener               listener;
+    private final boolean                           sensitive;
+    private final OnLinkClickListener               listener;
 
-	public TwitterURLSpan(final String              url,
+    public TwitterURLSpan(final String              url,
                           final long                accountId,
                           final int                 type,
                           final boolean             sensitive,
                           final OnLinkClickListener listener) {
 
-		this(url, null, accountId, type, sensitive, listener);
-	}
+        this(url, null, accountId, type, sensitive, listener);
+    }
 
-	public TwitterURLSpan(final String              url,
+    public TwitterURLSpan(final String              url,
                           final String              orig,
                           final long                accountId,
                           final int                 type,
                           final boolean             sensitive,
                           final OnLinkClickListener listener) {
-		super(url);
-		this.url = url;
-		this.orig = orig;
-		this.accountId = accountId;
-		this.type = type;
-		this.sensitive = sensitive;
-		this.listener = listener;
-	}
+        super(url);
+        this.url = url;
+        this.orig = orig;
+        this.accountId = accountId;
+        this.type = type;
+        this.sensitive = sensitive;
+        this.listener = listener;
+    }
 
-	@Override
-	public void onClick(final View widget) {
-		if (listener != null) {
-			listener.onLinkClick(widget.getContext(),
+    @Override
+    public void onClick(final View widget) {
+        if (listener != null) {
+            listener.onLinkClick(widget.getContext(),
                                  url, orig, accountId, type, sensitive);
-		}
-	}
+        }
+    }
 
     public interface OnLinkClickListener {
-		public void onLinkClick(Context context,
+        public void onLinkClick(Context context,
                                 String link, String orig, long account_id, int type,
                                 boolean sensitive);
-	}
+    }
 }

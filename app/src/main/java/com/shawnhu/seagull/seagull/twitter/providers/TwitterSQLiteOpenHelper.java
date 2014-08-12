@@ -1,11 +1,10 @@
-package com.shawnhu.seagull.seagull.twitter.utils.content;
+package com.shawnhu.seagull.seagull.twitter.providers;
 
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.shawnhu.seagull.seagull.twitter.TweetStore;
 import com.shawnhu.seagull.utils.querybuilder.NewColumn;
 import com.shawnhu.seagull.utils.querybuilder.SQLQueryBuilder;
 import com.shawnhu.seagull.utils.querybuilder.query.SQLCreateTableQuery;

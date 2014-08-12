@@ -14,9 +14,11 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.seagull.twitter.TweetStore;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
@@ -48,6 +50,8 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 import static android.text.TextUtils.isEmpty;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_DIRECT_MESSAGE_SENT;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_STATUS_UPDATED;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EASTER_EGG_RESTORE_TEXT_PART1;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EASTER_EGG_RESTORE_TEXT_PART2;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EASTER_EGG_RESTORE_TEXT_PART3;
@@ -64,8 +68,8 @@ import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.INTENT
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.NOTIFICATION_ID_DRAFTS;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.NOTIFICATION_ID_SEND_DIRECT_MESSAGE;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.NOTIFICATION_ID_UPDATE_STATUS;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.CachedHashtags;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.Drafts;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CachedHashtags;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Drafts;
 import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.makeDirectMessageContentValues;
 import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.makeDirectMessageDraftContentValues;
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getImagePathFromUri;
@@ -73,6 +77,7 @@ import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTwitterInstance
 
 public class BackgroundOperationService extends IntentService {
 
+    static final String         TAG = "BackgroundOperationService";
     private TwitterValidator    mValidator;
     private final Extractor     extractor = new Extractor();
 
@@ -105,11 +110,15 @@ public class BackgroundOperationService extends IntentService {
     protected void onHandleIntent(final Intent intent) {
         if (intent == null) return;
         final String action = intent.getAction();
+        int retRes;
         if (INTENT_ACTION_UPDATE_STATUS.equals(action)) {
-            handleUpdateStatusIntent(intent);
+            retRes = handleUpdateStatusIntent(intent);
+            Intent i = new Intent(BROADCAST_STATUS_UPDATED);
+            LocalBroadcastManager.getInstance(this).sendBroadcast();
         }
         if (INTENT_ACTION_SEND_DIRECT_MESSAGE.equals(action)) {
             handleSendDirectMessageIntent(intent);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(BROADCAST_DIRECT_MESSAGE_SENT));
         }
     }
 
@@ -146,76 +155,61 @@ public class BackgroundOperationService extends IntentService {
         stopForeground(false);
         mNotificationManager.cancel(NOTIFICATION_ID_SEND_DIRECT_MESSAGE);
     }
-    private void handleUpdateStatusIntent(final Intent intent) {
-        final NotificationCompat.Builder    builder =
-                new NotificationCompat.Builder(this);
-        final TwitterStatusUpdate           status  =
-                intent.getParcelableExtra(EXTRA_STATUS);
-        final Parcelable[]                  status_parcelables =
-                intent.getParcelableArrayExtra(EXTRA_STATUSES);
-        final TwitterStatusUpdate[]         statuses;
 
-        if (status_parcelables != null) {
-            statuses = new TwitterStatusUpdate[status_parcelables.length];
-            for (int i = 0, j = status_parcelables.length; i < j; i++) {
-                statuses[i] = (TwitterStatusUpdate) status_parcelables[i];
-            }
-        } else if (status != null) {
-            statuses = new TwitterStatusUpdate[1];
-            statuses[0] = status;
-        } else {
-            return;
+    /**
+     * @param intent
+     * @return: 0: update OK; others: error string res id;
+     */
+    private int handleUpdateStatusIntent(final Intent intent) {
+        int ret = 0;
+
+        final NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this);
+        final TwitterStatusUpdate status =
+                intent.getParcelableExtra(EXTRA_STATUS);
+
+        if (status == null) {
+            return ret;
         }
 
         startForeground(NOTIFICATION_ID_UPDATE_STATUS,
-                        updateUpdateStatusNotificaion(this, builder, 0, null));
+                updateUpdateStatusNotificaion(this, builder, 0, null));
 
-        for (final TwitterStatusUpdate item : statuses) {
-            mNotificationManager.notify(NOTIFICATION_ID_UPDATE_STATUS,
-                    updateUpdateStatusNotificaion(this, builder, 0, item));
+        mNotificationManager.notify(NOTIFICATION_ID_UPDATE_STATUS,
+                updateUpdateStatusNotificaion(this, builder, 0, status));
 
-            //update status
-            final List<Response<TwitterStatus>> result = updateStatus(builder, item);
+        //update status
+        final Response<TwitterStatus> result = updateStatus(builder, status);
 
-            //process responses
-            boolean                             failed = false;
-            Exception                           exception = null;
-            final List<Long>                    failed_account_ids =
-                    ListUtils.fromArray(TwitterAccount.getAccountIds(item.accounts));
-            for (final Response<TwitterStatus> response : result) {
-                if (response.getData() == null) {
-                    failed = true;
-                    if (exception == null) {
-                        exception = response.getException();
-                    }
-                } else if (response.getData().account_id > 0) {
-                    failed_account_ids.remove(response.getData().account_id);
-                }
-            }
+        //process responses
+        boolean          failed = false;
+        Exception        exception = null;
+        final List<Long> failed_account_ids =
+                ListUtils.fromArray(TwitterAccount.getAccountIds(status.accounts));
 
-            if (result.isEmpty()) {
-                saveDrafts(item, failed_account_ids);
-                showErrorMessage(R.string.action_updating_status,
-                                 getString(R.string.no_account_selected),
-                                 false);
-            } else if (failed) {
-                // If the status is a duplicate, there's no need to save it to
-                // drafts.
-                if (exception instanceof TwitterException
-                        && ((TwitterException) exception).getErrorCode() == StatusCodeMessageUtils.STATUS_IS_DUPLICATE) {
-                    showErrorMessage(getString(R.string.status_is_duplicate), false);
-                } else {
-                    saveDrafts(item, failed_account_ids);
-                    showErrorMessage(R.string.action_updating_status, exception, true);
-                }
+        if (result == null || result.getData() == null) {
+            failed = true;
+            exception = result.getException();
+        }
+
+        if (failed) {
+            // If the status is a duplicate, there's no need to save it to
+            // drafts.
+            if (exception instanceof TwitterException
+                    && ((TwitterException) exception).getErrorCode() == StatusCodeMessageUtils.STATUS_IS_DUPLICATE) {
+                ret = R.string.status_is_duplicate;
             } else {
-                showOkMessage(R.string.status_updated, false);
-                if (item.medias != null) {
-                    for (final TwitterMediaUpdate media : item.medias) {
-                        final String path = getImagePathFromUri(this, Uri.parse(media.uri));
-                        if (path != null) {
-                            new File(path).delete();
-                        }
+                saveDrafts(status, failed_account_ids);
+                Log.e(TAG, exception.toString());
+                exception.printStackTrace();
+                ret = R.string.status_not_updated;
+            }
+        } else {
+            if (status.medias != null) {
+                for (final TwitterMediaUpdate media : status.medias) {
+                    final String path = getImagePathFromUri(this, Uri.parse(media.uri));
+                    if (path != null) {
+                        new File(path).delete();
                     }
                 }
             }
@@ -223,6 +217,7 @@ public class BackgroundOperationService extends IntentService {
 
         stopForeground(false);
         mNotificationManager.cancel(NOTIFICATION_ID_UPDATE_STATUS);
+        return ret;
     }
 
     private void saveDrafts(final TwitterStatusUpdate   status,
@@ -274,9 +269,22 @@ public class BackgroundOperationService extends IntentService {
         }
     }
 
-    private List<Response<TwitterStatus>> updateStatus(
+    private Response<TwitterStatus> updateStatus(
             final Builder builder,
             final TwitterStatusUpdate statusUpdate) {
+
+        if (statusUpdate.accounts.length == 0) {
+            return null;
+        }
+
+        //TODO: Easter Eggs
+        final boolean hasEasterEggTriggerText =
+                statusUpdate.text.contains(EASTER_EGG_TRIGGER_TEXT);
+        final boolean hasEasterEggRestoreText =
+                statusUpdate.text.contains(EASTER_EGG_RESTORE_TEXT_PART1) &&
+                        statusUpdate.text.contains(EASTER_EGG_RESTORE_TEXT_PART2) &&
+                        statusUpdate.text.contains(EASTER_EGG_RESTORE_TEXT_PART3);
+
         final ArrayList<ContentValues> hashtag_values = new ArrayList<ContentValues>();
         final Collection<String> hashtags = extractor.extractHashtags(statusUpdate.text);
         for (final String hashtag : hashtags) {
@@ -284,19 +292,13 @@ public class BackgroundOperationService extends IntentService {
             values.put(CachedHashtags.NAME, hashtag);
             hashtag_values.add(values);
         }
-        final boolean hasEasterEggTriggerText = statusUpdate.text.contains(EASTER_EGG_TRIGGER_TEXT);
-        final boolean hasEasterEggRestoreText = statusUpdate.text.contains(EASTER_EGG_RESTORE_TEXT_PART1)
-                && statusUpdate.text.contains(EASTER_EGG_RESTORE_TEXT_PART2)
-                && statusUpdate.text.contains(EASTER_EGG_RESTORE_TEXT_PART3);
         mResolver.bulkInsert(CachedHashtags.CONTENT_URI,
                 hashtag_values.toArray(new ContentValues[hashtag_values.size()]));
 
-        final List<Response<TwitterStatus>> results = new ArrayList<Response<TwitterStatus>>();
-
-        if (statusUpdate.accounts.length == 0) return Collections.emptyList();
-
         try {
-            final boolean hasMedia = statusUpdate.medias != null && statusUpdate.medias.length > 0;
+            final boolean hasMedia =
+                    statusUpdate.medias != null &&
+                            statusUpdate.medias.length > 0;
             final String unshortenedText = statusUpdate.text;
 
             if (statusUpdate.medias != null) {
@@ -308,72 +310,54 @@ public class BackgroundOperationService extends IntentService {
                     }
                 }
             }
-            for (final TwitterAccount account : statusUpdate.accounts) {
-                final Twitter twitter = getTwitterInstance(this, account.account_id, true, true);
-                final twitter4j.StatusUpdate status = new twitter4j.StatusUpdate(unshortenedText);
-                status.setInReplyToStatusId(statusUpdate.in_reply_to_status_id);
-                if (statusUpdate.location != null) {
-                    status.setLocation(TwitterLocation.toGeoLocation(statusUpdate.location));
-                }
-                if (hasMedia) {
-                    final BitmapFactory.Options o = new BitmapFactory.Options();
-                    o.inJustDecodeBounds = true;
-                    if (statusUpdate.medias.length == 1) {
-                        final TwitterMediaUpdate media = statusUpdate.medias[0];
+
+            final TwitterAccount account = statusUpdate.accounts[0];
+            final Twitter        twitter = getTwitterInstance(this, account.account_id, true, true);
+
+            final twitter4j.StatusUpdate status = new twitter4j.StatusUpdate(unshortenedText);
+            status.setInReplyToStatusId(statusUpdate.in_reply_to_status_id);
+            if (statusUpdate.location != null) {
+                status.setLocation(TwitterLocation.toGeoLocation(statusUpdate.location));
+            }
+
+            if (hasMedia) {
+                final BitmapFactory.Options o = new BitmapFactory.Options();
+                o.inJustDecodeBounds = true;
+                if (statusUpdate.medias.length == 1) {
+                    final TwitterMediaUpdate media = statusUpdate.medias[0];
+                    final String path = getImagePathFromUri(this, Uri.parse(media.uri));
+                    BitmapFactory.decodeFile(path, o);
+                    final File file = new File(path);
+                    final FileInputStream is = new FileInputStream(file);
+
+                    status.setMedia(file.getName(), is, o.outMimeType);
+                } else {
+                    final long[] mediaIds = new long[statusUpdate.medias.length];
+                    for (int i = 0, j = mediaIds.length; i < j; i++) {
+                        final TwitterMediaUpdate media = statusUpdate.medias[i];
                         final String path = getImagePathFromUri(this, Uri.parse(media.uri));
-                        try {
-                            if (path == null) throw new FileNotFoundException();
-                            BitmapFactory.decodeFile(path, o);
-                            final File file = new File(path);
-                            final FileInputStream is = new FileInputStream(file);
-                            status.setMedia(file.getName(), is, o.outMimeType);
-                        } catch (final FileNotFoundException e) {
-                        }
-                    } else {
-                        final long[] mediaIds = new long[statusUpdate.medias.length];
-                        try {
-                            for (int i = 0, j = mediaIds.length; i < j; i++) {
-                                final TwitterMediaUpdate media = statusUpdate.medias[i];
-                                final String path = getImagePathFromUri(this, Uri.parse(media.uri));
-                                if (path == null) throw new FileNotFoundException();
-                                BitmapFactory.decodeFile(path, o);
-                                final File file = new File(path);
-                                final FileInputStream is = new FileInputStream(file);
-                                final MediaUploadResponse uploadResp = twitter.uploadMedia(file.getName(), is,
-                                        o.outMimeType);
-                                mediaIds[i] = uploadResp.getId();
-                            }
-                        } catch (final FileNotFoundException e) {
-
-                        } catch (final TwitterException e) {
-                            final Response<TwitterStatus> response = new Response<TwitterStatus>(null, e);
-                            results.add(response);
-                            continue;
-                        }
-                        status.mediaIds(mediaIds);
+                        BitmapFactory.decodeFile(path, o);
+                        final File file = new File(path);
+                        final FileInputStream is = new FileInputStream(file);
+                        final MediaUploadResponse uploadResp = twitter.uploadMedia(file.getName(), is,
+                                o.outMimeType);
+                        mediaIds[i] = uploadResp.getId();
                     }
-                }
-                status.setPossiblySensitive(statusUpdate.is_possibly_sensitive);
 
-                if (twitter == null) {
-                    results.add(new Response<TwitterStatus>(null, new NullPointerException()));
-                    continue;
-                }
-                try {
-                    final twitter4j.Status resultStatus = twitter.updateStatus(status);
-                    final TwitterStatus result = new TwitterStatus(resultStatus, account.account_id, false);
-                    results.add(new Response<TwitterStatus>(result, null));
-                } catch (final TwitterException e) {
-                    final Response<TwitterStatus> response = new Response<TwitterStatus>(null, e);
-                    results.add(response);
+                    status.mediaIds(mediaIds);
                 }
             }
-        } catch (final Exception e) {
-            final Response<TwitterStatus> response = new Response<TwitterStatus>(null, e);
-            results.add(response);
-        }
 
-        return results;
+            status.setPossiblySensitive(statusUpdate.is_possibly_sensitive);
+
+            final twitter4j.Status resultStatus = twitter.updateStatus(status);
+            final TwitterStatus result =
+                    new TwitterStatus(resultStatus, account.account_id, false);
+
+            return new Response<TwitterStatus>(result, null);
+        } catch (final Exception e) {
+            return new Response<TwitterStatus>(null, e);
+        }
     }
 
     private Notification buildNotification(

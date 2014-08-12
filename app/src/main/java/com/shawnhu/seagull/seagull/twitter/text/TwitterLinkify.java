@@ -1,6 +1,5 @@
 package com.shawnhu.seagull.seagull.twitter.text;
 
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;

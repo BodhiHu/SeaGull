@@ -1,10 +1,12 @@
 package com.shawnhu.seagull.seagull.twitter.utils;
 
-import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import android.os.Handler;
+
 import com.shawnhu.seagull.seagull.twitter.tasks.AsyncTask;
 import com.shawnhu.seagull.seagull.twitter.tasks.ManagedAsyncTask;
+
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 
 public class AsyncTaskManager {
 
