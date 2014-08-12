@@ -263,27 +263,6 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         return false;
     }
 
-    public int refreshAll() {
-        final long[] accountIds = getActivatedAccountIds(mContext);
-        return refreshAll(accountIds);
-    }
-
-    public int refreshAll(final long[] accountIds) {
-        long[] sinceIds = getNewestStatusIdsFromDatabase(mContext, TweetStore.Mentions.CONTENT_URI, accountIds);
-        getMentionsAsync(accountIds, null, sinceIds);
-
-        sinceIds = getNewestMessageIdsFromDatabase(mContext, TweetStore.DirectMessages.Inbox.CONTENT_URI,
-                    accountIds);
-        getReceivedDirectMessagesAsync(accountIds, null, sinceIds);
-        getSentDirectMessagesAsync(accountIds, null, null);
-
-        final long accountId = getDefaultAccountId(mContext);
-        getLocalTrendsAsync(accountId, 1);
-
-        final long[] statusSinceIds = getNewestStatusIdsFromDatabase(mContext, TweetStore.Statuses.CONTENT_URI, accountIds);
-        return getHomeTimelineAsync(accountIds, null, statusSinceIds);
-    }
-
     public void removeUnreadCountsAsync(final int position, final Map<Long, Set<Long>> counts) {
         final RemoveUnreadCountsTask task = new RemoveUnreadCountsTask(position, counts);
         task.execute();
@@ -1153,8 +1132,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
         private void deleteMessages(final long message_id) {
             final String where = DirectMessages.MESSAGE_ID + " = " + message_id;
-            mResolver.delete(DirectMessages.Inbox.CONTENT_URI, where, null);
-            mResolver.delete(DirectMessages.Outbox.CONTENT_URI, where, null);
+            mResolver.delete(DirectMessages.CONTENT_URI, where, null);
         }
 
         private boolean isMessageNotFound(final Exception e) {
@@ -1977,8 +1955,8 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
                 final ContentValues values = ContentValuesCreator.makeDirectMessageContentValues(result.getData(), account_id, true);
                 final String delete_where = DirectMessages.ACCOUNT_ID + " = " + account_id + " AND "
                         + DirectMessages.MESSAGE_ID + " = " + result.getData().getId();
-                mResolver.delete(DirectMessages.Outbox.CONTENT_URI, delete_where, null);
-                mResolver.insert(DirectMessages.Outbox.CONTENT_URI, values);
+                mResolver.delete(DirectMessages.CONTENT_URI, delete_where, null);
+                mResolver.insert(DirectMessages.CONTENT_URI, values);
                 mMessagesManager.showOkMessage(R.string.direct_message_sent, false);
             } else {
                 mMessagesManager.showErrorMessage(R.string.action_sending_direct_message, result.getException(), true);
@@ -2093,7 +2071,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
     class StoreReceivedDirectMessagesTask extends StoreDirectMessagesTask {
 
         public StoreReceivedDirectMessagesTask(final List<TwitterMessageListResponse> result, final boolean notify) {
-            super(result, DirectMessages.Inbox.CONTENT_URI, notify, TASK_TAG_STORE_RECEIVED_DIRECT_MESSAGES);
+            super(result, DirectMessages.CONTENT_URI, notify, TASK_TAG_STORE_RECEIVED_DIRECT_MESSAGES);
         }
 
         @Override
@@ -2106,7 +2084,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
     class StoreSentDirectMessagesTask extends StoreDirectMessagesTask {
 
         public StoreSentDirectMessagesTask(final List<TwitterMessageListResponse> result, final boolean notify) {
-            super(result, DirectMessages.Outbox.CONTENT_URI, notify, TASK_TAG_STORE_SENT_DIRECT_MESSAGES);
+            super(result, DirectMessages.CONTENT_URI, notify, TASK_TAG_STORE_SENT_DIRECT_MESSAGES);
         }
 
         @Override

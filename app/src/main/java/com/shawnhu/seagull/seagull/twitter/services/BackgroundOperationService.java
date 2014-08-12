@@ -8,41 +8,34 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
-import android.widget.Toast;
-import static android.text.TextUtils.isEmpty;
 
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.seagull.twitter.utils.AsyncTwitterWrapper;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.*;
-
 import com.shawnhu.seagull.seagull.twitter.TweetStore;
-import static com.shawnhu.seagull.seagull.twitter.TweetStore.*;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterDirectMessage;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterLocation;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterMediaUpdate;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusUpdate;
-import com.shawnhu.seagull.seagull.twitter.model.TwitterDirectMessage;
 import com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator;
 import com.shawnhu.seagull.seagull.twitter.utils.MessagesManager;
 import com.shawnhu.seagull.seagull.twitter.utils.StatusCodeMessageUtils;
 import com.shawnhu.seagull.seagull.twitter.utils.TwitterValidator;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
-import com.shawnhu.seagull.seagull.twitter.utils.io.ContentLengthInputStream;
 import com.shawnhu.seagull.utils.ArrayUtils;
 import com.shawnhu.seagull.utils.ListUtils;
 import com.twitter.Extractor;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,21 +47,39 @@ import twitter4j.MediaUploadResponse;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
+import static android.text.TextUtils.isEmpty;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EASTER_EGG_RESTORE_TEXT_PART1;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EASTER_EGG_RESTORE_TEXT_PART2;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EASTER_EGG_RESTORE_TEXT_PART3;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EASTER_EGG_TRIGGER_TEXT;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_ACCOUNT_ID;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_IMAGE_URI;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_RECIPIENT_ID;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_STATUS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_STATUSES;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_TEXT;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.INTENT_ACTION_DRAFTS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.INTENT_ACTION_SEND_DIRECT_MESSAGE;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.INTENT_ACTION_UPDATE_STATUS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.NOTIFICATION_ID_DRAFTS;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.NOTIFICATION_ID_SEND_DIRECT_MESSAGE;
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.NOTIFICATION_ID_UPDATE_STATUS;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.CachedHashtags;
+import static com.shawnhu.seagull.seagull.twitter.TweetStore.Drafts;
 import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.makeDirectMessageContentValues;
 import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.makeDirectMessageDraftContentValues;
-import static com.shawnhu.seagull.seagull.twitter.utils.Utils.*;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getImagePathFromUri;
+import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTwitterInstance;
 
 public class BackgroundOperationService extends IntentService {
 
-    private TwitterValidator mValidator;
-    private final Extractor extractor = new Extractor();
+    private TwitterValidator    mValidator;
+    private final Extractor     extractor = new Extractor();
 
-    private Handler mHandler;
-    private SharedPreferences mPreferences;
-    private ContentResolver mResolver;
+    private Handler             mHandler;
+    private ContentResolver     mResolver;
     private NotificationManager mNotificationManager;
-    private AsyncTwitterWrapper mTwitter;
-    private MessagesManager mMessagesManager;
+    private MessagesManager     mMessagesManager;
 
     public BackgroundOperationService() {
         super("background_operation");
@@ -77,14 +88,11 @@ public class BackgroundOperationService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        final TwitterManager tw = TwitterManager.getInstance(this);
-        mHandler = new Handler();
-        mPreferences = getSharedPreferences(SHARED_PREFERENCES_NAME, MODE_PRIVATE);
-        mValidator = new TwitterValidator(this);
-        mResolver = getContentResolver();
-        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        mTwitter = tw.getTwitterWrapper();
-        mMessagesManager = tw.getMessagesManager();
+        mHandler                = new Handler();
+        mValidator              = new TwitterValidator(this);
+        mResolver               = getContentResolver();
+        mNotificationManager    = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mMessagesManager        = TwitterManager.getInstance(this).getMessagesManager();
     }
 
     @Override
@@ -93,86 +101,16 @@ public class BackgroundOperationService extends IntentService {
         return START_STICKY;
     }
 
-    public void showErrorMessage(final CharSequence message, final boolean long_message) {
-        mHandler.post(new Runnable() {
-
-            @Override
-            public void run() {
-                mMessagesManager.showErrorMessage(message, long_message);
-            }
-        });
-    }
-
-    public void showErrorMessage(final int action_res, final Exception e, final boolean long_message) {
-
-        mHandler.post(new Runnable() {
-
-            @Override
-            public void run() {
-                mMessagesManager.showErrorMessage(action_res, e, long_message);
-            }
-        });
-    }
-
-    public void showErrorMessage(final int action_res, final String message, final boolean long_message) {
-
-        mHandler.post(new Runnable() {
-
-            @Override
-            public void run() {
-                mMessagesManager.showErrorMessage(action_res, message, long_message);
-            }
-        });
-    }
-
-    public void showOkMessage(final int message_res, final boolean long_message) {
-        mHandler.post(new Runnable() {
-
-            @Override
-            public void run() {
-                mMessagesManager.showOkMessage(message_res, long_message);
-            }
-        });
-    }
-
     @Override
     protected void onHandleIntent(final Intent intent) {
         if (intent == null) return;
         final String action = intent.getAction();
         if (INTENT_ACTION_UPDATE_STATUS.equals(action)) {
             handleUpdateStatusIntent(intent);
-        } else if (INTENT_ACTION_SEND_DIRECT_MESSAGE.equals(action)) {
+        }
+        if (INTENT_ACTION_SEND_DIRECT_MESSAGE.equals(action)) {
             handleSendDirectMessageIntent(intent);
         }
-    }
-
-    private Notification buildNotification(final String title, final String message, final int icon,
-            final Intent content_intent, final Intent delete_intent) {
-        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setTicker(message);
-        builder.setContentTitle(title);
-        builder.setContentText(message);
-        builder.setAutoCancel(true);
-        builder.setWhen(System.currentTimeMillis());
-        builder.setSmallIcon(icon);
-        if (delete_intent != null) {
-            builder.setDeleteIntent(PendingIntent.getBroadcast(this, 0, delete_intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT));
-        }
-        if (content_intent != null) {
-            content_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-            builder.setContentIntent(PendingIntent.getActivity(this, 0, content_intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT));
-        }
-        // final Uri defRingtone =
-        // RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        // final String path =
-        // mPreferences.getString(PREFERENCE_KEY_NOTIFICATION_RINGTONE, "");
-        // builder.setSound(isEmpty(path) ? defRingtone : Uri.parse(path),
-        // Notification.STREAM_DEFAULT);
-        // builder.setLights(HOLO_BLUE_LIGHT, 1000, 2000);
-        // builder.setDefaults(Notification.DEFAULT_VIBRATE);
-        return builder.build();
     }
 
     private void handleSendDirectMessageIntent(final Intent intent) {
@@ -197,8 +135,8 @@ public class BackgroundOperationService extends IntentService {
             final ContentValues values = makeDirectMessageContentValues(result.getData());
             final String delete_where = TweetStore.DirectMessages.ACCOUNT_ID + " = " + accountId + " AND "
                     + TweetStore.DirectMessages.MESSAGE_ID + " = " + result.getData().id;
-            mResolver.delete(TweetStore.DirectMessages.Outbox.CONTENT_URI, delete_where, null);
-            mResolver.insert(TweetStore.DirectMessages.Outbox.CONTENT_URI, values);
+            mResolver.delete(TweetStore.DirectMessages.CONTENT_URI, delete_where, null);
+            mResolver.insert(TweetStore.DirectMessages.CONTENT_URI, values);
             showOkMessage(R.string.direct_message_sent, false);
         } else {
             final ContentValues values = makeDirectMessageDraftContentValues(accountId, recipientId, text, imageUri);
@@ -208,12 +146,15 @@ public class BackgroundOperationService extends IntentService {
         stopForeground(false);
         mNotificationManager.cancel(NOTIFICATION_ID_SEND_DIRECT_MESSAGE);
     }
-
     private void handleUpdateStatusIntent(final Intent intent) {
-        final NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        final TwitterStatusUpdate status = intent.getParcelableExtra(EXTRA_STATUS);
-        final Parcelable[] status_parcelables = intent.getParcelableArrayExtra(EXTRA_STATUSES);
-        final TwitterStatusUpdate[] statuses;
+        final NotificationCompat.Builder    builder =
+                new NotificationCompat.Builder(this);
+        final TwitterStatusUpdate           status  =
+                intent.getParcelableExtra(EXTRA_STATUS);
+        final Parcelable[]                  status_parcelables =
+                intent.getParcelableArrayExtra(EXTRA_STATUSES);
+        final TwitterStatusUpdate[]         statuses;
+
         if (status_parcelables != null) {
             statuses = new TwitterStatusUpdate[status_parcelables.length];
             for (int i = 0, j = status_parcelables.length; i < j; i++) {
@@ -222,17 +163,25 @@ public class BackgroundOperationService extends IntentService {
         } else if (status != null) {
             statuses = new TwitterStatusUpdate[1];
             statuses[0] = status;
-        } else
+        } else {
             return;
-        startForeground(NOTIFICATION_ID_UPDATE_STATUS, updateUpdateStatusNotificaion(this, builder, 0, null));
+        }
+
+        startForeground(NOTIFICATION_ID_UPDATE_STATUS,
+                        updateUpdateStatusNotificaion(this, builder, 0, null));
+
         for (final TwitterStatusUpdate item : statuses) {
             mNotificationManager.notify(NOTIFICATION_ID_UPDATE_STATUS,
                     updateUpdateStatusNotificaion(this, builder, 0, item));
-            final List<Response<TwitterStatus>> result = updateStatus(builder, item);
-            boolean failed = false;
-            Exception exception = null;
-            final List<Long> failed_account_ids = ListUtils.fromArray(TwitterAccount.getAccountIds(item.accounts));
 
+            //update status
+            final List<Response<TwitterStatus>> result = updateStatus(builder, item);
+
+            //process responses
+            boolean                             failed = false;
+            Exception                           exception = null;
+            final List<Long>                    failed_account_ids =
+                    ListUtils.fromArray(TwitterAccount.getAccountIds(item.accounts));
             for (final Response<TwitterStatus> response : result) {
                 if (response.getData() == null) {
                     failed = true;
@@ -243,9 +192,12 @@ public class BackgroundOperationService extends IntentService {
                     failed_account_ids.remove(response.getData().account_id);
                 }
             }
+
             if (result.isEmpty()) {
                 saveDrafts(item, failed_account_ids);
-                showErrorMessage(R.string.action_updating_status, getString(R.string.no_account_selected), false);
+                showErrorMessage(R.string.action_updating_status,
+                                 getString(R.string.no_account_selected),
+                                 false);
             } else if (failed) {
                 // If the status is a duplicate, there's no need to save it to
                 // drafts.
@@ -267,27 +219,33 @@ public class BackgroundOperationService extends IntentService {
                     }
                 }
             }
-            if (mPreferences.getBoolean(KEY_REFRESH_AFTER_TWEET, false)) {
-                mTwitter.refreshAll();
-            }
         }
+
         stopForeground(false);
         mNotificationManager.cancel(NOTIFICATION_ID_UPDATE_STATUS);
     }
 
-    private void saveDrafts(final TwitterStatusUpdate status, final List<Long> account_ids) {
-        final ContentValues values = ContentValuesCreator.makeStatusDraftContentValues(status,
-                ArrayUtils.fromList(account_ids));
+    private void saveDrafts(final TwitterStatusUpdate   status,
+                            final List<Long>            account_ids) {
+        final ContentValues values =
+                ContentValuesCreator.makeStatusDraftContentValues(
+                        status, ArrayUtils.fromList(account_ids));
         mResolver.insert(Drafts.CONTENT_URI, values);
-        final String title = getString(R.string.status_not_updated);
-        final String message = getString(R.string.status_not_updated_summary);
-        final Intent intent = new Intent(INTENT_ACTION_DRAFTS);
-        final Notification notification = buildNotification(title, message, R.drawable.ic_stat_twitter, intent, null);
+        final String title      = getString(R.string.status_not_updated);
+        final String message    = getString(R.string.status_not_updated_summary);
+        final Intent intent     = new Intent(INTENT_ACTION_DRAFTS);
+        final Notification notification =
+                buildNotification(
+                        title, message,
+                        R.drawable.ic_stat_twitter,
+                        intent, null);
         mNotificationManager.notify(NOTIFICATION_ID_DRAFTS, notification);
     }
 
-    private Response<TwitterDirectMessage> sendDirectMessage(final NotificationCompat.Builder builder,
-            final long accountId, final long recipientId, final String text, final String imageUri) {
+    private Response<TwitterDirectMessage> sendDirectMessage(
+            final NotificationCompat.Builder builder,
+            final long accountId, final long recipientId,
+            final String text, final String imageUri) {
         final Twitter twitter = getTwitterInstance(this, accountId, true, true);
         try {
             final TwitterDirectMessage directMessage;
@@ -299,8 +257,7 @@ public class BackgroundOperationService extends IntentService {
                 BitmapFactory.decodeFile(path, o);
                 final File file = new File(path);
                 Utils.downscaleImageIfNeeded(file, 100);
-                final ContentLengthInputStream is = new ContentLengthInputStream(file);
-                is.setReadListener(new MessageMediaUploadListener(this, mNotificationManager, builder, text));
+                final FileInputStream is = new FileInputStream(file);
                 final MediaUploadResponse uploadResp = twitter.uploadMedia(file.getName(), is, o.outMimeType);
                 directMessage = new TwitterDirectMessage(twitter.sendDirectMessage(recipientId, text,
                         uploadResp.getId()), accountId, true);
@@ -317,11 +274,8 @@ public class BackgroundOperationService extends IntentService {
         }
     }
 
-    private void showToast(final int resId, final int duration) {
-        mHandler.post(new ToastRunnable(this, resId, duration));
-    }
-
-    private List<Response<TwitterStatus>> updateStatus(final Builder builder,
+    private List<Response<TwitterStatus>> updateStatus(
+            final Builder builder,
             final TwitterStatusUpdate statusUpdate) {
         final ArrayList<ContentValues> hashtag_values = new ArrayList<ContentValues>();
         final Collection<String> hashtags = extractor.extractHashtags(statusUpdate.text);
@@ -371,9 +325,7 @@ public class BackgroundOperationService extends IntentService {
                             if (path == null) throw new FileNotFoundException();
                             BitmapFactory.decodeFile(path, o);
                             final File file = new File(path);
-                            final ContentLengthInputStream is = new ContentLengthInputStream(file);
-                            is.setReadListener(new StatusMediaUploadListener(this, mNotificationManager, builder,
-                                    statusUpdate));
+                            final FileInputStream is = new FileInputStream(file);
                             status.setMedia(file.getName(), is, o.outMimeType);
                         } catch (final FileNotFoundException e) {
                         }
@@ -386,9 +338,7 @@ public class BackgroundOperationService extends IntentService {
                                 if (path == null) throw new FileNotFoundException();
                                 BitmapFactory.decodeFile(path, o);
                                 final File file = new File(path);
-                                final ContentLengthInputStream is = new ContentLengthInputStream(file);
-                                is.setReadListener(new StatusMediaUploadListener(this, mNotificationManager, builder,
-                                        statusUpdate));
+                                final FileInputStream is = new FileInputStream(file);
                                 final MediaUploadResponse uploadResp = twitter.uploadMedia(file.getName(), is,
                                         o.outMimeType);
                                 mediaIds[i] = uploadResp.getId();
@@ -426,20 +376,41 @@ public class BackgroundOperationService extends IntentService {
         return results;
     }
 
-    private static Notification updateSendDirectMessageNotificaion(final Context context,
-            final NotificationCompat.Builder builder, final int progress, final String message) {
-        builder.setContentTitle(context.getString(R.string.sending_direct_message));
-        if (message != null) {
-            builder.setContentText(message);
+    private Notification buildNotification(
+            final String title,
+            final String message,
+            final int    icon,
+            final Intent content_intent,
+            final Intent delete_intent) {
+        final NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this)
+                        .setTicker(message)
+                        .setContentTitle(title)
+                        .setContentText(message)
+                        .setAutoCancel(true)
+                        .setWhen(System.currentTimeMillis())
+                        .setSmallIcon(icon);
+
+        if (delete_intent != null) {
+            builder.setDeleteIntent(
+                    PendingIntent.getBroadcast(
+                            this, 0, delete_intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            );
         }
-        builder.setSmallIcon(R.drawable.ic_stat_send);
-        builder.setProgress(100, progress, progress >= 100 || progress <= 0);
-        builder.setOngoing(true);
+        if (content_intent != null) {
+            content_intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+            builder.setContentIntent(
+                    PendingIntent.getActivity(
+                            this, 0, content_intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            );
+        }
+
         return builder.build();
     }
 
-    private static Notification updateUpdateStatusNotificaion(final Context context,
-            final NotificationCompat.Builder builder, final int progress, final TwitterStatusUpdate status) {
+    private static Notification updateUpdateStatusNotificaion(
+            final Context context,  final NotificationCompat.Builder builder,
+            final int progress,     final TwitterStatusUpdate status) {
         builder.setContentTitle(context.getString(R.string.updating_status_notification));
         if (status != null) {
             builder.setContentText(status.text);
@@ -450,78 +421,49 @@ public class BackgroundOperationService extends IntentService {
         return builder.build();
     }
 
-    private static class ToastRunnable implements Runnable {
-        private final Context context;
-        private final int resId;
-        private final int duration;
 
-        public ToastRunnable(final Context context, final int resId, final int duration) {
-            this.context = context;
-            this.resId = resId;
-            this.duration = duration;
-        }
+    protected void showErrorMessage(final CharSequence message,
+                                    final boolean long_message) {
+        mHandler.post(new Runnable() {
 
-        @Override
-        public void run() {
-            Toast.makeText(context, resId, duration).show();
-
-        }
-
+            @Override
+            public void run() {
+                mMessagesManager.showErrorMessage(message, long_message);
+            }
+        });
     }
 
-    static class MessageMediaUploadListener implements ContentLengthInputStream.ReadListener {
-        private final Context context;
-        private final NotificationManager manager;
+    protected void showErrorMessage(final int action_res, final Exception e,
+                                    final boolean long_message) {
 
-        int percent;
+        mHandler.post(new Runnable() {
 
-        private final Builder builder;
-        private final String message;
-
-        MessageMediaUploadListener(final Context context, final NotificationManager manager,
-                final NotificationCompat.Builder builder, final String message) {
-            this.context = context;
-            this.manager = manager;
-            this.builder = builder;
-            this.message = message;
-        }
-
-        @Override
-        public void onRead(final long length, final long position) {
-            final int percent = length > 0 ? (int) (position * 100 / length) : 0;
-            if (this.percent != percent) {
-                manager.notify(NOTIFICATION_ID_SEND_DIRECT_MESSAGE,
-                        updateSendDirectMessageNotificaion(context, builder, percent, message));
+            @Override
+            public void run() {
+                mMessagesManager.showErrorMessage(action_res, e, long_message);
             }
-            this.percent = percent;
-        }
+        });
     }
 
-    static class StatusMediaUploadListener implements ContentLengthInputStream.ReadListener {
-        private final Context context;
-        private final NotificationManager manager;
+    protected void showErrorMessage(final int action_res, final String message,
+                                    final boolean long_message) {
 
-        int percent;
+        mHandler.post(new Runnable() {
 
-        private final Builder builder;
-        private final TwitterStatusUpdate statusUpdate;
-
-        StatusMediaUploadListener(final Context context, final NotificationManager manager,
-                final NotificationCompat.Builder builder, final TwitterStatusUpdate statusUpdate) {
-            this.context = context;
-            this.manager = manager;
-            this.builder = builder;
-            this.statusUpdate = statusUpdate;
-        }
-
-        @Override
-        public void onRead(final long length, final long position) {
-            final int percent = length > 0 ? (int) (position * 100 / length) : 0;
-            if (this.percent != percent) {
-                manager.notify(NOTIFICATION_ID_UPDATE_STATUS,
-                        updateUpdateStatusNotificaion(context, builder, percent, statusUpdate));
+            @Override
+            public void run() {
+                mMessagesManager.showErrorMessage(action_res, message, long_message);
             }
-            this.percent = percent;
-        }
+        });
+    }
+
+    protected void showOkMessage(final int message_res, final boolean long_message) {
+        mHandler.post(new Runnable() {
+
+            @Override
+            public void run() {
+                mMessagesManager.showOkMessage(message_res, long_message);
+            }
+        });
     }
 }
