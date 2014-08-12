@@ -428,6 +428,7 @@
 	<string name="status_retweeted">Retweeted.</string>
 	<string name="retweet_cancelled">Retweet cancelled.</string>
 	<string name="direct_message_sent">Direct message sent.</string>
+    <string name="direct_message_not_sent">Direct message send error.</string>
 	<string name="direct_message_deleted">Direct message deleted.</string>
 	<string name="search_saved">Search saved.</string>
 	<string name="search_name_saved">Search \"<xliff:g id="name">%s</xliff:g>\" saved.</string>

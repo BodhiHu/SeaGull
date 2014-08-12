@@ -4,12 +4,12 @@ import android.content.ContentValues;
 
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterDirectMessage;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterLocation;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterMedia;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterMediaUpdate;
-import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusUpdate;
-import com.shawnhu.seagull.seagull.twitter.model.TwitterDirectMessage;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusUpdate;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterUser;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterUserMention;
 import com.shawnhu.seagull.utils.ArrayUtils;
@@ -30,7 +30,13 @@ import twitter4j.URLEntity;
 import twitter4j.auth.AccessToken;
 import twitter4j.conf.Configuration;
 
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.*;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Accounts;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CachedTrends;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CachedUsers;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.DirectMessages;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Drafts;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Filters;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Statuses;
 
 public final class ContentValuesCreator {
 

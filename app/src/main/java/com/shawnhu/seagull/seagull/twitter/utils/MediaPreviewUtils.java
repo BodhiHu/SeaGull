@@ -11,7 +11,6 @@ import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterMedia;
 import com.shawnhu.seagull.utils.HtmlLinkExtractor;
 import com.shawnhu.seagull.utils.ParseUtils;
-import com.shawnhu.seagull.utils.StrictModeUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
