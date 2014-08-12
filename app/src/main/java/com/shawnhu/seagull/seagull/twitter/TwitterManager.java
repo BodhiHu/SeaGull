@@ -32,7 +32,6 @@ import com.shawnhu.seagull.seagull.twitter.utils.MessagesManager;
 import com.shawnhu.seagull.seagull.twitter.utils.MultiSelectManager;
 import com.shawnhu.seagull.seagull.twitter.utils.content.TwitterSQLiteOpenHelper;
 import com.shawnhu.seagull.seagull.twitter.utils.net.TwidereHostAddressResolver;
-import com.shawnhu.seagull.utils.StrictModeUtils;
 
 import twitter4j.http.HostAddressResolver;
 
@@ -115,7 +114,6 @@ public class TwitterManager {
     public SQLiteDatabase getWritableSQLiteDatabase() {
         if (sDatabase != null) return sDatabase;
 
-        StrictModeUtils.checkDiskIO();
         return sDatabase = getSQLiteOpenHelper().getWritableDatabase();
     }
 

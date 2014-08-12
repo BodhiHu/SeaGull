@@ -234,7 +234,6 @@ public class MediaPreviewUtils {
     public static TwitterMedia getAllAvailableImage(final String link, final boolean fullImage,
             final HttpClientWrapper client) throws IOException {
         if (link == null) return null;
-        StrictModeUtils.checkLengthyOperation();
         Matcher m;
         m = PATTERN_TWITTER_IMAGES.matcher(link);
         if (m.matches()) return getTwitterImage(link, fullImage);
