@@ -4,10 +4,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
-import android.content.CursorLoader;
-import android.content.Loader;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -29,14 +27,14 @@ import java.util.ArrayList;
 import java.util.List;
 import com.shawnhu.seagull.R;
 
-public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
+public abstract class LoginActivity extends Activity {
 
-    private static final String[]   DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello",
-            "bar@example.com:world",
-    };
+    protected abstract boolean isEmailValid(String email);
+    protected abstract boolean isPasswordValid(String password);
+    protected abstract boolean tryLoginUser(String acc, String pwd);
+    protected abstract boolean trySignUpUser(String acc, String pwd);
 
-    private UserLoginTask           mAuthTask = null;
+    private UserLoginORSignupTask mAuthTask = null;
 
     // UI references.
     private AutoCompleteTextView    mEmailView;
@@ -58,18 +56,25 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
+                    attemptLoginORSignup(true);
                     return true;
                 }
                 return false;
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        Button mEmailSignInButton = (Button) findViewById(R.id.sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                attemptLoginORSignup(true);
+            }
+        });
+        Button mEmailSignUpButton = (Button) findViewById(R.id.sign_up_button);
+        mEmailSignUpButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                attemptLoginORSignup(false);
             }
         });
 
@@ -78,16 +83,10 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
     }
 
     private void populateAutoComplete() {
-        if (VERSION.SDK_INT >= 14) {
-            // Use ContactsContract.Profile (API 14+)
-            getLoaderManager().initLoader(0, null, this);
-        } else if (VERSION.SDK_INT >= 8) {
-            // Use AccountManager (API 8+)
-            new SetupEmailAutoCompleteTask().execute(null, null);
-        }
+        new SetupPhoneEmailAutoCompleteTask().execute(null, null);
     }
 
-    public void attemptLogin() {
+    public void attemptLoginORSignup(boolean actionIsSignin) {
         if (mAuthTask != null) {
             return;
         }
@@ -130,18 +129,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginORSignupTask(email, password, actionIsSignin);
             mAuthTask.execute((Void) null);
         }
-    }
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
     }
 
     /**
@@ -180,69 +170,14 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
         }
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY),
-                ProfileQuery.PROJECTION,
-                // Select email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE + " = ?",
-                    new String[]{ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE},
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<String>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addEmailsToAutoComplete(emails);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
-
-    /**
-     * Use an AsyncTask to fetch the user's email addresses on a background thread, and update
-     * the email text field with results on the main UI thread.
-     */
-    class SetupEmailAutoCompleteTask extends AsyncTask<Void, Void, List<String>> {
+    //TODO: add phones
+    //TODO: set current account's email/phone as default value
+    class SetupPhoneEmailAutoCompleteTask extends AsyncTask<Void, Void, List<String>> {
 
         @Override
         protected List<String> doInBackground(Void... voids) {
-            ArrayList<String> emailAddressCollection = new ArrayList<String>();
-
             // Get all emails from the user's contacts and copy them to a list.
-            ContentResolver cr = getContentResolver();
-            Cursor emailCur = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-                    null, null, null);
-            while (emailCur.moveToNext()) {
-                String email = emailCur.getString(emailCur.getColumnIndex(ContactsContract
-                        .CommonDataKinds.Email.DATA));
-                emailAddressCollection.add(email);
-            }
-            emailCur.close();
-
-            return emailAddressCollection;
+            return Utils.getContactsEmails(getBaseContext());
         }
 
 	    @Override
@@ -260,37 +195,25 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
         mEmailView.setAdapter(adapter);
     }
 
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginORSignupTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mEmail;
         private final String mPassword;
+        private final boolean mActionLogin;
 
-        UserLoginTask(String email, String password) {
+        UserLoginORSignupTask(String email, String password, boolean login) {
             mEmail = email;
             mPassword = password;
+            mActionLogin = login;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
+            if (mActionLogin) {
+                return tryLoginUser(mEmail, mPassword);
+            } else {
+                return trySignUpUser(mEmail, mPassword);
             }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // TwitterAccount exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
         }
 
         @Override
@@ -312,7 +235,46 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor>{
             showProgress(false);
         }
     }
+
+    static public class Utils {
+        static public ArrayList<String> getContactsEmails(Context context) {
+            ArrayList<String> emailAddressCollection = new ArrayList<String>();
+
+            Uri     contacts_uri;
+            String  projection[]        = null;
+            String  selection           = null;
+            String  selection_args[]    = null;
+            String  sort_order          = null;
+            if (VERSION.SDK_INT >= 14) {
+                // Use ContactsContract.Profile (API 14+)
+                contacts_uri    =
+                        Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
+                                             ContactsContract.Contacts.Data.CONTENT_DIRECTORY);
+                projection      = new String[] {
+                        ContactsContract.CommonDataKinds.Email.DATA,
+                        ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
+                };
+                selection       = ContactsContract.Contacts.Data.MIMETYPE + " = ?";
+                selection_args  = new String[] {
+                        ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE
+                };
+                sort_order      = ContactsContract.Contacts.Data.IS_PRIMARY + " DESC";
+            } else {
+                // Use AccountManager (API 8+)
+                contacts_uri = ContactsContract.CommonDataKinds.Email.CONTENT_URI;
+            }
+
+            ContentResolver cr = context.getContentResolver();
+            Cursor emailCur = cr.query(contacts_uri, projection, selection, selection_args, sort_order);
+            while (emailCur.moveToNext()) {
+                String email = emailCur.getString(emailCur
+                        .getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+                emailAddressCollection.add(email);
+            }
+            emailCur.close();
+
+            return emailAddressCollection;
+        }
+    }
 }
-
-
 
