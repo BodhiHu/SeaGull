@@ -363,7 +363,6 @@ public final class Utils {
 
     }
 
-    private static LongSparseArray<Integer>     sAccountColors      = new LongSparseArray<Integer>();
     private static LongSparseArray<String>      sAccountScreenNames = new LongSparseArray<String>();
     private static LongSparseArray<String>      sAccountNames       = new LongSparseArray<String>();
 
@@ -495,8 +494,7 @@ public final class Utils {
     public static synchronized void cleanDatabasesByItemLimit(final Context context) {
         if (context == null) return;
         final ContentResolver resolver = context.getContentResolver();
-        final int item_limit = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getInt(
-                KEY_DATABASE_ITEM_LIMIT, DEFAULT_DATABASE_ITEM_LIMIT);
+        final int item_limit = DEFAULT_DATABASE_ITEM_LIMIT;
 
         for (final long account_id : getAccountIds(context)) {
             // Clean statuses.
@@ -534,10 +532,6 @@ public final class Utils {
             final Where where = Where.notIn(new Columns.Column(TweetStore.Statuses._ID), qb.build());
             resolver.delete(uri, where.getSQL(), null);
         }
-    }
-
-    public static void clearAccountColor() {
-        sAccountColors.clear();
     }
 
     public static void clearAccountName() {
@@ -850,25 +844,6 @@ public final class Utils {
 
     public static String generateBrowserUserAgent() {
         return String.format(UA_TEMPLATE, Build.VERSION.RELEASE, Build.MODEL, Build.ID);
-    }
-
-    public static int getAccountColor(final Context context, final long account_id) {
-        if (context == null) return Color.TRANSPARENT;
-        final Integer cached = sAccountColors.get(account_id);
-        if (cached != null) return cached;
-        final Cursor cur = ContentResolverUtils.query(context.getContentResolver(), TweetStore.Accounts.CONTENT_URI,
-                new String[] { TweetStore.Accounts.COLOR }, TweetStore.Accounts.ACCOUNT_ID + " = " + account_id, null, null);
-        if (cur == null) return Color.TRANSPARENT;
-        try {
-            if (cur.getCount() > 0 && cur.moveToFirst()) {
-                final int color = cur.getInt(0);
-                sAccountColors.put(account_id, color);
-                return color;
-            }
-            return Color.TRANSPARENT;
-        } finally {
-            cur.close();
-        }
     }
 
     public static int[] getAccountColors(final Context context, final long[] account_ids) {
@@ -2087,20 +2062,6 @@ public final class Utils {
         final Rect rect = new Rect();
         decorView.getWindowVisibleDisplayFrame(rect);
         return rect.top;
-    }
-
-    public static void initAccountColor(final Context context) {
-        if (context == null) return;
-        final Cursor cur = ContentResolverUtils.query(context.getContentResolver(), Accounts.CONTENT_URI, new String[]{
-                Accounts.ACCOUNT_ID, Accounts.COLOR}, null, null, null);
-        if (cur == null) return;
-        final int id_idx = cur.getColumnIndex(Accounts.ACCOUNT_ID), color_idx = cur.getColumnIndex(Accounts.COLOR);
-        cur.moveToFirst();
-        while (!cur.isAfterLast()) {
-            sAccountColors.put(cur.getLong(id_idx), cur.getInt(color_idx));
-            cur.moveToNext();
-        }
-        cur.close();
     }
 
     public static boolean isBatteryOkay(final Context context) {

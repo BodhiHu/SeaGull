@@ -4,7 +4,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
@@ -48,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import earlybird.ProfilingUtil;
@@ -105,9 +103,7 @@ import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.EXTRA_USER_LIST;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.INTENT_ACTION_SEND_DIRECT_MESSAGE;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.INTENT_ACTION_UPDATE_STATUS;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_LOAD_ITEM_LIMIT;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.QUERY_PARAM_NOTIFY;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.SHARED_PREFERENCES_NAME;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TASK_TAG_GET_HOME_TIMELINE;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TASK_TAG_GET_MENTIONS;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TASK_TAG_GET_RECEIVED_DIRECT_MESSAGES;
@@ -141,7 +137,6 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
     private final Context               mContext;
     private final TwitterManager        mTwitterManager;
     private final AsyncTaskManager      mAsyncTaskManager;
-    private final SharedPreferences     mPreferences;
     private final MessagesManager       mMessagesManager;
     private final ContentResolver       mResolver;
 
@@ -159,7 +154,6 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         mTwitterManager     = TwitterManager.getInstance(context);
         mAsyncTaskManager   = mTwitterManager.getAsyncTaskManager();
         mMessagesManager    = mTwitterManager.getMessagesManager();
-        mPreferences        = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         mResolver           = context.getContentResolver();
     }
 
@@ -1520,7 +1514,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
             if (account_ids == null) return result;
 
             int idx = 0;
-            final int load_item_limit = mPreferences.getInt(KEY_LOAD_ITEM_LIMIT, DEFAULT_LOAD_ITEM_LIMIT);
+            final int load_item_limit = DEFAULT_LOAD_ITEM_LIMIT;
             for (final long account_id : account_ids) {
                 final Twitter twitter = getTwitterInstance(mContext, account_id, true);
                 if (twitter != null) {
@@ -1753,7 +1747,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
             if (mAccountIds == null) return result;
 
             int idx = 0;
-            final int load_item_limit = mPreferences.getInt(KEY_LOAD_ITEM_LIMIT, DEFAULT_LOAD_ITEM_LIMIT);
+            final int load_item_limit = DEFAULT_LOAD_ITEM_LIMIT;
             for (final long account_id : mAccountIds) {
                 final Twitter twitter = getTwitterInstance(mContext, account_id, true);
                 if (twitter != null) {
