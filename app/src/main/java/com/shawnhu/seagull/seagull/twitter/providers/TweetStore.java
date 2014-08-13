@@ -1,8 +1,11 @@
 package com.shawnhu.seagull.seagull.twitter.providers;
 
 import android.content.ContentResolver;
+import android.content.UriMatcher;
 import android.net.Uri;
 import android.provider.BaseColumns;
+
+import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 
 public interface TweetStore {
 
@@ -24,6 +27,8 @@ public interface TweetStore {
                                                                 .authority(AUTHORITY).build();
     public static final Uri    CONTENT_URI_NULL             = Uri.withAppendedPath(BASE_CONTENT_URI, CONTENT_PATH_NULL);
 
+    UriMatcher CONTENT_PROVIDER_URI_MATCHER                 = new UriMatcher(UriMatcher.NO_MATCH);
+
     public static final Uri[]  STATUSES_URIS                = new Uri[] {
                                                                 Statuses.CONTENT_URI,
                                                                 Mentions.CONTENT_URI,
@@ -43,8 +48,6 @@ public interface TweetStore {
     int TABLE_ID_STATUSES = 12;
     int TABLE_ID_MENTIONS = 13;
     int TABLE_ID_DIRECT_MESSAGES = 21;
-    int TABLE_ID_DIRECT_MESSAGES_INBOX = 22;
-    int TABLE_ID_DIRECT_MESSAGES_OUTBOX = 23;
     int TABLE_ID_DIRECT_MESSAGES_CONVERSATION = 24;
     int TABLE_ID_DIRECT_MESSAGES_CONVERSATION_SCREEN_NAME = 25;
     int TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES = 26;
@@ -54,19 +57,12 @@ public interface TweetStore {
     int TABLE_ID_FILTERED_LINKS = 34;
     int TABLE_ID_TRENDS_LOCAL = 41;
     int TABLE_ID_DRAFTS = 51;
-    int TABLE_ID_TABS = 52;
     int TABLE_ID_CACHED_USERS = 61;
     int TABLE_ID_CACHED_STATUSES = 62;
     int TABLE_ID_CACHED_HASHTAGS = 63;
-    int VIRTUAL_TABLE_ID_DATABASE_READY = 100;
-    int VIRTUAL_TABLE_ID_NOTIFICATIONS = 101;
-    int VIRTUAL_TABLE_ID_PREFERENCES = 102;
-    int VIRTUAL_TABLE_ID_ALL_PREFERENCES = 103;
-    int VIRTUAL_TABLE_ID_PERMISSIONS = 104;
     int VIRTUAL_TABLE_ID_DNS = 105;
     int VIRTUAL_TABLE_ID_CACHED_IMAGES = 106;
     int VIRTUAL_TABLE_ID_CACHE_FILES = 107;
-    int VIRTUAL_TABLE_ID_UNREAD_COUNTS = 108;
 
     public static interface Accounts extends BaseColumns {
 

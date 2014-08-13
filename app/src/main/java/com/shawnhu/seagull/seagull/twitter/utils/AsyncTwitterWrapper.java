@@ -163,6 +163,11 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         mResolver           = context.getContentResolver();
     }
 
+    public static AsyncTwitterWrapper getInstance(final Context context) {
+        if (sInstance != null) return sInstance;
+        return sInstance = new AsyncTwitterWrapper(context);
+    }
+
     public int acceptFriendshipAsync(final long accountId, final long userId) {
         final AcceptFriendshipTask task = new AcceptFriendshipTask(accountId, userId);
         return mAsyncTaskManager.add(task, true);
@@ -390,15 +395,13 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         return mAsyncTaskManager.add(task, true);
     }
 
-    public static AsyncTwitterWrapper getInstance(final Context context) {
-        if (sInstance != null) return sInstance;
-        return sInstance = new AsyncTwitterWrapper(context);
-    }
 
     /**
      * TODO: move tasks to tasks/
      */
-    public static class UpdateProfileBannerImageTask extends ManagedAsyncTask<Void, Void, Response<Boolean>> {
+    public static class UpdateProfileBannerImageTask
+            extends ManagedAsyncTask<Void, Void, Response<Boolean>>
+    {
 
         private final long mAccountId;
         private final Uri mImageUri;
@@ -436,7 +439,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    public static class UpdateProfileImageTask extends ManagedAsyncTask<Void, Void, Response<TwitterUser>> {
+    public static class UpdateProfileImageTask
+            extends ManagedAsyncTask<Void, Void, Response<TwitterUser>>
+    {
 
         private final long account_id;
         private final Uri image_uri;
@@ -473,7 +478,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    public static class UpdateProfileTask extends ManagedAsyncTask<Void, Void, Response<TwitterUser>> {
+    public static class UpdateProfileTask
+            extends ManagedAsyncTask<Void, Void, Response<TwitterUser>>
+    {
 
         private final long account_id;
         private final String name, url, location, description;
@@ -512,7 +519,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class AcceptFriendshipTask extends ManagedAsyncTask<Void, Void, Response<User>> {
+    class AcceptFriendshipTask
+            extends ManagedAsyncTask<Void, Void, Response<User>>
+    {
 
         private final long mAccountId;
         private final long mUserId;
@@ -564,7 +573,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class AddUserListMembersTask extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>> {
+    class AddUserListMembersTask
+            extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>>
+    {
 
         private final long accountId;
         private final long listId;
@@ -622,7 +633,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class CreateBlockTask extends ManagedAsyncTask<Void, Void, Response<User>> {
+    class CreateBlockTask
+            extends ManagedAsyncTask<Void, Void, Response<User>>
+    {
 
         private final long account_id, user_id;
 
@@ -673,7 +686,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class CreateFavoriteTask extends ManagedAsyncTask<Void, Void, Response<TwitterStatus>> {
+    class CreateFavoriteTask
+            extends ManagedAsyncTask<Void, Void, Response<TwitterStatus>>
+    {
 
         private final long account_id, status_id;
 
@@ -725,7 +740,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class CreateFriendshipTask extends ManagedAsyncTask<Void, Void, Response<User>> {
+    class CreateFriendshipTask
+            extends ManagedAsyncTask<Void, Void, Response<User>>
+    {
 
         private final long account_id;
         private final long user_id;
@@ -780,7 +797,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class CreateMultiBlockTask extends ManagedAsyncTask<Void, Void, ListResponse<Long>> {
+    class CreateMultiBlockTask
+            extends ManagedAsyncTask<Void, Void, ListResponse<Long>>
+    {
 
         private final long account_id;
         private final long[] user_ids;
@@ -837,7 +856,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
     }
 
-    class CreateSavedSearchTask extends ManagedAsyncTask<Void, Void, Response<SavedSearch>> {
+    class CreateSavedSearchTask
+            extends ManagedAsyncTask<Void, Void, Response<SavedSearch>>
+    {
 
         private final long mAccountId;
         private final String mQuery;
@@ -872,7 +893,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class CreateUserListSubscriptionTask extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>> {
+    class CreateUserListSubscriptionTask
+            extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>>
+    {
 
         private final long accountId;
         private final long listId;
@@ -915,7 +938,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class CreateUserListTask extends ManagedAsyncTask<Void, Void, Response<UserList>> {
+    class CreateUserListTask
+            extends ManagedAsyncTask<Void, Void, Response<UserList>>
+    {
 
         private final long account_id;
         private final String list_name, description;
@@ -959,7 +984,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DeleteUserListMembersTask extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>> {
+    class DeleteUserListMembersTask
+            extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>>
+    {
 
         private final long mAccountId;
         private final long mUserListId;
@@ -1017,7 +1044,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DenyFriendshipTask extends ManagedAsyncTask<Void, Void, Response<User>> {
+    class DenyFriendshipTask
+            extends ManagedAsyncTask<Void, Void, Response<User>>
+    {
 
         private final long mAccountId;
         private final long mUserId;
@@ -1068,7 +1097,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroyBlockTask extends ManagedAsyncTask<Void, Void, Response<User>> {
+    class DestroyBlockTask
+            extends ManagedAsyncTask<Void, Void, Response<User>>
+    {
 
         private final long mAccountId;
         private final long mUserId;
@@ -1110,7 +1141,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroyDirectMessageTask extends ManagedAsyncTask<Void, Void, Response<DirectMessage>> {
+    class DestroyDirectMessageTask
+            extends ManagedAsyncTask<Void, Void, Response<DirectMessage>>
+    {
 
         private final long message_id;
         private final long account_id;
@@ -1162,7 +1195,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         }
     }
 
-    class DestroyFavoriteTask extends ManagedAsyncTask<Void, Void, Response<TwitterStatus>> {
+    class DestroyFavoriteTask
+            extends ManagedAsyncTask<Void, Void, Response<TwitterStatus>>
+    {
 
         private final long account_id;
 
@@ -1218,7 +1253,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroyFriendshipTask extends ManagedAsyncTask<Void, Void, Response<User>> {
+    class DestroyFriendshipTask
+            extends ManagedAsyncTask<Void, Void, Response<User>>
+    {
 
         private final long account_id;
         private final long user_id;
@@ -1273,7 +1310,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroySavedSearchTask extends ManagedAsyncTask<Void, Void, Response<SavedSearch>> {
+    class DestroySavedSearchTask
+            extends ManagedAsyncTask<Void, Void, Response<SavedSearch>>
+    {
 
         private final long mAccountId;
         private final int mSearchId;
@@ -1308,7 +1347,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroyStatusTask extends ManagedAsyncTask<Void, Void, Response<Status>> {
+    class DestroyStatusTask
+            extends ManagedAsyncTask<Void, Void, Response<Status>>
+    {
 
         private final long account_id;
 
@@ -1358,7 +1399,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroyUserListSubscriptionTask extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>> {
+    class DestroyUserListSubscriptionTask
+            extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>>
+    {
 
         private final long mAccountId;
         private final long mListId;
@@ -1403,7 +1446,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class DestroyUserListTask extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>> {
+    class DestroyUserListTask
+            extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>>
+    {
 
         private final long mAccountId;
         private final long mListId;
@@ -1450,7 +1495,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    abstract class GetDirectMessagesTask extends ManagedAsyncTask<Void, Void, List<TwitterMessageListResponse>> {
+    abstract class GetDirectMessagesTask
+            extends ManagedAsyncTask<Void, Void, List<TwitterMessageListResponse>>
+    {
 
         private final long[] account_ids, max_ids, since_ids;
 
@@ -1525,7 +1572,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class GetHomeTimelineTask extends GetStatusesTask {
+    class GetHomeTimelineTask
+            extends GetStatusesTask
+    {
 
         public GetHomeTimelineTask(final long[] account_ids, final long[] max_ids, final long[] since_ids) {
             super(account_ids, max_ids, since_ids, TASK_TAG_GET_HOME_TIMELINE);
@@ -1560,7 +1609,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class GetLocalTrendsTask extends GetTrendsTask {
+    class GetLocalTrendsTask
+            extends GetTrendsTask
+    {
 
         private final int woeid;
 
@@ -1587,7 +1638,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class GetMentionsTask extends GetStatusesTask {
+    class GetMentionsTask
+            extends GetStatusesTask
+    {
 
         public GetMentionsTask(final long[] account_ids, final long[] max_ids, final long[] since_ids) {
             super(account_ids, max_ids, since_ids, TASK_TAG_GET_MENTIONS);
@@ -1623,7 +1676,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class GetReceivedDirectMessagesTask extends GetDirectMessagesTask {
+    class GetReceivedDirectMessagesTask
+            extends GetDirectMessagesTask
+    {
 
         public GetReceivedDirectMessagesTask(final long[] account_ids, final long[] max_ids, final long[] since_ids) {
             super(account_ids, max_ids, since_ids, TASK_TAG_GET_RECEIVED_DIRECT_MESSAGES);
@@ -1651,7 +1706,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class GetSentDirectMessagesTask extends GetDirectMessagesTask {
+    class GetSentDirectMessagesTask
+            extends GetDirectMessagesTask
+    {
 
         public GetSentDirectMessagesTask(final long[] account_ids, final long[] max_ids, final long[] since_ids) {
             super(account_ids, max_ids, since_ids, TASK_TAG_GET_SENT_DIRECT_MESSAGES);
@@ -1672,7 +1729,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    abstract class GetStatusesTask extends ManagedAsyncTask<Void, Void, List<TwitterStatusListResponse>> {
+    abstract class GetStatusesTask
+            extends ManagedAsyncTask<Void, Void, List<TwitterStatusListResponse>>
+    {
 
         private final long[] mAccountIds, mMaxIds, mSinceIds;
 
@@ -1737,7 +1796,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    abstract class GetTrendsTask extends ManagedAsyncTask<Void, Void, ListResponse<Trends>> {
+    abstract class GetTrendsTask
+            extends ManagedAsyncTask<Void, Void, ListResponse<Trends>>
+    {
 
         private final long account_id;
 
@@ -1765,7 +1826,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class ReportMultiSpamTask extends ManagedAsyncTask<Void, Void, ListResponse<Long>> {
+    class ReportMultiSpamTask
+            extends ManagedAsyncTask<Void, Void, ListResponse<Long>>
+    {
 
         private final long account_id;
         private final long[] user_ids;
@@ -1820,7 +1883,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class ReportSpamTask extends ManagedAsyncTask<Void, Void, Response<User>> {
+    class ReportSpamTask
+            extends ManagedAsyncTask<Void, Void, Response<User>>
+    {
 
         private final long account_id;
         private final long user_id;
@@ -1866,7 +1931,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class RetweetStatusTask extends ManagedAsyncTask<Void, Void, Response<Status>> {
+    class RetweetStatusTask
+            extends ManagedAsyncTask<Void, Void, Response<Status>>
+    {
 
         private final long account_id;
 
@@ -1920,7 +1987,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class SendDirectMessageTask extends ManagedAsyncTask<Void, Void, Response<DirectMessage>> {
+    class SendDirectMessageTask
+            extends ManagedAsyncTask<Void, Void, Response<DirectMessage>>
+    {
 
         private final long user_id;
         private final String screen_name;
@@ -1968,7 +2037,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    abstract class StoreDirectMessagesTask extends ManagedAsyncTask<Void, Void, Response<Bundle>> {
+    abstract class StoreDirectMessagesTask
+            extends ManagedAsyncTask<Void, Void, Response<Bundle>>
+    {
 
         private final List<TwitterMessageListResponse> responses;
         private final Uri uri;
@@ -2027,7 +2098,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class StoreHomeTimelineTask extends StoreStatusesTask {
+    class StoreHomeTimelineTask
+            extends StoreStatusesTask
+    {
 
         public StoreHomeTimelineTask(final List<TwitterStatusListResponse> result, final boolean notify) {
             super(result, Statuses.CONTENT_URI, notify, TASK_TAG_STORE_HOME_TIMELINE);
@@ -2045,7 +2118,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class StoreLocalTrendsTask extends StoreTrendsTask {
+    class StoreLocalTrendsTask
+            extends StoreTrendsTask
+    {
 
         public StoreLocalTrendsTask(final ListResponse<Trends> result) {
             super(result, CachedTrends.Local.CONTENT_URI);
@@ -2053,7 +2128,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class StoreMentionsTask extends StoreStatusesTask {
+    class StoreMentionsTask
+            extends StoreStatusesTask
+    {
 
         public StoreMentionsTask(final List<TwitterStatusListResponse> result, final boolean notify) {
             super(result, Mentions.CONTENT_URI, notify, TASK_TAG_STORE_MENTIONS);
@@ -2071,7 +2148,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class StoreReceivedDirectMessagesTask extends StoreDirectMessagesTask {
+    class StoreReceivedDirectMessagesTask
+            extends StoreDirectMessagesTask
+    {
 
         public StoreReceivedDirectMessagesTask(final List<TwitterMessageListResponse> result, final boolean notify) {
             super(result, DirectMessages.CONTENT_URI, notify, TASK_TAG_STORE_RECEIVED_DIRECT_MESSAGES);
@@ -2084,7 +2163,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class StoreSentDirectMessagesTask extends StoreDirectMessagesTask {
+    class StoreSentDirectMessagesTask
+            extends StoreDirectMessagesTask
+    {
 
         public StoreSentDirectMessagesTask(final List<TwitterMessageListResponse> result, final boolean notify) {
             super(result, DirectMessages.CONTENT_URI, notify, TASK_TAG_STORE_SENT_DIRECT_MESSAGES);
@@ -2097,7 +2178,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    abstract class StoreStatusesTask extends ManagedAsyncTask<Void, Void, Response<Bundle>> {
+    abstract class StoreStatusesTask
+            extends ManagedAsyncTask<Void, Void, Response<Bundle>>
+    {
 
         private final List<TwitterStatusListResponse> responses;
         private final Uri uri;
@@ -2176,7 +2259,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class StoreTrendsTask extends ManagedAsyncTask<Void, Void, Response<Bundle>> {
+    class StoreTrendsTask
+            extends ManagedAsyncTask<Void, Void, Response<Bundle>>
+    {
 
         private final ListResponse<Trends> response;
         private final Uri uri;
@@ -2231,7 +2316,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class UpdateUserListDetailsTask extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>> {
+    class UpdateUserListDetailsTask
+            extends ManagedAsyncTask<Void, Void, Response<TwitterUserList>>
+    {
 
         private final long accountId;
         private final long listId;
@@ -2280,7 +2367,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    public class CacheUsersStatusesTask extends AsyncTask<Void, Void, Void> {
+    public class CacheUsersStatusesTask
+            extends AsyncTask<Void, Void, Void>
+    {
 
         private final TwitterListResponse<twitter4j.Status>[] all_statuses;
         private final ContentResolver resolver;

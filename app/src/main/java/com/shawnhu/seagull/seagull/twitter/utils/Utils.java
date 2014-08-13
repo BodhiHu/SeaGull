@@ -235,56 +235,55 @@ public final class Utils {
     private static final String UA_TEMPLATE                         =
                                                     "Mozilla/5.0 (Linux; Android %s; %s Build/%s) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.111 Safari/537.36";
 
-    private static final UriMatcher CONTENT_PROVIDER_URI_MATCHER    = new UriMatcher(UriMatcher.NO_MATCH);
     private static final UriMatcher LINK_HANDLER_URI_MATCHER        = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Accounts.CONTENT_PATH,
                                             TABLE_ID_ACCOUNTS);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Statuses.CONTENT_PATH,
                                             TABLE_ID_STATUSES);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Mentions.CONTENT_PATH,
                                             TABLE_ID_MENTIONS);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Drafts.CONTENT_PATH,
                                             TABLE_ID_DRAFTS);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.CachedUsers.CONTENT_PATH,
                                             TABLE_ID_CACHED_USERS);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Filters.Users.CONTENT_PATH,
                                             TABLE_ID_FILTERED_USERS);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Filters.Keywords.CONTENT_PATH,
                                             TABLE_ID_FILTERED_KEYWORDS);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Filters.Sources.CONTENT_PATH,
                                             TABLE_ID_FILTERED_SOURCES);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.Filters.Links.CONTENT_PATH,
                                             TABLE_ID_FILTERED_LINKS);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.DirectMessages.CONTENT_PATH,
                                             TABLE_ID_DIRECT_MESSAGES);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.CachedTrends.Local.CONTENT_PATH,
                                             TABLE_ID_TRENDS_LOCAL);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.CachedStatuses.CONTENT_PATH,
                                             TABLE_ID_CACHED_STATUSES);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.CachedHashtags.CONTENT_PATH,
                                             TABLE_ID_CACHED_HASHTAGS);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.DNS.CONTENT_PATH + "/*",
                                             TweetStore.VIRTUAL_TABLE_ID_DNS);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.CachedImages.CONTENT_PATH,
                                             TweetStore.VIRTUAL_TABLE_ID_CACHED_IMAGES);
-        CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
+        TweetStore.CONTENT_PROVIDER_URI_MATCHER.addURI(TweetStore.AUTHORITY,
                                             TweetStore.CacheFiles.CONTENT_PATH + "/*",
                                             TweetStore.VIRTUAL_TABLE_ID_CACHE_FILES);
 
@@ -363,6 +362,7 @@ public final class Utils {
                                         SeagullTwitterConstants.LINK_ID_MUTES_USERS);
 
     }
+
     private static LongSparseArray<Integer>     sAccountColors      = new LongSparseArray<Integer>();
     private static LongSparseArray<String>      sAccountScreenNames = new LongSparseArray<String>();
     private static LongSparseArray<String>      sAccountNames       = new LongSparseArray<String>();
@@ -1705,7 +1705,7 @@ public final class Utils {
 
     public static int getTableId(final Uri uri) {
         if (uri == null) return -1;
-        return CONTENT_PROVIDER_URI_MATCHER.match(uri);
+        return TweetStore.CONTENT_PROVIDER_URI_MATCHER.match(uri);
     }
 
     public static String getTableNameById(final int id) {
