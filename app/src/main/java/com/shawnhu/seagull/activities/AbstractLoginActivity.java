@@ -9,8 +9,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build.VERSION;
 import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
@@ -23,16 +23,54 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import java.util.ArrayList;
-import java.util.List;
+
 import com.shawnhu.seagull.R;
 
-public abstract class LoginActivity extends Activity {
+import java.util.ArrayList;
+import java.util.List;
 
-    protected abstract boolean isEmailValid(String email);
-    protected abstract boolean isPasswordValid(String password);
-    protected abstract boolean tryLoginUser(String acc, String pwd);
-    protected abstract boolean trySignUpUser(String acc, String pwd);
+public abstract class AbstractLoginActivity extends Activity {
+    static final protected int SUCCESS_CODE = 0;
+
+    /**
+     * @param email
+     * @return: if SUCCESS_CODE valid; else an error string res id;
+     */
+    protected int isEmailValid(String email) {
+        if (TextUtils.isEmpty(email)) {
+            return R.string.error_field_required;
+        } else if (!email.contains("@")) {
+            return R.string.error_invalid_email;
+        }
+
+        return SUCCESS_CODE;
+    }
+    /**
+     * @param password
+     * @return: if SUCCESS_CODE, valid; else an error string res id;
+     */
+    protected int isPasswordValid(String password) {
+        if (TextUtils.isEmpty(password)) {
+            return R.string.error_field_required;
+        } else if (password.length() < 8) {
+            return R.string.error_password_too_short;
+        }
+
+        return SUCCESS_CODE;
+    }
+    /**
+     * @param acc
+     * @param pwd
+     * @return: SUCCESS_CODE or string error res
+     */
+    protected abstract int tryLoginUser(String acc, String pwd);
+
+    /**
+     * @param acc
+     * @param pwd
+     * @return: SUCCESS_CODE or string error res
+     */
+    protected abstract int trySignUpUser(String acc, String pwd);
 
     private UserLoginORSignupTask mAuthTask = null;
 
@@ -102,21 +140,15 @@ public abstract class LoginActivity extends Activity {
         boolean cancel = false;
         View focusView = null;
 
-
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
+        int ret;
+        // Check for a valid password/email.
+        if ((ret = isPasswordValid(password)) != SUCCESS_CODE) {
+            mPasswordView.setError(getString(ret));
             focusView = mPasswordView;
             cancel = true;
         }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
+        if ((ret = isEmailValid(email)) != SUCCESS_CODE) {
+            mEmailView.setError(getString(ret));
             focusView = mEmailView;
             cancel = true;
         }
@@ -189,27 +221,27 @@ public abstract class LoginActivity extends Activity {
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(LoginActivity.this,
+                new ArrayAdapter<String>(AbstractLoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);
     }
 
-    public class UserLoginORSignupTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginORSignupTask extends AsyncTask<Void, Void, Integer> {
 
         private final String mEmail;
         private final String mPassword;
-        private final boolean mActionLogin;
+        private final boolean mActionIsLogin;
 
         UserLoginORSignupTask(String email, String password, boolean login) {
             mEmail = email;
             mPassword = password;
-            mActionLogin = login;
+            mActionIsLogin = login;
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-            if (mActionLogin) {
+        protected Integer doInBackground(Void... params) {
+            if (mActionIsLogin) {
                 return tryLoginUser(mEmail, mPassword);
             } else {
                 return trySignUpUser(mEmail, mPassword);
@@ -217,14 +249,17 @@ public abstract class LoginActivity extends Activity {
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final Integer ret) {
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
-                finish();
+            if (ret == SUCCESS_CODE) {
+                if (mActionIsLogin) {
+                    //TODO: here should start the main activity then finish
+                    finish();
+                }
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                mPasswordView.setError(getString(ret));
                 mPasswordView.requestFocus();
             }
         }

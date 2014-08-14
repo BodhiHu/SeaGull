@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.activities.HomeNavDrawerActivity;
+import com.shawnhu.seagull.activities.AbstractHomeNavDrawerActivity;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapter;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
 import com.shawnhu.seagull.misc.IconicItem;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 /**
  * Created by shawn on 14-7-24.
  */
-public class SeagullHomeActivity extends HomeNavDrawerActivity {
+public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
     static ArrayList<AnyViewArrayAdapterItem> mSeagullHomeDrawerItems = new ArrayList<AnyViewArrayAdapterItem>();
 
     @Override

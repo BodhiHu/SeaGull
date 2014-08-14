@@ -27,9 +27,9 @@ import java.lang.reflect.Method;
  *        1. navigation;
  *        2. theme change
  *        3. actionbar title
- *        ?. any other stuff
+ *        ?. other stuff
  */
-public abstract class HomeNavDrawerActivity
+public abstract class AbstractHomeNavDrawerActivity
         extends     ActionBarActivity
         implements  NavigationDrawerFragment.NavigationDrawerCallbacks
 {
@@ -126,7 +126,7 @@ public abstract class HomeNavDrawerActivity
                     }
                     mLastFragmentPosition = position;
                 } catch(Exception e) {
-                    Log.e(HomeNavDrawerActivity.class.getSimpleName(), e.toString());
+                    Log.e(AbstractHomeNavDrawerActivity.class.getSimpleName(), e.toString());
                     //TODO: log this error
                 }
 
