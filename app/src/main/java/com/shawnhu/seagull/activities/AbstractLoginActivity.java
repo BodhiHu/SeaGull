@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
@@ -298,7 +297,5 @@ public abstract class AbstractLoginActivity extends Activity {
             }
         }
     }
-
-
 }
 

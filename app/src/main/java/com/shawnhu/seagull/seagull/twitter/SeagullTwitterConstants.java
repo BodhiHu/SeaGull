@@ -15,8 +15,8 @@ public class SeagullTwitterConstants {
 
     public static final String APP_NAME = "SeagullCity";
     public static final String APP_PACKAGE_NAME = "com.shawnhu.seagull";
-    public static final String APP_PROJECT_URL = "";
-    public static final String APP_PROJECT_EMAIL = "";
+    public static final String APP_PROJECT_URL = "https://github.com/ShawnOceanHu/SeaGull";
+    public static final String APP_PROJECT_EMAIL = "huhuaishun@gmail.com";
 
     public static final String DATABASES_NAME = "seagull.db";
     public static final int    DATABASES_VERSION = 1;
@@ -27,8 +27,8 @@ public class SeagullTwitterConstants {
     public static final String SILENT_NOTIFICATIONS_PREFERENCE_NAME = "silent_notifications";
     public static final String ACCOUNT_PREFERENCES_NAME_PREFIX = "account_preferences_";
 
-    public static final String TWITTER_CONSUMER_KEY = "";
-    public static final String TWITTER_CONSUMER_SECRET = "";
+    public static final String TWITTER_CONSUMER_KEY = "GYg1uhOCd84EAhwyJj9oYkJtp";
+    public static final String TWITTER_CONSUMER_SECRET = "haXkIf4CGb0YulfWQMSbnTHKXWqZeggMEzzCUzcI5r7ACaf83P";
 
     public static final String SCHEME_HTTP = "http";
     public static final String SCHEME_HTTPS = "https";
