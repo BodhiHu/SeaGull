@@ -63,14 +63,14 @@ public abstract class AbstractLoginActivity extends Activity {
      * @param pwd
      * @return: SUCCESS_CODE or string error res
      */
-    protected abstract int tryLoginUser(String acc, String pwd);
+    protected abstract int asyncLoginUser(String acc, String pwd);
 
     /**
      * @param acc
      * @param pwd
      * @return: SUCCESS_CODE or string error res
      */
-    protected abstract int trySignUpUser(String acc, String pwd);
+    protected abstract int asyncSignUpUser(String acc, String pwd);
 
     private UserLoginORSignupTask mAuthTask = null;
 
@@ -242,9 +242,9 @@ public abstract class AbstractLoginActivity extends Activity {
         @Override
         protected Integer doInBackground(Void... params) {
             if (mActionIsLogin) {
-                return tryLoginUser(mEmail, mPassword);
+                return asyncLoginUser(mEmail, mPassword);
             } else {
-                return trySignUpUser(mEmail, mPassword);
+                return asyncSignUpUser(mEmail, mPassword);
             }
         }
 

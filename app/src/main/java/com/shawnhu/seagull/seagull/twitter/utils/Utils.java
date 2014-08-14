@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -20,7 +19,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -65,6 +63,7 @@ import android.widget.Toast;
 import com.etsy.android.grid.StaggeredGridView;
 import com.shawnhu.seagull.BuildConfig;
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.seagull.activities.LoginActivity;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
@@ -141,8 +140,6 @@ import twitter4j.http.HttpResponse;
 
 import static android.text.TextUtils.isEmpty;
 import static android.text.format.DateUtils.getRelativeTimeSpanString;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.APP_NAME;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.APP_PROJECT_URL;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.DEFAULT_DATABASE_ITEM_LIMIT;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.DEFAULT_IMAGE_UPLOAD_FORMAT;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.DEFAULT_QUOTE_FORMAT;
@@ -155,7 +152,6 @@ import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_CO
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_CONNECTION_TIMEOUT;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_CONSUMER_KEY;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_CONSUMER_SECRET;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_DATABASE_ITEM_LIMIT;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_DEFAULT_ACCOUNT_ID;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_ENABLE_PROXY;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_FILTERS_FOR_RTS;
@@ -1926,7 +1922,7 @@ public final class Utils {
                 cb.setHttpClientFactory(new TwitterHttpClientFactory(app));
             }
             cb.setHttpConnectionTimeout(connection_timeout);
-            setUserAgent(context, cb);
+            LoginActivity.Utils.setUpTwitterUserAgent(context, cb, true);
             cb.setGZIPEnabled(enableGzip);
             cb.setIgnoreSSLError(ignoreSslError);
             if (enableProxy) {
@@ -2429,23 +2425,6 @@ public final class Utils {
         final MenuItem item = menu.findItem(id);
         if (item == null) return;
         item.setTitle(icon);
-    }
-
-    public static void setUserAgent(final Context context, final ConfigurationBuilder cb) {
-        final SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        final boolean gzip_compressing = prefs.getBoolean(KEY_GZIP_COMPRESSING, true);
-        final PackageManager pm = context.getPackageManager();
-        try {
-            final PackageInfo pi = pm.getPackageInfo(context.getPackageName(), 0);
-            final String version_name = pi.versionName;
-            cb.setClientVersion(pi.versionName);
-            cb.setClientName(APP_NAME);
-            cb.setClientURL(APP_PROJECT_URL);
-            cb.setHttpUserAgent(APP_NAME + " " + APP_PROJECT_URL + " / " + version_name
-                    + (gzip_compressing ? " (gzip)" : ""));
-        } catch (final PackageManager.NameNotFoundException e) {
-
-        }
     }
 
     public static boolean shouldEnableFiltersForRTs(final Context context) {

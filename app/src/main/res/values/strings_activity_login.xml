@@ -12,4 +12,7 @@
     <string name="error_password_too_short">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
+
+    <string name="signinup_err_msg">Ops, could not sign in/up</string>
+    <string name="auth_type_not_supported">This authentication type is not supported</string>
 </resources>
