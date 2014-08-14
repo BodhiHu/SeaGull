@@ -2,6 +2,7 @@ package com.shawnhu.seagull.seagull;
 
 
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
 import com.shawnhu.seagull.app.AppPreferences;
 import com.shawnhu.seagull.app.SeagullApplication;
@@ -75,5 +76,7 @@ public class Seagull extends SeagullApplication {
         PREF_SEAGULL_NOTIFICATION_ON = getString(R.string.PREF_SEAGULL_NOTIFICATION_ON);
         PREF_SEAGULL_NOTIFICATION_RINGTONE = getString(R.string.PREF_SEAGULL_NOTIFICATION_RINGTONE);
         PREF_SEAGULL_NOTIFICATION_VIRATE = getString(R.string.PREF_SEAGULL_NOTIFICATION_VIRATE);
+
+        TwitterManager.init(this);
     }
 }

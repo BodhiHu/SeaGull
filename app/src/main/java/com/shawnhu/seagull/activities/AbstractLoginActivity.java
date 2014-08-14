@@ -1,8 +1,5 @@
 package com.shawnhu.seagull.activities;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -11,7 +8,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -19,7 +15,9 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -100,7 +98,7 @@ public abstract class AbstractLoginActivity extends Activity {
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                if (id == EditorInfo.IME_ACTION_DONE) {
                     attemptLoginORSignup(true);
                     return true;
                 }
@@ -172,46 +170,17 @@ public abstract class AbstractLoginActivity extends Activity {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
+            Utils.hideSoftInputMethod(this, mEmailView);
+            Utils.hideSoftInputMethod(this, mPasswordView);
             showProgress(true);
             mAuthTask = new UserLoginORSignupTask(email, password, actionIsSignin);
             mAuthTask.execute((Void) null);
         }
     }
 
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     public void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+        Utils.setViewEnabledRecursive(!show, (ViewGroup) mLoginFormView);
+        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     //TODO: add phones
@@ -299,24 +268,8 @@ public abstract class AbstractLoginActivity extends Activity {
             String  selection           = null;
             String  selection_args[]    = null;
             String  sort_order          = null;
-            if (VERSION.SDK_INT >= 14) {
-                // Use ContactsContract.Profile (API 14+)
-                contacts_uri    =
-                        Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                                             ContactsContract.Contacts.Data.CONTENT_DIRECTORY);
-                projection      = new String[] {
-                        ContactsContract.CommonDataKinds.Email.DATA,
-                        ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-                };
-                selection       = ContactsContract.Contacts.Data.MIMETYPE + " = ?";
-                selection_args  = new String[] {
-                        ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE
-                };
-                sort_order      = ContactsContract.Contacts.Data.IS_PRIMARY + " DESC";
-            } else {
-                // Use AccountManager (API 8+)
-                contacts_uri = ContactsContract.CommonDataKinds.Email.CONTENT_URI;
-            }
+
+            contacts_uri = ContactsContract.CommonDataKinds.Email.CONTENT_URI;
 
             ContentResolver cr = context.getContentResolver();
             Cursor emailCur = cr.query(contacts_uri, projection, selection, selection_args, sort_order);
@@ -329,6 +282,23 @@ public abstract class AbstractLoginActivity extends Activity {
 
             return emailAddressCollection;
         }
+
+        static public void hideSoftInputMethod(Context context, View v) {
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+        }
+
+        static public void setViewEnabledRecursive(boolean enable, ViewGroup vg) {
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                View child = vg.getChildAt(i);
+                child.setEnabled(enable);
+                if (child instanceof ViewGroup) {
+                    setViewEnabledRecursive(enable, (ViewGroup) child);
+                }
+            }
+        }
     }
+
+
 }
 

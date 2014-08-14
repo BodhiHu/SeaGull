@@ -35,12 +35,18 @@ public class TwitterManager {
 
         return sTwitterManager;
     }
+    @Deprecated
     public static TwitterManager getInstance(Context context) {
         if (sTwitterManager == null) {
             sTwitterManager = new TwitterManager(context);
         }
 
         return sTwitterManager;
+    }
+
+    public static void init(Context context) {
+        sAppContext = context;
+        getInstance(sAppContext);
     }
 
     static private ImageLoaderWrapper   sImageLoaderWrapper;
