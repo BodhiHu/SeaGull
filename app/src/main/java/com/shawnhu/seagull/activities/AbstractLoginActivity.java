@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -23,6 +24,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.shawnhu.seagull.R;
 
@@ -32,6 +34,7 @@ import java.util.List;
 public abstract class AbstractLoginActivity extends Activity {
     static final protected int SUCCESS_CODE = 0;
 
+    private Intent mTargetIntent;
     /**
      * @param email
      * @return: if SUCCESS_CODE valid; else an error string res id;
@@ -71,6 +74,9 @@ public abstract class AbstractLoginActivity extends Activity {
      * @return: SUCCESS_CODE or string error res
      */
     protected abstract int asyncSignUpUser(String acc, String pwd);
+    protected void setTargetIntent(Intent i) {
+        mTargetIntent = i;
+    }
 
     private UserLoginORSignupTask mAuthTask = null;
 
@@ -227,7 +233,7 @@ public abstract class AbstractLoginActivity extends Activity {
         mEmailView.setAdapter(adapter);
     }
 
-    public class UserLoginORSignupTask extends AsyncTask<Void, Void, Integer> {
+    class UserLoginORSignupTask extends AsyncTask<Void, Void, Integer> {
 
         private final String mEmail;
         private final String mPassword;
@@ -254,9 +260,16 @@ public abstract class AbstractLoginActivity extends Activity {
             showProgress(false);
 
             if (ret == SUCCESS_CODE) {
-                if (mActionIsLogin) {
-                    //TODO: here should start the main activity then finish
-                    finish();
+                if (mTargetIntent != null) {
+                    startActivity(mTargetIntent);
+                    if (mActionIsLogin) {
+                        finish();
+                    }
+                } else {
+                    Toast.makeText(AbstractLoginActivity.this,
+                            "Hmm, you forgot to set the target Home activity.",
+                            Toast.LENGTH_SHORT)
+                            .show();
                 }
             } else {
                 mPasswordView.setError(getString(ret));

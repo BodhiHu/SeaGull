@@ -65,11 +65,11 @@ import com.shawnhu.seagull.BuildConfig;
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.activities.LoginActivity;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
-import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterDirectMessage;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterUser;
+import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils;
 import com.shawnhu.seagull.seagull.twitter.utils.net.TwitterHostResolverFactory;
 import com.shawnhu.seagull.seagull.twitter.utils.net.TwitterHttpClientFactory;
@@ -114,10 +114,6 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLException;
 
-import crouton.Crouton;
-import crouton.CroutonConfiguration;
-import crouton.CroutonStyle;
-import earlybird.UCDService;
 import twitter4j.EntitySupport;
 import twitter4j.MediaEntity;
 import twitter4j.RateLimitStatus;
@@ -167,26 +163,9 @@ import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_PR
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_QUOTE_FORMAT;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_SHARE_FORMAT;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_STOP_AUTO_REFRESH_WHEN_BATTERY_LOW;
-import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.KEY_UCD_DATA_PROFILING;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.METADATA_KEY_EXTENSION_USE_JSON;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.SHARED_PREFERENCES_NAME;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.SILENT_NOTIFICATIONS_PREFERENCE_NAME;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_ACCOUNTS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_HASHTAGS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_STATUSES;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_USERS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DIRECT_MESSAGES;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATION;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATION_SCREEN_NAME;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DRAFTS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_KEYWORDS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_LINKS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_SOURCES;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_USERS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_MENTIONS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_STATUSES;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_TRENDS_LOCAL;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TWITTER_CONSUMER_KEY;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TWITTER_CONSUMER_SECRET;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.TWITTER_MAX_IMAGE_HEIGHT;
@@ -213,6 +192,22 @@ import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Filters;
 import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Mentions;
 import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.STATUSES_URIS;
 import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Statuses;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_ACCOUNTS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_HASHTAGS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_STATUSES;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_USERS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DIRECT_MESSAGES;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATION;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATIONS_ENTRIES;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DIRECT_MESSAGES_CONVERSATION_SCREEN_NAME;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DRAFTS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_KEYWORDS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_LINKS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_SOURCES;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_USERS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_MENTIONS;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_STATUSES;
+import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_TRENDS_LOCAL;
 import static com.shawnhu.seagull.seagull.twitter.text.TwitterLinkify.PATTERN_TWITTER_PROFILE_IMAGES;
 import static com.shawnhu.seagull.seagull.twitter.text.TwitterLinkify.TWITTER_PROFILE_IMAGES_AVAILABLE_SIZES;
 import static com.shawnhu.seagull.utils.HtmlEscapeHelper.toPlainText;
@@ -2447,16 +2442,8 @@ public final class Utils {
 
     public static void showErrorMessage(final Context context, final CharSequence message, final boolean long_message) {
         if (context == null) return;
-        if (context instanceof Activity) {
-            final Crouton crouton = Crouton.makeText((Activity) context, message, CroutonStyle.ALERT);
-            final CroutonConfiguration.Builder cb = new CroutonConfiguration.Builder();
-            cb.setDuration(long_message ? CroutonConfiguration.DURATION_LONG : CroutonConfiguration.DURATION_SHORT);
-            crouton.setConfiguration(cb.build());
-            crouton.show();
-        } else {
-            final Toast toast = Toast.makeText(context, message, long_message ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
-            toast.show();
-        }
+        final Toast toast = Toast.makeText(context, message, long_message ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     public static void showErrorMessage(final Context context, final CharSequence action, final CharSequence message,
@@ -2489,16 +2476,8 @@ public final class Utils {
 
     public static void showInfoMessage(final Context context, final CharSequence message, final boolean long_message) {
         if (context == null || isEmpty(message)) return;
-        if (context instanceof Activity) {
-            final Crouton crouton = Crouton.makeText((Activity) context, message, CroutonStyle.INFO);
-            final CroutonConfiguration.Builder cb = new CroutonConfiguration.Builder();
-            cb.setDuration(long_message ? CroutonConfiguration.DURATION_LONG : CroutonConfiguration.DURATION_SHORT);
-            crouton.setConfiguration(cb.build());
-            crouton.show();
-        } else {
-            final Toast toast = Toast.makeText(context, message, long_message ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
-            toast.show();
-        }
+        final Toast toast = Toast.makeText(context, message, long_message ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     public static void showInfoMessage(final Context context, final int resId, final boolean long_message) {
@@ -2537,16 +2516,8 @@ public final class Utils {
 
     public static void showOkMessage(final Context context, final CharSequence message, final boolean long_message) {
         if (context == null || isEmpty(message)) return;
-        if (context instanceof Activity) {
-            final Crouton crouton = Crouton.makeText((Activity) context, message, CroutonStyle.CONFIRM);
-            final CroutonConfiguration.Builder cb = new CroutonConfiguration.Builder();
-            cb.setDuration(long_message ? CroutonConfiguration.DURATION_LONG : CroutonConfiguration.DURATION_SHORT);
-            crouton.setConfiguration(cb.build());
-            crouton.show();
-        } else {
-            final Toast toast = Toast.makeText(context, message, long_message ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
-            toast.show();
-        }
+        final Toast toast = Toast.makeText(context, message, long_message ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     public static void showOkMessage(final Context context, final int resId, final boolean long_message) {
@@ -2599,31 +2570,14 @@ public final class Utils {
 
     public static void showWarnMessage(final Context context, final CharSequence message, final boolean long_message) {
         if (context == null || isEmpty(message)) return;
-        if (context instanceof Activity) {
-            final Crouton crouton = Crouton.makeText((Activity) context, message, CroutonStyle.WARN);
-            final CroutonConfiguration.Builder cb = new CroutonConfiguration.Builder();
-            cb.setDuration(long_message ? CroutonConfiguration.DURATION_LONG : CroutonConfiguration.DURATION_SHORT);
-            crouton.setConfiguration(cb.build());
-            crouton.show();
-        } else {
-            final Toast toast = Toast.makeText(context, message, long_message ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
-            toast.show();
-        }
+
+        final Toast toast = Toast.makeText(context, message, long_message ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     public static void showWarnMessage(final Context context, final int resId, final boolean long_message) {
         if (context == null) return;
         showWarnMessage(context, context.getText(resId), long_message);
-    }
-
-    public static void startProfilingServiceIfNeeded(final Context context) {
-        final SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        final Intent profilingServiceIntent = new Intent(context, UCDService.class);
-        if (prefs.getBoolean(KEY_UCD_DATA_PROFILING, false)) {
-            context.startService(profilingServiceIntent);
-        } else {
-            context.stopService(profilingServiceIntent);
-        }
     }
 
     public static void startStatusShareChooser(final Context context, final TwitterStatus status) {

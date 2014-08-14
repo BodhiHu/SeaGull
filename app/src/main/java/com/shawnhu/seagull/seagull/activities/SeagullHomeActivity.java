@@ -1,14 +1,17 @@
 package com.shawnhu.seagull.seagull.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.AbstractHomeNavDrawerActivity;
+import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapter;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
 import com.shawnhu.seagull.misc.IconicItem;
@@ -26,16 +29,16 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        @SuppressWarnings("UnnecessaryLocalVariable")
         AnyViewArrayAdapter mSeagullDrawerListArrayAdapter =
                 new AnyViewArrayAdapter(this, R.layout.layout_iconic_item, mSeagullHomeDrawerItems,
                     new AnyViewArrayAdapter.DefaultViewInterface() {
                         @Override
                         public View getDefaultView(LayoutInflater lI, AnyViewArrayAdapterItem item, int position, View convertView, ViewGroup parent) {
                             View v;
-                            LayoutInflater layoutInflater = lI;
 
                             if (convertView == null) {
-                                v = layoutInflater.inflate(R.layout.layout_iconic_item, parent, false);
+                                v = lI.inflate(R.layout.layout_iconic_item, parent, false);
                             } else {
                                 v = convertView;
                             }
@@ -67,6 +70,16 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
         }
 
         super.onCreate(savedInstanceState);
+    }
+
+    protected void handleIntent() {
+        Intent  i   = getIntent();
+        int     id  = i.getIntExtra(SeagullTwitterConstants.EXTRA_USER_ID, -1);
+
+        Toast.makeText(this,
+                "Hi, your id is " + id + ". Now you can reach Twitter now!", Toast.LENGTH_SHORT)
+                .show();
+
     }
 
 }

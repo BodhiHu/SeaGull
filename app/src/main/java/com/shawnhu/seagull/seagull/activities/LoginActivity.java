@@ -7,6 +7,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.AbstractLoginActivity;
@@ -16,8 +17,6 @@ import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.utils.net.TwitterHostResolverFactory;
 import com.shawnhu.seagull.seagull.twitter.utils.net.TwitterHttpClientFactory;
 
-import crouton.Crouton;
-import crouton.CroutonStyle;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -67,8 +66,11 @@ public class LoginActivity extends AbstractLoginActivity {
                             .insert(TweetStore.Accounts.CONTENT_URI, values);
                 }
                 long mLoggedId = response.user.getId();
-                Crouton.makeText(this, "User[id=" + mLoggedId + "] is logged in.", CroutonStyle.CONFIRM)
+                Toast.makeText(this, "User[id=" + mLoggedId + "] is logged in now.", Toast.LENGTH_SHORT)
                        .show();
+                Intent home = new Intent(this, SeagullHomeActivity.class);
+                home.putExtra(SeagullTwitterConstants.EXTRA_USER_ID, mLoggedId);
+                setTargetIntent(home);
             } else if (response.already_logged_in) {
                 ret = R.string.error_already_logged_in;
             } else if (response.exception != null) {
@@ -99,7 +101,7 @@ public class LoginActivity extends AbstractLoginActivity {
     protected int asyncSignUpUser(String acc, String pwd) {
         final Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(SeagullTwitterConstants.TWITTER_SIGNUP_URL));
-        startActivity(intent);
+        setTargetIntent(intent);
         return SUCCESS_CODE;
     }
 
