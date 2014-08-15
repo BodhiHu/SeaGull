@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -64,17 +65,17 @@ public abstract class AbstractLoginActivity extends Activity {
      * @param pwd
      * @return: SUCCESS_CODE or string error res
      */
-    protected abstract int asyncLoginUser(String acc, String pwd);
-
+    abstract protected int asyncLoginUser(String acc, String pwd);
     /**
      * @param acc
      * @param pwd
      * @return: SUCCESS_CODE or string error res
      */
-    protected abstract int asyncSignUpUser(String acc, String pwd);
+    abstract protected int asyncSignUpUser(String acc, String pwd);
     protected void setTargetIntent(Intent i) {
         mTargetIntent = i;
     }
+
 
     private UserLoginORSignupTask mAuthTask = null;
 
@@ -233,7 +234,11 @@ public abstract class AbstractLoginActivity extends Activity {
             mAuthTask = null;
             showProgress(false);
 
-            if (ret == SUCCESS_CODE) {
+            if (ret == SUCCESS_CODE || ret == R.string.error_already_logged_in) {
+                if (ret == R.string.error_already_logged_in) {
+                    Log.e(AbstractLoginActivity.this.getClass().getSimpleName(),
+                            getString(R.string.error_already_logged_in));
+                }
                 if (mTargetIntent != null) {
                     startActivity(mTargetIntent);
                     if (mActionIsLogin) {

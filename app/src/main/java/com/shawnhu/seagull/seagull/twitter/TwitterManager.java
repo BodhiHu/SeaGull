@@ -105,22 +105,6 @@ public class TwitterManager {
         return sMultiSelectManager = new MultiSelectManager();
     }
 
-    public SQLiteDatabase getWritableSQLiteDatabase() {
-        if (sDatabase != null) return sDatabase;
-
-        return sDatabase = getSQLiteOpenHelper().getWritableDatabase();
-    }
-
-    public SQLiteOpenHelper getSQLiteOpenHelper() {
-        if (sSQLiteOpenHelper == null) {
-            sSQLiteOpenHelper = new TwitterSQLiteOpenHelper(sAppContext,
-                    SeagullTwitterConstants.DATABASES_NAME,
-                    SeagullTwitterConstants.DATABASES_VERSION);
-        }
-
-        return sSQLiteOpenHelper;
-    }
-
     public AsyncTwitterWrapper getTwitterWrapper() {
         if (sTwitterWrapper != null) return sTwitterWrapper;
 

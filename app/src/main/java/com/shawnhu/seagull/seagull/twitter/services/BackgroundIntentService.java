@@ -67,7 +67,7 @@ import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.mak
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getImagePathFromUri;
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTwitterInstance;
 
-public class BackgroundOperationService extends IntentService {
+public class BackgroundIntentService extends IntentService {
 
     static final String         TAG = "BackgroundOperationService";
     private TwitterValidator    mValidator;
@@ -79,8 +79,8 @@ public class BackgroundOperationService extends IntentService {
     static final public String  STATUS_UPDATE_RESULT            = "STATUS_UPDATE_RESULT";
     static final public String  DIRECT_MESSAGE_SEND_RESULT      = "DIRECT_MESSAGE_SEND_RESULT";
 
-    public BackgroundOperationService() {
-        super("background_operation");
+    public BackgroundIntentService() {
+        super("background_intent_service");
     }
 
     @Override

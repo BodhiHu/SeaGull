@@ -69,12 +69,14 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
             mDrawerListArrayAdapter.add(i);
         }
 
+        handleIntent();
+
         super.onCreate(savedInstanceState);
     }
 
     protected void handleIntent() {
         Intent  i   = getIntent();
-        int     id  = i.getIntExtra(SeagullTwitterConstants.EXTRA_USER_ID, -1);
+        long    id  = i.getIntExtra(SeagullTwitterConstants.EXTRA_USER_ID, -1);
 
         Toast.makeText(this,
                 "Hi, your id is " + id + ". Now you can reach Twitter now!", Toast.LENGTH_SHORT)

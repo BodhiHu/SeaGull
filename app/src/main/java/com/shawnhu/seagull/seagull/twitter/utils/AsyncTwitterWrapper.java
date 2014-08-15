@@ -32,7 +32,7 @@ import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.DirectMessages;
 import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Filters;
 import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Mentions;
 import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Statuses;
-import com.shawnhu.seagull.seagull.twitter.services.BackgroundOperationService;
+import com.shawnhu.seagull.seagull.twitter.services.BackgroundIntentService;
 import com.shawnhu.seagull.seagull.twitter.tasks.AsyncTask;
 import com.shawnhu.seagull.seagull.twitter.tasks.ManagedAsyncTask;
 import com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils;
@@ -332,7 +332,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     public int sendDirectMessageAsync(final long accountId, final long recipientId, final String text,
             final String imageUri) {
-        final Intent intent = new Intent(mContext, BackgroundOperationService.class);
+        final Intent intent = new Intent(mContext, BackgroundIntentService.class);
         intent.setAction(INTENT_ACTION_SEND_DIRECT_MESSAGE);
         intent.putExtra(EXTRA_ACCOUNT_ID, accountId);
         intent.putExtra(EXTRA_RECIPIENT_ID, recipientId);
@@ -374,7 +374,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
     }
 
     public int updateStatusesAsync(final TwitterStatusUpdate... statuses) {
-        final Intent intent = new Intent(mContext, BackgroundOperationService.class);
+        final Intent intent = new Intent(mContext, BackgroundIntentService.class);
         intent.setAction(INTENT_ACTION_UPDATE_STATUS);
         intent.putExtra(EXTRA_STATUSES, statuses);
         mContext.startService(intent);

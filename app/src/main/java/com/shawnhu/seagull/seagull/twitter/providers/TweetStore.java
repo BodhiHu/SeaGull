@@ -9,7 +9,7 @@ import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 
 public interface TweetStore {
 
-    public static final String AUTHORITY                    = "seagull";
+    public static final String AUTHORITY                    = "Seagull";
 
     public static final String TYPE_PRIMARY_KEY             = "INTEGER PRIMARY KEY AUTOINCREMENT";
     public static final String TYPE_INT                     = "INTEGER";

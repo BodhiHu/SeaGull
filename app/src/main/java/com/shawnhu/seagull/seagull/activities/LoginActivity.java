@@ -7,7 +7,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.AbstractLoginActivity;
@@ -66,13 +65,16 @@ public class LoginActivity extends AbstractLoginActivity {
                             .insert(TweetStore.Accounts.CONTENT_URI, values);
                 }
                 long mLoggedId = response.user.getId();
-                Toast.makeText(this, "User[id=" + mLoggedId + "] is logged in now.", Toast.LENGTH_SHORT)
-                       .show();
                 Intent home = new Intent(this, SeagullHomeActivity.class);
                 home.putExtra(SeagullTwitterConstants.EXTRA_USER_ID, mLoggedId);
                 setTargetIntent(home);
             } else if (response.already_logged_in) {
                 ret = R.string.error_already_logged_in;
+
+                long mLoggedId = response.user.getId();
+                Intent home = new Intent(this, SeagullHomeActivity.class);
+                home.putExtra(SeagullTwitterConstants.EXTRA_USER_ID, mLoggedId);
+                setTargetIntent(home);
             } else if (response.exception != null) {
                 Exception e = response.exception;
 
@@ -129,7 +131,7 @@ public class LoginActivity extends AbstractLoginActivity {
                 final User user = twitter.verifyCredentials();
 
                 if (isUserLoggedIn(context, user_id)) {
-                    return new SigninResponse(true, false, null);
+                    return new SigninResponse(true, user, false, null);
                 }
 
                 final int color = android.R.color.holo_orange_light;
@@ -202,6 +204,13 @@ public class LoginActivity extends AbstractLoginActivity {
         public final int            auth_type, color;
         public final String         api_url_format;
         public final boolean        same_oauth_signing_url;
+
+        public SigninResponse(final boolean     already_logged_in,
+                              final User        user,
+                              final boolean     succeed,
+                              final Exception   exception) {
+            this(already_logged_in, succeed, exception, null, null, null, null, user, 0, 0, null, false);
+        }
 
         public SigninResponse(final boolean     already_logged_in,
                               final boolean     succeed,
