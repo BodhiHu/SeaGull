@@ -14,10 +14,7 @@ public class SeagullLauncherActivity extends LauncherActivity {
         return (ids != null && ids.length > 0);
     }
     protected int     getContentView() {
-        return R.layout.splash_eiffel_baloon;
-    }
-    protected int     getContentViewId() {
-        return R.id.contentView;
+        return R.layout.layout_splash;
     }
     protected boolean isSplashActivity() {
         return true;

@@ -18,7 +18,6 @@
 -->
 
 <resources>
-
     <style name="Theme.Night" parent="@style/Theme.AppCompat">
         <item name="actionBarItemBackground">@drawable/selectable_background_night</item>
         <item name="popupMenuStyle">@style/PopupMenu.Night</item>
