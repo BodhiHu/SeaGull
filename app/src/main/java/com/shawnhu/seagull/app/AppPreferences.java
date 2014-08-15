@@ -45,7 +45,6 @@ public class AppPreferences {
         if (context != null) {
             PREF_APP_THEME = context.getString(R.string.PREF_APP_THEME);
             mDefaultAppTheme = context.getApplicationInfo().theme;
-            mDefaultAppTheme = ActivityUtils.getTheme(context, mDefaultAppTheme);
 
             //TODO: set initial preferences for first launch
         }
