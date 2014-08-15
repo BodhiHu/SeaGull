@@ -1,14 +1,10 @@
 package com.shawnhu.seagull.app;
 
-import android.app.Application;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.utils.ActivityUtils;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 
 /**

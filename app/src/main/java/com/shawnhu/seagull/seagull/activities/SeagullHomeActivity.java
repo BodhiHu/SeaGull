@@ -11,19 +11,17 @@ import android.widget.Toast;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.AbstractHomeNavDrawerActivity;
-import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
-import com.shawnhu.seagull.widgets.AnyViewArrayAdapter;
-import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
 import com.shawnhu.seagull.misc.IconicItem;
 import com.shawnhu.seagull.seagull.Seagull;
+import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
+import com.shawnhu.seagull.seagull.twitter.utils.Utils;
+import com.shawnhu.seagull.widgets.AnyViewArrayAdapter;
+import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.util.ArrayList;
 
-/**
- * Created by shawn on 14-7-24.
- */
 public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
     static ArrayList<AnyViewArrayAdapterItem> mSeagullHomeDrawerItems = new ArrayList<AnyViewArrayAdapterItem>();
 
@@ -77,6 +75,11 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
     protected void handleIntent() {
         Intent  i   = getIntent();
         long    id  = i.getIntExtra(SeagullTwitterConstants.EXTRA_USER_ID, -1);
+
+        if (id == -1) {
+            long ids[] = Utils.getAccountIds(this);
+            id = ids[0];
+        }
 
         Toast.makeText(this,
                 "Hi, your id is " + id + ". Now you can reach Twitter now!", Toast.LENGTH_SHORT)

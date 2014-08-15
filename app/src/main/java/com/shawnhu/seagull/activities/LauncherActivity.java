@@ -13,6 +13,7 @@ public abstract class LauncherActivity extends ActionBarActivity {
 
     abstract protected boolean isUserAlreadyLoggedIn();
     abstract protected int     getContentViewId();
+    abstract protected int     getContentView();
     abstract protected boolean isSplashActivity();
     abstract protected Intent  getLoginIntent();
     abstract protected Intent  getHomeIntent();
@@ -31,6 +32,7 @@ public abstract class LauncherActivity extends ActionBarActivity {
             throw new NullPointerException("Null login/home intent");
         }
 
+        setContentView(getContentView());
         View contentView = findViewById(getContentViewId());
         mSystemUiHider = SystemUiHider.getInstance(this, contentView, SystemUiHider.FLAG_FULLSCREEN);
         mSystemUiHider.setup();
