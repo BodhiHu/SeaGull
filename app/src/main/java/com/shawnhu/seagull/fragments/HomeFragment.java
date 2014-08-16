@@ -1,24 +1,38 @@
 package com.shawnhu.seagull.fragments;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.ListAdapter;
 
 import com.shawnhu.seagull.R;
 
-public class HomeFragment extends Fragment {
+public abstract class HomeFragment extends Fragment implements AbsListView.OnScrollListener {
 
-    static public HomeFragment newInstance(Bundle args) {
-        HomeFragment fragment = new HomeFragment();
-        fragment.setArguments(args);
-        return fragment;
+    abstract protected ListAdapter getListAdapter();
+    abstract protected int         getContentViewId();
+    abstract protected int         getCurrentPosition();
+
+    protected AbsListView mListView;
+    protected ListAdapter mAdapter;
+    protected OnLoadMoreDataListener mOnLoadMoreDataListener;
+
+    protected void setOnLoadMoreDataListener(OnLoadMoreDataListener l) {
+        mOnLoadMoreDataListener = l;
     }
+
     public HomeFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        mListView.setAdapter(mAdapter);
+        super.onAttach(activity);
     }
 
     @Override
@@ -33,12 +47,25 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
-    }
+        View v =  inflater.inflate(getContentViewId(), container, false);
+        if (v == null) {
+            throw new NullPointerException("can not inflate view");
+        }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+        mListView = (AbsListView) v.findViewById(R.id.list_view);
+        if (mListView == null) {
+            throw new NullPointerException("can not find AbsListView");
+        }
+
+        mAdapter = getListAdapter();
+        if (mAdapter == null) {
+            throw new NullPointerException("ListAdapter is null");
+        }
+
+        mListView.setAdapter(mAdapter);
+        mListView.setSelection(getCurrentPosition());
+        mListView.setOnScrollListener(this);
+        return v;
     }
 
     @Override
@@ -46,4 +73,24 @@ public class HomeFragment extends Fragment {
         super.onDetach();
     }
 
+    /** BEGIN OnScrollListener ********************************************************************/
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {}
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
+                         int totalItemCount) {
+        if (mOnLoadMoreDataListener != null) {
+            if (firstVisibleItem <= 0) {
+                mOnLoadMoreDataListener.onLoadMoreStart();
+            } else if (firstVisibleItem >= (mAdapter.getCount() - 1)) {
+                mOnLoadMoreDataListener.onLoadMoreEnd();
+            }
+        }
+    }
+    /** END   OnScrollListener ********************************************************************/
+
+    public interface OnLoadMoreDataListener {
+        public void onLoadMoreStart();
+        public void onLoadMoreEnd();
+    }
 }

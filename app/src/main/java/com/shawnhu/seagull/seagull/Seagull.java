@@ -3,6 +3,7 @@ package com.shawnhu.seagull.seagull;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
+import com.shawnhu.seagull.seagull.twitter.fragments.SeagullHomeFragment;
 import com.shawnhu.seagull.utils.ActivityUtils;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
 import com.shawnhu.seagull.app.AppPreferences;
@@ -43,7 +44,7 @@ public class Seagull extends SeagullApplication {
             new AnyViewArrayAdapterItem(R.layout.layout_avatar, aC, aC, ProfileFragment.class, DRAWER_MENU_PROF),
 
             /* ~default_layout~, content, ~default getViewInterface~,  targetActionClass, actionBarTitle */
-            new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_info_details, DRAWER_MENU_HOME), HomeFragment.class,              DRAWER_MENU_HOME),
+            new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_info_details, DRAWER_MENU_HOME), SeagullHomeFragment.class,       DRAWER_MENU_HOME),
             new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_info_details, DRAWER_MENU_NOTI), NotificationsFragment.class,     DRAWER_MENU_NOTI),
             new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_search,       DRAWER_MENU_SRCH), SearchFragment.class,            DRAWER_MENU_SRCH),
             new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_info_details, DRAWER_MENU_TWTS), TweetsFragment.class,            DRAWER_MENU_TWTS),

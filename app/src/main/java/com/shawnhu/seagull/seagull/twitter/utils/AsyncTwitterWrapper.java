@@ -258,9 +258,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
     }
 
     public int getHomeTimelineAsync(final long[] accountIds, final long[] max_ids, final long[] since_ids) {
-        mAsyncTaskManager.cancel(mGetHomeTimelineTaskId);
-        final GetHomeTimelineTask task = new GetHomeTimelineTask(accountIds, max_ids, since_ids);
-        return mGetHomeTimelineTaskId = mAsyncTaskManager.add(task, true);
+        return -1;
     }
 
     public int getLocalTrendsAsync(final long accountId, final int woeid) {
@@ -1583,20 +1581,10 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
         protected void onPostExecute(final List<TwitterStatusListResponse> responses) {
             super.onPostExecute(responses);
             mAsyncTaskManager.add(new StoreHomeTimelineTask(responses, !isMaxIdsValid()), true);
-            mGetHomeTimelineTaskId = -1;
-            for (final TwitterStatusListResponse response : responses) {
-                if (response.getList() == null) {
-                    mMessagesManager.showErrorMessage(R.string.action_refreshing_home_timeline,
-                            response.getException(), true);
-                    break;
-                }
-            }
         }
 
         @Override
         protected void onPreExecute() {
-            final Intent intent = new Intent(BROADCAST_RESCHEDULE_HOME_TIMELINE_REFRESHING);
-            mContext.sendBroadcast(intent);
             super.onPreExecute();
         }
 

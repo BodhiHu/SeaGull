@@ -4,4 +4,6 @@
 	<item name="image_profile" type="id"/>
     <item name="text_name" type="id"/>
     <item name="text_screen_name" type="id"/>
+
+    <item name="list_view" type="id"/>
 </resources>

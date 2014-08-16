@@ -1,4 +1,4 @@
-package com.shawnhu.seagull.database;
+package com.shawnhu.seagull.content;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;

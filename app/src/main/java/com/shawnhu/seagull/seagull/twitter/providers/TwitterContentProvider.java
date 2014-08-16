@@ -3,7 +3,7 @@ package com.shawnhu.seagull.seagull.twitter.providers;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 
-import com.shawnhu.seagull.database.AbstractContentProvider;
+import com.shawnhu.seagull.content.AbstractContentProvider;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 
 import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_ACCOUNTS;
