@@ -1,4 +1,4 @@
-package com.shawnhu.seagull.activities.util;
+package com.shawnhu.seagull.utils.SysUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

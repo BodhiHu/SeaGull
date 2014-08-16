@@ -1,4 +1,4 @@
-package com.shawnhu.seagull.activities.util;
+package com.shawnhu.seagull.utils.SysUiHider;
 
 import android.app.Activity;
 import android.view.View;
