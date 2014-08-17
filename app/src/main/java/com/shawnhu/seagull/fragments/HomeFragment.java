@@ -25,9 +25,11 @@ public abstract class HomeFragment extends Fragment implements AbsListView.OnScr
         mOnLoadMoreDataListener = l;
     }
 
+    /*
     public HomeFragment() {
         // Required empty public constructor
     }
+    */
 
     @Override
     public void onAttach(Activity activity) {

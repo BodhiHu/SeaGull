@@ -1,5 +1,6 @@
 package com.shawnhu.seagull.widgets;
 
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import java.util.Enumeration;
  */
 public class AnyViewArrayAdapterItem {
     public Class   mActionClass;
+    public Bundle  mActionArgs;
     public Integer mResource;
     public Object  mTarget;
     public ItemViewInterface mInterface;

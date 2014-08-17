@@ -1563,7 +1563,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    class GetHomeTimelineTask
+    public static class GetHomeTimelineTask
             extends GetStatusesTask
     {
 

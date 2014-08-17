@@ -6,4 +6,15 @@
     <item name="text_screen_name" type="id"/>
 
     <item name="list_view" type="id"/>
+
+    <!-- Status -->
+    <item name="status_text_plain" type="id"/>
+    <item name="status_timestamp" type="id"/>
+    <item name="status_username" type="id"/>
+    <item name="status_user_screenname" type="id"/>
+    <item name="status_user_profile_image" type="id"/>
+    <item name="status_location" type="id"/>
+
+
+
 </resources>

@@ -14,6 +14,7 @@ import com.shawnhu.seagull.activities.AbstractHomeNavDrawerActivity;
 import com.shawnhu.seagull.misc.IconicItem;
 import com.shawnhu.seagull.seagull.Seagull;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
+import com.shawnhu.seagull.seagull.twitter.fragments.SeagullHomeFragment;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapter;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
@@ -65,26 +66,33 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
 
         for (AnyViewArrayAdapterItem i : Seagull.mSeagullDrawerItems) {
             mDrawerListArrayAdapter.add(i);
+            setFragmentArgs(i);
         }
-
-        handleIntent();
 
         super.onCreate(savedInstanceState);
     }
 
-    protected void handleIntent() {
+    protected void setFragmentArgs(AnyViewArrayAdapterItem a) {
         Intent  i   = getIntent();
-        long    id  = i.getIntExtra(SeagullTwitterConstants.EXTRA_USER_ID, -1);
 
-        if (id == -1) {
-            long ids[] = Utils.getAccountIds(this);
-            id = ids[0];
+        if (a.mActionClass == SeagullHomeFragment.class) {
+
+            long id = i.getLongExtra(SeagullTwitterConstants.EXTRA_USER_ID, -1);
+
+            if (id == -1) {
+                long ids[] = Utils.getAccountIds(this);
+                id = ids[0];
+            }
+
+            Bundle args = new Bundle();
+            args.putLong(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, id);
+            a.mActionArgs = args;
+            Toast.makeText(this,
+                    "Your id is " + id + ". Now you can reach Twitter now!", Toast.LENGTH_SHORT)
+                    .show();
+        } else {
+
         }
-
-        Toast.makeText(this,
-                "Hi, your id is " + id + ". Now you can reach Twitter now!", Toast.LENGTH_SHORT)
-                .show();
-
     }
 
 }

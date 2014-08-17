@@ -14,19 +14,28 @@ import java.util.LinkedHashMap;
  */
 public abstract class PersistentCursorAdapter extends SimpleCursorAdapter implements Persistent {
     protected Context mContext;
+
+    private LinkedHashMap<String, String> NOW_MAP = new LinkedHashMap<String, String>();
+
+    static public final String START_ID            = "__START_ID";
+    static public final String END_ID              = "__END_ID";
+    static public final String CURRENT_POSITION    = "__CURRENT_POSITION";
+
     public PersistentCursorAdapter(Context context, int layout, Cursor c, String[] from,
             int[] to, int flags) {
         super(context, layout, c, from, to, flags);
 
         mContext = context;
 
-        NOW_MAP = get_preferences_map();
+        NOW_MAP.put(START_ID,           DEFAULT_V);
+        NOW_MAP.put(END_ID,             DEFAULT_V);
+        NOW_MAP.put(CURRENT_POSITION,   DEFAULT_V);
+
         restoreNow();
     }
 
     private String                          PREFERENCE_NAME = "Preferences de " + ((Object) this).getClass().getName();
-    private LinkedHashMap<String, String>   NOW_MAP;
-    static final public String              DEFAULT_V   = "";
+    static final public String              DEFAULT_V   = "-1";
 
     public void saveNow() {
         if (NOW_MAP != null) {
@@ -57,6 +66,4 @@ public abstract class PersistentCursorAdapter extends SimpleCursorAdapter implem
 
         return DEFAULT_V;
     }
-
-    abstract protected LinkedHashMap<String, String> get_preferences_map();
 }

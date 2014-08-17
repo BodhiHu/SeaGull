@@ -114,10 +114,8 @@ public abstract class AbstractHomeNavDrawerActivity
                 //Fragment, transform to it
                 try {
                     Method newFragmentInstance = targetClass.getMethod("newInstance", Bundle.class);
-                    //TODO: might need args
-                    Bundle args = new Bundle();
                     fragmentManager.beginTransaction()
-                            .replace(R.id.container, (Fragment) newFragmentInstance.invoke(null, args))
+                            .replace(R.id.container, (Fragment) newFragmentInstance.invoke(null, i.mActionArgs))
                             .commit();
 
                     if (i.mName != null && i.mName != "") {
