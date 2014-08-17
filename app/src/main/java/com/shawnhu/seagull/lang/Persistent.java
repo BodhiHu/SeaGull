@@ -6,6 +6,6 @@ package com.shawnhu.seagull.lang;
 public interface Persistent {
     public void saveNow();
     public void restoreNow();
-    public void saveValue(String key, String v);
-    public String getSavedValue(String key);
+    public void setValue(String key, String v);
+    public String getValue(String key);
 }

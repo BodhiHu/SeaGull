@@ -2,6 +2,7 @@ package com.shawnhu.seagull.seagull.twitter.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.view.View;
 import android.widget.SimpleCursorAdapter;
 
@@ -9,7 +10,8 @@ import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.adapters.PersistentCursorAdapter;
 import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
 
-public class StatusesAdapter extends PersistentCursorAdapter implements SimpleCursorAdapter.ViewBinder {
+final public class StatusesAdapter extends PersistentCursorAdapter implements SimpleCursorAdapter.ViewBinder {
+
     static final public String[] PROJECTION = {
             TweetStore.Statuses._ID,
             TweetStore.Statuses.TEXT_PLAIN,
@@ -19,6 +21,13 @@ public class StatusesAdapter extends PersistentCursorAdapter implements SimpleCu
             TweetStore.Statuses.USER_PROFILE_IMAGE_URL,
             TweetStore.Statuses.LOCATION,
     };
+    static final public String SELECTION =
+            "((" + TweetStore.Statuses._ID + ">=?) AND (" +  //_ID_OF_TAIL_ITEM
+                   TweetStore.Statuses._ID + "<=?"        +  //_ID_OF_HEAD_ITEM
+            "))";
+    static final public String SORT_ORDER =
+            TweetStore.Statuses._ID + " DESC";
+    static final public Uri CONTENT_URI = TweetStore.Statuses.CONTENT_URI;
 
     public StatusesAdapter(Context context, Cursor c, int flags) {
         super(context,

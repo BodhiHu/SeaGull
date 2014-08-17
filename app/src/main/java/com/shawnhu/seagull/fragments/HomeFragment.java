@@ -83,16 +83,16 @@ public abstract class HomeFragment extends Fragment implements AbsListView.OnScr
                          int totalItemCount) {
         if (mOnLoadMoreDataListener != null) {
             if (firstVisibleItem <= 0) {
-                mOnLoadMoreDataListener.onLoadMoreStart();
+                mOnLoadMoreDataListener.onLoadMoreHead();
             } else if (firstVisibleItem >= (mAdapter.getCount() - 1)) {
-                mOnLoadMoreDataListener.onLoadMoreEnd();
+                mOnLoadMoreDataListener.onLoadMoreTail();
             }
         }
     }
     /** END   OnScrollListener ********************************************************************/
 
     public interface OnLoadMoreDataListener {
-        public void onLoadMoreStart();
-        public void onLoadMoreEnd();
+        public void onLoadMoreHead();
+        public void onLoadMoreTail();
     }
 }

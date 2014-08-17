@@ -1,11 +1,13 @@
 package com.shawnhu.seagull.seagull.twitter.fragments;
 
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 import com.shawnhu.seagull.R;
@@ -36,7 +38,7 @@ public class SeagullHomeFragment extends HomeFragment
 
     }
 
-    private int mStartId = -1, mEndId = -1, mCurrentPosition = -1;
+    private int mHeadItemId = -1, mTailItemId = -1, mCurrentPosition = -1;
     private long mAccountId = -1;
 
     private StatusesAdapter mAdapter = new StatusesAdapter(getActivity(), null, 0);
@@ -57,23 +59,50 @@ public class SeagullHomeFragment extends HomeFragment
 
     }
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        View v = super.onCreateView(inflater, container, savedInstanceState);
+        getLoaderManager().initLoader(0, null, this);
+
+        return v;
+    }
+    @Override
     public void onSaveInstanceState(Bundle outState) {
+        mCurrentPosition = mListView.getSelectedItemPosition();
+        Cursor c = mAdapter.getCursor();
+        if (c != null) {
+            c.moveToFirst();
+            mHeadItemId = c.getInt(c.getColumnIndex(TweetStore.Statuses._ID));
+            c.moveToLast();
+            mTailItemId = c.getInt(c.getColumnIndex(TweetStore.Statuses._ID));
+
+        }
+        mAdapter.setValue(StatusesAdapter._ID_OF_HEAD_ITEM, String.valueOf(mHeadItemId));
+        mAdapter.setValue(StatusesAdapter._ID_OF_TAIL_ITEM, String.valueOf(mTailItemId));
+        mAdapter.setValue(StatusesAdapter.CURRENT_POSITION, String.valueOf(mCurrentPosition));
+    }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
         mAdapter.saveNow();
+        getLoaderManager().destroyLoader(0);
     }
 
     protected ListAdapter getListAdapter() {
         Integer s, e, c;
         try {
-            s = Integer.valueOf(mAdapter.getSavedValue(StatusesAdapter.START_ID));
-            e = Integer.valueOf(mAdapter.getSavedValue(StatusesAdapter.END_ID));
-            c = Integer.valueOf(mAdapter.getSavedValue(StatusesAdapter.CURRENT_POSITION));
+            s = Integer.valueOf(mAdapter.getValue(StatusesAdapter._ID_OF_HEAD_ITEM));
+            e = Integer.valueOf(mAdapter.getValue(StatusesAdapter._ID_OF_TAIL_ITEM));
+            c = Integer.valueOf(mAdapter.getValue(StatusesAdapter.CURRENT_POSITION));
         } catch (NumberFormatException ne) {
             ne.printStackTrace();
             s = e = c = -1;
         }
 
-        mStartId = s;
-        mEndId = e;
+        mHeadItemId = s;
+        mTailItemId = e;
         mCurrentPosition = c;
         return mAdapter;
     }
@@ -85,27 +114,46 @@ public class SeagullHomeFragment extends HomeFragment
     }
 
     @Override
-    public void onLoadMoreStart() {
-
+    public void onLoadMoreHead() {
+        long maxId;
+        AsyncTwitterWrapper.GetHomeTimelineTask task =
+                new AsyncTwitterWrapper.GetHomeTimelineTask(
+                        new long[] {mAccountId},
+                        new long[] {-1},
+                        new long[] {-1}
+                );
+        TwitterManager.getInstance()
+                .getAsyncTaskManager()
+                .add(task, true);
     }
     @Override
-    public void onLoadMoreEnd() {
-
+    public void onLoadMoreTail() {
+        AsyncTwitterWrapper.GetHomeTimelineTask task =
+                new AsyncTwitterWrapper.GetHomeTimelineTask(
+                        new long[] {mAccountId},
+                        new long[] {-1},
+                        new long[] {-1}
+                );
+        TwitterManager.getInstance()
+                .getAsyncTaskManager()
+                .add(task, true);
     }
 
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Uri uri = TweetStore.Statuses.CONTENT_URI;
-        String SELECTION = "((" + TweetStore.Statuses._ID + ">=" + mEndId + ") AND (" +
-                                  TweetStore.Statuses._ID + "<=" + mStartId +
-                           "))";
+        if (mHeadItemId < 0 || mTailItemId < 0) {
+            return null;
+        }
 
         CursorLoader cursorLoader =
                 new CursorLoader(getActivity(),
-                        TweetStore.Statuses.CONTENT_URI,
+                        StatusesAdapter.CONTENT_URI,
                         StatusesAdapter.PROJECTION,
-                        SELECTION,
-                        null,
-                        TweetStore.Statuses._ID + " DESC"
+                        StatusesAdapter.SELECTION,
+                        new String[] {
+                                String.valueOf(mTailItemId),
+                                String.valueOf(mHeadItemId),
+                        },
+                        StatusesAdapter.SORT_ORDER
                         );
 
         return cursorLoader;
