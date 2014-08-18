@@ -19,7 +19,7 @@ public abstract class PersistentCursorAdapter extends SimpleCursorAdapter implem
 
     static public final String _ID_OF_HEAD_ITEM = "__START_ID";
     static public final String _ID_OF_TAIL_ITEM = "__END_ID";
-    static public final String CURRENT_POSITION    = "__CURRENT_POSITION";
+    static public final String CURRENT_VISIBLE_ITEM_ID = "__CURRENT_VISIBLE_ITEM_ID";
 
     public PersistentCursorAdapter(Context context, int layout, Cursor c, String[] from,
             int[] to, int flags) {
@@ -29,7 +29,7 @@ public abstract class PersistentCursorAdapter extends SimpleCursorAdapter implem
 
         NOW_MAP.put(_ID_OF_HEAD_ITEM,           DEFAULT_V);
         NOW_MAP.put(_ID_OF_TAIL_ITEM,             DEFAULT_V);
-        NOW_MAP.put(CURRENT_POSITION,   DEFAULT_V);
+        NOW_MAP.put(CURRENT_VISIBLE_ITEM_ID,   DEFAULT_V);
 
         restoreNow();
     }

@@ -258,7 +258,9 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
     }
 
     public int getHomeTimelineAsync(final long[] accountIds, final long[] max_ids, final long[] since_ids) {
-        return -1;
+        mAsyncTaskManager.cancel(mGetHomeTimelineTaskId);
+        final GetHomeTimelineTask task = new GetHomeTimelineTask(accountIds, max_ids, since_ids);
+        return mGetHomeTimelineTaskId = mAsyncTaskManager.add(task, true);
     }
 
     public int getLocalTrendsAsync(final long accountId, final int woeid) {
@@ -1563,7 +1565,7 @@ public class AsyncTwitterWrapper extends TwitterWrapper {
 
     }
 
-    public static class GetHomeTimelineTask
+    class GetHomeTimelineTask
             extends GetStatusesTask
     {
 

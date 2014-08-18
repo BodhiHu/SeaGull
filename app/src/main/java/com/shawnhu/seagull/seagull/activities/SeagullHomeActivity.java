@@ -45,7 +45,7 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
                             Object target = item.mTarget;
                             if (target != null && target instanceof IconicItem) {
                                 ImageView iv = (ImageView) v.findViewById(R.id.imageView);
-                                TextView tv  = (TextView)  v.findViewById(R.id.textView);
+                                TextView tv  = (TextView)  v.findViewById(R.id.screenName);
                                 iv.setImageResource(((IconicItem) target).iconResId);
                                 tv.setText(((IconicItem) target).name);
                             } else {

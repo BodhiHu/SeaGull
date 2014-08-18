@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.shawnhu.seagull.seagull.twitter.utils.AsyncTaskManager;
+
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_TASK_STATE_CHANGED;
 
 public abstract class ManagedAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
@@ -40,30 +41,15 @@ public abstract class ManagedAsyncTask<Params, Progress, Result> extends AsyncTa
 	@Override
 	protected void onCancelled() {
 		super.onCancelled();
-		context.sendBroadcast(new Intent(BROADCAST_TASK_STATE_CHANGED));
 	}
 
 	@Override
 	protected void onPostExecute(final Result result) {
 		super.onPostExecute(result);
-        if (mOnTaskResultListener != null) {
-            mOnTaskResultListener.onTaskResult(result);
-        }
-		context.sendBroadcast(new Intent(BROADCAST_TASK_STATE_CHANGED));
 	}
 
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		context.sendBroadcast(new Intent(BROADCAST_TASK_STATE_CHANGED));
 	}
-
-    protected OnTaskResultListener<Result> mOnTaskResultListener;
-    public ManagedAsyncTask setOnTaskResultListener(OnTaskResultListener<Result> l) {
-        mOnTaskResultListener = l;
-        return this;
-    }
-    public interface OnTaskResultListener<Result> {
-        public void onTaskResult(Result result);
-    }
 }

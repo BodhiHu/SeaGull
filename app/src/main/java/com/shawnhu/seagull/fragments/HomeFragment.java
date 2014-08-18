@@ -11,11 +11,12 @@ import android.widget.ListAdapter;
 
 import com.shawnhu.seagull.R;
 
+//TODO: should use ListFragment
 public abstract class HomeFragment extends Fragment implements AbsListView.OnScrollListener {
 
     abstract protected ListAdapter getListAdapter();
     abstract protected int         getContentViewId();
-    abstract protected int         getCurrentPosition();
+    abstract protected int getFirstVisibleItemId();
 
     protected AbsListView mListView;
     protected ListAdapter mAdapter;
@@ -65,7 +66,7 @@ public abstract class HomeFragment extends Fragment implements AbsListView.OnScr
         }
 
         mListView.setAdapter(mAdapter);
-        mListView.setSelection(getCurrentPosition());
+        mListView.setSelection(getFirstVisibleItemId());
         mListView.setOnScrollListener(this);
         return v;
     }
