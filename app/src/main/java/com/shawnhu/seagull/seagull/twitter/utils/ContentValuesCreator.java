@@ -30,13 +30,13 @@ import twitter4j.URLEntity;
 import twitter4j.auth.AccessToken;
 import twitter4j.conf.Configuration;
 
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Accounts;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CachedTrends;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.CachedUsers;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.DirectMessages;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Drafts;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Filters;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Statuses;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.Accounts;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.CachedTrends;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.CachedUsers;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.DirectMessages;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.Drafts;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.Filters;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.Statuses;
 
 public final class ContentValuesCreator {
 

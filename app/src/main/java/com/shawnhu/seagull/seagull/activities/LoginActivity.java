@@ -12,7 +12,7 @@ import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.AbstractLoginActivity;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.auth.OAuthPasswordAuthenticator;
-import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
+import com.shawnhu.seagull.seagull.twitter.content.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.utils.net.TwitterHostResolverFactory;
 import com.shawnhu.seagull.seagull.twitter.utils.net.TwitterHttpClientFactory;
 

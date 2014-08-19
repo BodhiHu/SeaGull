@@ -4,18 +4,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.adapters.PersistentCursorAdapter;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
-import com.shawnhu.seagull.seagull.twitter.model.TwitterMedia;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
-import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
+import com.shawnhu.seagull.seagull.twitter.content.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
 import com.shawnhu.seagull.utils.TimeDateUtils;
 

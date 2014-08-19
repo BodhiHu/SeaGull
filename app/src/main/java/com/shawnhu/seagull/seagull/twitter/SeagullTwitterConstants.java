@@ -1,7 +1,7 @@
 package com.shawnhu.seagull.seagull.twitter;
 
 import com.shawnhu.seagull.seagull.twitter.annotations.Preference;
-import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
+import com.shawnhu.seagull.seagull.twitter.content.TweetStore;
 
 import static com.shawnhu.seagull.seagull.twitter.annotations.Preference.Type.BOOLEAN;
 import static com.shawnhu.seagull.seagull.twitter.annotations.Preference.Type.INT;

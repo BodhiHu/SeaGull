@@ -27,7 +27,7 @@ import android.os.Parcelable;
 
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
 import com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils;
-import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Accounts;
+import com.shawnhu.seagull.seagull.twitter.content.TweetStore.Accounts;
 import com.shawnhu.seagull.utils.querybuilder.Columns;
 import com.shawnhu.seagull.utils.querybuilder.RawItemArray;
 import com.shawnhu.seagull.utils.querybuilder.Where;

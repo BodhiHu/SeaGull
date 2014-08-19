@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.shawnhu.seagull.seagull.twitter.providers.TwitterSQLiteOpenHelper;
 import com.shawnhu.seagull.seagull.twitter.utils.AsyncTaskManager;
 import com.shawnhu.seagull.seagull.twitter.utils.AsyncTwitterWrapper;
 import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;

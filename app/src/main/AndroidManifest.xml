@@ -38,7 +38,7 @@
         </activity>
 
         <provider
-            android:name=".seagull.twitter.providers.TwitterContentProvider"
+            android:name=".seagull.twitter.content.TwitterContentProvider"
             android:authorities="Seagull" />
 
         <service android:name=".seagull.twitter.services.BackgroundIntentService" />

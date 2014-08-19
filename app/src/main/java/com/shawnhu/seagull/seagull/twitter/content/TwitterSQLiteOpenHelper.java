@@ -1,4 +1,4 @@
-package com.shawnhu.seagull.seagull.twitter.providers;
+package com.shawnhu.seagull.seagull.twitter.content;
 
 
 import android.content.Context;

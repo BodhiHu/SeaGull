@@ -15,7 +15,7 @@ import com.shawnhu.seagull.fragments.HomeFragment;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.adapters.StatusesCursorAdapter;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusListResponse;
-import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
+import com.shawnhu.seagull.seagull.twitter.content.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.tasks.GetHomeTimelineTask;
 
 import java.security.InvalidParameterException;

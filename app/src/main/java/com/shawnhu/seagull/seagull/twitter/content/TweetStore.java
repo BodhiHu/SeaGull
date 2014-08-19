@@ -1,11 +1,9 @@
-package com.shawnhu.seagull.seagull.twitter.providers;
+package com.shawnhu.seagull.seagull.twitter.content;
 
 import android.content.ContentResolver;
 import android.content.UriMatcher;
 import android.net.Uri;
 import android.provider.BaseColumns;
-
-import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 
 public interface TweetStore {
 

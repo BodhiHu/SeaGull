@@ -11,7 +11,7 @@ import java.util.Date;
 
 import twitter4j.User;
 
-import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.DirectMessages;
+import com.shawnhu.seagull.seagull.twitter.content.TweetStore.DirectMessages;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
 import com.shawnhu.seagull.seagull.twitter.utils.content.ContentValuesUtils;
 import com.shawnhu.seagull.utils.HtmlEscapeHelper;

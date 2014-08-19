@@ -1,4 +1,4 @@
-package com.shawnhu.seagull.seagull.twitter.providers;
+package com.shawnhu.seagull.seagull.twitter.content;
 
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
@@ -6,19 +6,19 @@ import android.net.Uri;
 import com.shawnhu.seagull.content.AbstractContentProvider;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_ACCOUNTS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_HASHTAGS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_STATUSES;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_CACHED_USERS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DIRECT_MESSAGES;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_DRAFTS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_KEYWORDS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_LINKS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_SOURCES;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_FILTERED_USERS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_MENTIONS;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_STATUSES;
-import static com.shawnhu.seagull.seagull.twitter.providers.TweetStore.TABLE_ID_TRENDS_LOCAL;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.TABLE_ID_ACCOUNTS;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.TABLE_ID_CACHED_HASHTAGS;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.TABLE_ID_CACHED_STATUSES;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.TABLE_ID_CACHED_USERS;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.TABLE_ID_DIRECT_MESSAGES;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.TABLE_ID_DRAFTS;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.TABLE_ID_FILTERED_KEYWORDS;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.TABLE_ID_FILTERED_LINKS;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.TABLE_ID_FILTERED_SOURCES;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.TABLE_ID_FILTERED_USERS;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.TABLE_ID_MENTIONS;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.TABLE_ID_STATUSES;
+import static com.shawnhu.seagull.seagull.twitter.content.TweetStore.TABLE_ID_TRENDS_LOCAL;
 
 public class TwitterContentProvider extends AbstractContentProvider {
 

@@ -25,7 +25,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.shawnhu.seagull.utils.ArrayUtils;
-import com.shawnhu.seagull.seagull.twitter.providers.TweetStore.Drafts;
+import com.shawnhu.seagull.seagull.twitter.content.TweetStore.Drafts;
 
 import org.json.JSONException;
 import org.json.JSONObject;
