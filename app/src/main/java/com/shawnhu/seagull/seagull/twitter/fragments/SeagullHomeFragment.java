@@ -11,21 +11,19 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.fragments.HomeFragment;
+import com.shawnhu.seagull.fragments.PersistentCursorFragment;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.adapters.StatusesCursorAdapter;
-import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusListResponse;
 import com.shawnhu.seagull.seagull.twitter.content.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.tasks.GetHomeTimelineTask;
 
 import java.security.InvalidParameterException;
-import java.util.List;
 
 /**
  * Created by shawnhu on 8/16/14.
  */
-public class SeagullHomeFragment extends HomeFragment
-        implements HomeFragment.OnLoadMoreDataListener, LoaderManager.LoaderCallbacks<Cursor> {
+public class SeagullHomeFragment extends PersistentCursorFragment
+        implements PersistentCursorFragment.OnLoadMoreDataListener {
 
     static public SeagullHomeFragment newInstance(Bundle args) {
         SeagullHomeFragment fragment =  new SeagullHomeFragment();
@@ -39,7 +37,6 @@ public class SeagullHomeFragment extends HomeFragment
 
     }
 
-    private int mFirstVisibleItemId = -1;
     private long mAccountId = -1;
 
     private StatusesCursorAdapter mAdapter = new StatusesCursorAdapter(getActivity(), null, 0);
@@ -75,27 +72,14 @@ public class SeagullHomeFragment extends HomeFragment
     public void onDestroyView() {
         super.onDestroyView();
 
-        //this will call onLoaderReset
         getLoaderManager().destroyLoader(0);
     }
 
     protected ListAdapter getListAdapter() {
-        Integer c;
-        try {
-            c = Integer.valueOf(mAdapter.getValue(StatusesCursorAdapter.CURRENT_VISIBLE_ITEM_ID));
-        } catch (NumberFormatException ne) {
-            ne.printStackTrace();
-            c = -1;
-        }
-
-        mFirstVisibleItemId = c;
         return mAdapter;
     }
     protected int getContentViewId() {
         return R.layout.fragment_home;
-    }
-    protected int getFirstVisibleItemId() {
-        return mFirstVisibleItemId;
     }
 
     @Override
@@ -105,6 +89,7 @@ public class SeagullHomeFragment extends HomeFragment
         if (c != null) {
             since_id = c.getLong(c.getColumnIndex(TweetStore.Statuses.STATUS_ID));
         }
+
         getHomeTimelineAsync(
                 new long[]{mAccountId},
                 new long[]{-1},
@@ -126,7 +111,9 @@ public class SeagullHomeFragment extends HomeFragment
         );
     }
 
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        super.onCreateLoader(id, args);
 
         CursorLoader cursorLoader =
                 new CursorLoader(getActivity(),
@@ -134,12 +121,14 @@ public class SeagullHomeFragment extends HomeFragment
                         StatusesCursorAdapter.PROJECTION,
                         StatusesCursorAdapter.SELECTION,
                         new String[] {
+                                String.valueOf(mAccountId),
                         },
                         StatusesCursorAdapter.SORT_ORDER
                 );
 
         return cursorLoader;
     }
+    @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (data == null || data.getCount() == 0) {
             getHomeTimelineAsync(
@@ -149,40 +138,19 @@ public class SeagullHomeFragment extends HomeFragment
             );
             return;
         }
-
-        Cursor c = (Cursor) mListView.getItemAtPosition(mListView.getFirstVisiblePosition());
-        mFirstVisibleItemId = c.getInt(c.getColumnIndex(TweetStore.Statuses._ID));
         mAdapter.swapCursor(data);
 
-        int pos = -1;
-        do {
-            int tmp_pos = data.getPosition();
-            if (tmp_pos == mFirstVisibleItemId) {
-                pos = tmp_pos;
-                break;
-            }
-        } while (data.moveToNext());
-
-        if (pos >= 0) {
-            mListView.setSelection(pos);
-        }
+        super.onLoadFinished(loader, data);
     }
+    @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        Cursor c = (Cursor) mListView.getItemAtPosition(mListView.getFirstVisiblePosition());
-        mFirstVisibleItemId = c.getInt(c.getColumnIndex(TweetStore.Statuses._ID));
-
-        mAdapter.setValue(StatusesCursorAdapter.CURRENT_VISIBLE_ITEM_ID, String.valueOf(mFirstVisibleItemId));
-        mAdapter.saveNow();
+        super.onLoaderReset(loader);
 
         mAdapter.swapCursor(null);
     }
 
     protected void getHomeTimelineAsync(final long[] account_ids, final long[] max_ids, final long[] since_ids) {
-        new GetHomeTimelineTask(getActivity(), account_ids, max_ids, since_ids) {
-            @Override
-            protected void onPostExecute(List<TwitterStatusListResponse> result) {
-                getLoaderManager().restartLoader(0, null, SeagullHomeFragment.this);
-            }
-        }.execute();
+        (new GetHomeTimelineTask(getActivity(), account_ids, max_ids, since_ids))
+                .execute();
     }
 }

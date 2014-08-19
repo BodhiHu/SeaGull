@@ -11,7 +11,6 @@ import com.shawnhu.seagull.app.SeagullApplication;
 import com.shawnhu.seagull.fragments.DraftsFragment;
 import com.shawnhu.seagull.fragments.FollowersFragment;
 import com.shawnhu.seagull.fragments.FollowingsFragment;
-import com.shawnhu.seagull.fragments.HomeFragment;
 import com.shawnhu.seagull.fragments.NotificationsFragment;
 import com.shawnhu.seagull.fragments.ProfileFragment;
 import com.shawnhu.seagull.fragments.SearchFragment;
