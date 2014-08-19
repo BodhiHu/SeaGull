@@ -121,7 +121,15 @@ public class TwitterStatus implements ParcelableWithJSON, Comparable<TwitterStat
         first_media = values.getAsString(TweetStore.Statuses.FIRST_MEDIA);
     }
 
+    public TwitterStatus(final Cursor c) {
+        this(c, new CursorIndices(c));
+    }
+
     public TwitterStatus(final Cursor c, final CursorIndices idx) {
+        if (c == null) {
+            throw new NullPointerException("Cursor can not be null");
+        }
+
         id = idx.status_id != -1 ? c.getLong(idx.status_id) : -1;
         account_id = idx.account_id != -1 ? c.getLong(idx.account_id) : -1;
         timestamp = idx.status_timestamp != -1 ? c.getLong(idx.status_timestamp) : 0;
@@ -311,7 +319,7 @@ public class TwitterStatus implements ParcelableWithJSON, Comparable<TwitterStat
 
     @Override
     public String toString() {
-        return "ParcelableStatus{retweet_id=" + retweet_id + ", retweeted_by_id=" + retweeted_by_id + ", id=" + id
+        return "TwitterStatus{retweet_id=" + retweet_id + ", retweeted_by_id=" + retweeted_by_id + ", id=" + id
                 + ", account_id=" + account_id + ", user_id=" + user_id + ", timestamp=" + timestamp
                 + ", retweet_count=" + retweet_count + ", favorite_count=" + favorite_count
                 + ", in_reply_to_status_id=" + in_reply_to_status_id + ", in_reply_to_user_id=" + in_reply_to_user_id

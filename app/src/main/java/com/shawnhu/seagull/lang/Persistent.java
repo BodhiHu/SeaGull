@@ -8,4 +8,5 @@ public interface Persistent {
     public void restoreNow();
     public void setValue(String key, String v);
     public String getValue(String key);
+
 }

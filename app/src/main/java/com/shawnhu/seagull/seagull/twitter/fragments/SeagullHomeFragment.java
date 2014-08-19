@@ -13,7 +13,7 @@ import android.widget.ListAdapter;
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.fragments.HomeFragment;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
-import com.shawnhu.seagull.seagull.twitter.adapters.StatusesAdapter;
+import com.shawnhu.seagull.seagull.twitter.adapters.StatusesCursorAdapter;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusListResponse;
 import com.shawnhu.seagull.seagull.twitter.providers.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.tasks.GetHomeTimelineTask;
@@ -39,10 +39,10 @@ public class SeagullHomeFragment extends HomeFragment
 
     }
 
-    private int mHeadItemId = -1, mTailItemId = -1, mFirstVisibleItemId = -1;
+    private int mFirstVisibleItemId = -1;
     private long mAccountId = -1;
 
-    private StatusesAdapter mAdapter = new StatusesAdapter(getActivity(), null, 0);
+    private StatusesCursorAdapter mAdapter = new StatusesCursorAdapter(getActivity(), null, 0);
 
     @Override
     public void onCreate(Bundle savedBundleInstance) {
@@ -80,18 +80,14 @@ public class SeagullHomeFragment extends HomeFragment
     }
 
     protected ListAdapter getListAdapter() {
-        Integer s, e, c;
+        Integer c;
         try {
-            s = Integer.valueOf(mAdapter.getValue(StatusesAdapter._ID_OF_HEAD_ITEM));
-            e = Integer.valueOf(mAdapter.getValue(StatusesAdapter._ID_OF_TAIL_ITEM));
-            c = Integer.valueOf(mAdapter.getValue(StatusesAdapter.CURRENT_VISIBLE_ITEM_ID));
+            c = Integer.valueOf(mAdapter.getValue(StatusesCursorAdapter.CURRENT_VISIBLE_ITEM_ID));
         } catch (NumberFormatException ne) {
             ne.printStackTrace();
-            s = e = c = -1;
+            c = -1;
         }
 
-        mHeadItemId = s;
-        mTailItemId = e;
         mFirstVisibleItemId = c;
         return mAdapter;
     }
@@ -131,20 +127,15 @@ public class SeagullHomeFragment extends HomeFragment
     }
 
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (mHeadItemId < 0 || mTailItemId < 0) {
-            return null;
-        }
 
         CursorLoader cursorLoader =
                 new CursorLoader(getActivity(),
-                        StatusesAdapter.CONTENT_URI,
-                        StatusesAdapter.PROJECTION,
-                        StatusesAdapter.SELECTION,
+                        StatusesCursorAdapter.CONTENT_URI,
+                        StatusesCursorAdapter.PROJECTION,
+                        StatusesCursorAdapter.SELECTION,
                         new String[] {
-                                String.valueOf(mTailItemId),
-                                String.valueOf(mHeadItemId),
                         },
-                        StatusesAdapter.SORT_ORDER
+                        StatusesCursorAdapter.SORT_ORDER
                 );
 
         return cursorLoader;
@@ -161,12 +152,6 @@ public class SeagullHomeFragment extends HomeFragment
 
         Cursor c = (Cursor) mListView.getItemAtPosition(mListView.getFirstVisiblePosition());
         mFirstVisibleItemId = c.getInt(c.getColumnIndex(TweetStore.Statuses._ID));
-        if (data.moveToFirst()) {
-            mHeadItemId = data.getInt(data.getColumnIndex(TweetStore.Statuses._ID));
-        }
-        if (data.moveToLast()) {
-            mTailItemId = data.getInt(data.getColumnIndex(TweetStore.Statuses._ID));
-        }
         mAdapter.swapCursor(data);
 
         int pos = -1;
@@ -185,18 +170,8 @@ public class SeagullHomeFragment extends HomeFragment
     public void onLoaderReset(Loader<Cursor> loader) {
         Cursor c = (Cursor) mListView.getItemAtPosition(mListView.getFirstVisiblePosition());
         mFirstVisibleItemId = c.getInt(c.getColumnIndex(TweetStore.Statuses._ID));
-        c = (Cursor) mListView.getItemAtPosition(0);
-        if (c != null) {
-            mHeadItemId = c.getInt(c.getColumnIndex(TweetStore.Statuses._ID));
-        }
-        c = (Cursor) mListView.getItemAtPosition(mAdapter.getCount() - 1);
-        if (c != null) {
-            mTailItemId = c.getInt(c.getColumnIndex(TweetStore.Statuses._ID));
-        }
 
-        mAdapter.setValue(StatusesAdapter._ID_OF_HEAD_ITEM, String.valueOf(mHeadItemId));
-        mAdapter.setValue(StatusesAdapter._ID_OF_TAIL_ITEM, String.valueOf(mTailItemId));
-        mAdapter.setValue(StatusesAdapter.CURRENT_VISIBLE_ITEM_ID, String.valueOf(mFirstVisibleItemId));
+        mAdapter.setValue(StatusesCursorAdapter.CURRENT_VISIBLE_ITEM_ID, String.valueOf(mFirstVisibleItemId));
         mAdapter.saveNow();
 
         mAdapter.swapCursor(null);

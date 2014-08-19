@@ -3,7 +3,7 @@ package com.shawnhu.seagull.utils;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-public class FormatUtils {
+public class NumberUtils {
     /*
      * NumberFormat isn't synchronized, so a separate instance must be created for each thread
      * http://developer.android.com/reference/java/text/NumberFormat.html

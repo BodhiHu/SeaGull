@@ -4,6 +4,7 @@ import android.content.Context;
 import android.widget.ArrayAdapter;
 
 import com.shawnhu.seagull.lang.Persistent;
+import com.shawnhu.seagull.utils.PreferencesUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,47 +34,32 @@ public abstract class PersistentArrayAdapter<T> extends ArrayAdapter<T> implemen
     public PersistentArrayAdapter(Context context, int resource, int textViewResourceId, List<T> objects) {
         super(context, resource, textViewResourceId, objects);
 
-        NOW_MAP.put(START_ID,           DEFAULT_V);
-        NOW_MAP.put(END_ID,             DEFAULT_V);
-        NOW_MAP.put(CURRENT_POSITION,   DEFAULT_V);
+        PERSISTENT_MAP.put(CURRENT_ITEM_ID, DEFAULT_V);
 
         restoreNow();
     }
 
-    private LinkedHashMap<String, String> NOW_MAP = new LinkedHashMap<String, String>();
+    private LinkedHashMap<String, String> PERSISTENT_MAP = new LinkedHashMap<String, String>();
 
-    static public final String START_ID            = "__START_ID";
-    static public final String END_ID              = "__END_ID";
-    static public final String CURRENT_POSITION    = "__CURRENT_POSITION";
+    static public final String CURRENT_ITEM_ID = "__CURRENT_ITEM_ID";
 
-    private String                          PREFERENCE_NAME = "Preferences de " + ((Object) this).getClass().getName();
+    private String PREFERENCE_NAME = "Preferences de " + ((Object) this).getClass().getName();
     static final public String              DEFAULT_V   = "-1";
 
     public void saveNow() {
-        if (NOW_MAP != null) {
-            for (String key : NOW_MAP.keySet()) {
-                getContext().getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
-                        .edit().putString(key, NOW_MAP.get(key));
-            }
-        }
+        PreferencesUtils.savePreferencesMap(getContext(), PREFERENCE_NAME, PERSISTENT_MAP);
     }
     public void restoreNow() {
-        if (NOW_MAP != null) {
-            for (String key : NOW_MAP.keySet()) {
-                String v = getContext().getSharedPreferences(PREFERENCE_NAME, Context.MODE_PRIVATE)
-                        .getString(key, DEFAULT_V);
-                NOW_MAP.put(key, v);
-            }
-        }
+        PreferencesUtils.readPreferencesToMap(getContext(), PREFERENCE_NAME, PERSISTENT_MAP, DEFAULT_V);
     }
     public void setValue(String key, String v) {
-        if (NOW_MAP != null) {
-            NOW_MAP.put(key, v);
+        if (PERSISTENT_MAP != null) {
+            PERSISTENT_MAP.put(key, v);
         }
     }
     public String getValue(String key) {
-        if (NOW_MAP != null) {
-            return NOW_MAP.get(key);
+        if (PERSISTENT_MAP != null) {
+            return PERSISTENT_MAP.get(key);
         }
 
         return DEFAULT_V;

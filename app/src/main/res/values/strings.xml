@@ -662,5 +662,8 @@
     <string name="title_activity_entrance">EntranceActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="followers_num" formatted="false">%d\nfollowers</string>
+    <string name="likes_num" formatted="false">%d\nLikes</string>
+    <string name="retweet_num" formatted="false">%d\nRetweets</string>
 
 </resources>

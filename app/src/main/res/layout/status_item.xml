@@ -47,8 +47,9 @@
                     android:text="screenname"
                     android:id="@+id/screenName"
                     android:layout_alignParentTop="true"
-                    android:layout_toRightOf="@+id/profileImage"
-                    android:layout_marginTop="2dp" />
+                    android:layout_toRightOf="@id/profileImage"
+                    android:layout_marginTop="2dp"
+                    android:textStyle="bold|italic" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -56,18 +57,19 @@
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:text="date"
                     android:id="@+id/date"
-                    android:layout_alignBottom="@+id/profileImage"
-                    android:layout_toRightOf="@+id/profileImage"
+                    android:layout_alignBottom="@id/profileImage"
+                    android:layout_toRightOf="@id/profileImage"
                     android:layout_marginBottom="2dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:text="@name"
+                    android:text="ATname"
                     android:id="@+id/name"
-                    android:layout_below="@+id/screenName"
-                    android:layout_toRightOf="@+id/profileImage" />
+                    android:layout_below="@id/screenName"
+                    android:layout_toRightOf="@id/profileImage"
+                    android:textStyle="bold|italic" />
             </RelativeLayout>
 
             <LinearLayout
@@ -95,9 +97,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:text="0 Followers"
+                        android:text="@string/followers_num"
                         android:id="@+id/followNum"
-                        android:layout_gravity="center_horizontal" />
+                        android:layout_gravity="center_horizontal"
+                        android:textStyle="italic"
+                        android:gravity="center" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -119,9 +123,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:text="0 Likes"
+                        android:text="@string/likes_num"
                         android:id="@+id/likesNum"
-                        android:layout_gravity="center_horizontal" />
+                        android:layout_gravity="center_horizontal"
+                        android:textStyle="italic"
+                        android:gravity="center" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -143,9 +149,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:text="0 Retweets"
+                        android:text="@string/retweet_num"
                         android:id="@+id/retweetsNum"
-                        android:layout_gravity="center_horizontal" />
+                        android:layout_gravity="center_horizontal"
+                        android:textStyle="italic"
+                        android:gravity="center" />
                 </LinearLayout>
             </LinearLayout>
 
