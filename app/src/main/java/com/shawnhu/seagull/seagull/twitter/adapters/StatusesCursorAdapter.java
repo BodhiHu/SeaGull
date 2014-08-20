@@ -73,7 +73,6 @@ final public class StatusesCursorAdapter extends SimpleCursorAdapter {
                         }
                         @Override public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                             super.onLoadingComplete(imageUri, view, loadedImage);
-                            tweetText.setVisibility(View.GONE);
                         }
                         @Override public void onLoadingCancelled(String imageUri, View view) {
                             super.onLoadingCancelled(imageUri, view);
