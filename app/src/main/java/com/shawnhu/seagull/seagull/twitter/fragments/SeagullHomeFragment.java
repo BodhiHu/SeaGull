@@ -65,8 +65,12 @@ public class SeagullHomeFragment extends PersistentCursorFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        mAdapter = new StatusesCursorAdapter(getActivity(), null, 0);
-        getLoaderManager().initLoader(0, null, this);
+        if (mAdapter == null) {
+            mAdapter = new StatusesCursorAdapter(getActivity(), null, 0);
+        }
+        if (mAdapter != null && mAdapter.getCount() == 0) {
+            getLoaderManager().initLoader(0, null, this);
+        }
 
         View v = super.onCreateView(inflater, container, savedInstanceState);
         return v;

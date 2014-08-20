@@ -1,8 +1,10 @@
 package com.shawnhu.seagull.fragments;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -22,7 +24,7 @@ import java.util.LinkedHashMap;
 public abstract class PersistentCursorFragment extends Fragment
         implements AbsListView.OnScrollListener, Persistent, LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String _ID = "_id";
+    private static final String _ID = BaseColumns._ID;
 
     abstract protected ListAdapter getListAdapter();
     abstract protected int         getContentViewId();
@@ -79,13 +81,42 @@ public abstract class PersistentCursorFragment extends Fragment
 
         mListView.setAdapter(mAdapter);
         mListView.setOnScrollListener(this);
+
+        if (mAdapter != null) {
+            Cursor c = (Cursor) mAdapter.getItem(0);
+            if (c != null) {
+                int pos = 0;
+                do {
+                    int index = c.getColumnIndex(_ID);
+                    if (index >= 0) {
+                        int tmp_id = c.getInt(index);
+                        if (tmp_id == mCurrentVisibleItemId) {
+                            pos = c.getPosition();
+                            break;
+                        }
+                    }
+                } while (c.moveToNext());
+                if (pos >= 0) {
+                    mListView.setSelection(pos);
+                }
+            }
+        }
         return v;
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        Cursor c = (Cursor) mListView.getItemAtPosition(mListView.getFirstVisiblePosition());
+        mCurrentVisibleItemId = c.getInt(c.getColumnIndex(_ID));
         setValue(__CURRENT_VISIBLE_ITEM_ID, String.valueOf(mCurrentVisibleItemId));
         saveNow();
+
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+
     }
 
     @Override
@@ -131,18 +162,24 @@ public abstract class PersistentCursorFragment extends Fragment
     }
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        int pos = -1;
-        do {
-            int tmp_pos = data.getPosition();
-            if (tmp_pos == mCurrentVisibleItemId) {
-                pos = tmp_pos;
-                break;
+        if (data.getCount() > 0) {
+            int pos = 0;
+            while (data.moveToNext()) {
+                int index = data.getColumnIndex(_ID);
+                if (index >= 0) {
+                    int id = data.getInt(index);
+                    if (id == mCurrentVisibleItemId) {
+                        pos = data.getPosition();
+                        break;
+                    }
+                }
             }
-        } while (data.moveToNext());
 
-        if (pos >= 0) {
-            mListView.setSelection(pos);
+            if (pos >= 0) {
+                mListView.setSelection(pos);
+            }
         }
+
     }
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
@@ -153,7 +190,7 @@ public abstract class PersistentCursorFragment extends Fragment
         //mAdapter.saveNow();
     }
 
-    /** Persistent*********************************************************************************/
+    /** Persistent *********************************************************************************/
     protected LinkedHashMap<String, String> __PERSISTENT_MAP            = new LinkedHashMap<String, String>();
     static public final String              __CURRENT_VISIBLE_ITEM_ID   = "__CURRENT_VISIBLE_ITEM_ID";
     final private String                    __PREFERENCE_NAME           = "Preferences de " + ((Object) this).getClass().getName();

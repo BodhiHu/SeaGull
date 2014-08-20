@@ -536,7 +536,6 @@
     <string name="signing_in_error_browser_sign_in_hint">Error while signing in, you may need to use browser sign in method. (This will ignore custom API settings during sign in)</string>
     <string name="report_user">Report <xliff:g id="name">%s</xliff:g></string>
     <string name="report_user_confirm_message">Report <xliff:g id="name">%s</xliff:g> for spam? You\'ll also block this user.</string>
-    <string name="twidere_test">Twidere test</string>
     <string name="donate_via_paypal">Donate via PayPal</string>
     <string name="pay_via_paypal">Pay via PayPal directly</string>
     <string name="pay_via_paypal_summary">When you see "This recipient is not eligible to receive funds"</string>

@@ -7,6 +7,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.AbstractLoginActivity;
@@ -84,6 +85,11 @@ public class LoginActivity extends AbstractLoginActivity {
                 } else if (e instanceof OAuthPasswordAuthenticator.WrongUserPassException) {
                     ret = R.string.wrong_username_password;
                 } else if (e instanceof OAuthPasswordAuthenticator.AuthenticationException) {
+                    Throwable th = e.getCause();
+                    if (th instanceof TwitterException) {
+                        //String err_msg = ((TwitterException) th).getErrorMessage();
+                        return R.string.error_occurred;
+                    }
                     ret = R.string.error_unknown_error;
                 } else {
                     ret = R.string.error_unknown_error;
