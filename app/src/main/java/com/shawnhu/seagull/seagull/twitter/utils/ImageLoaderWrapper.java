@@ -38,7 +38,7 @@ public class ImageLoaderWrapper {
                             .threadPriority(Thread.NORM_PRIORITY - 2)
                             .denyCacheImageMultipleSizesInMemory()
                             .tasksProcessingOrder(QueueProcessingType.LIFO)
-                            //.memoryCache(new ImageMemoryCache(40));
+                            //.memoryCache(new ImageMemoryCache(41));
                             .diskCache(getImageLoaderDiskCache())
                             .imageDownloader(new TwitterImageDownloader(context, false))
                             .build()
