@@ -1,5 +1,6 @@
 package com.shawnhu.seagull.seagull.twitter.fragments;
 
+import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -26,7 +27,7 @@ public class SeagullHomeFragment extends PersistentCursorFragment
         implements PersistentCursorFragment.OnLoadMoreDataListener {
 
     static public SeagullHomeFragment newInstance(Bundle args) {
-        SeagullHomeFragment fragment =  new SeagullHomeFragment();
+        SeagullHomeFragment fragment = new SeagullHomeFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -34,13 +35,17 @@ public class SeagullHomeFragment extends PersistentCursorFragment
 
 
     public SeagullHomeFragment() {
-
     }
 
     private long mAccountId = -1;
 
-    private StatusesCursorAdapter mAdapter = new StatusesCursorAdapter(getActivity(), null, 0);
+    private StatusesCursorAdapter mAdapter = null;
 
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        //Till this moment, fragment has activity
+    }
     @Override
     public void onCreate(Bundle savedBundleInstance) {
         super.onCreate(savedBundleInstance);
@@ -60,9 +65,10 @@ public class SeagullHomeFragment extends PersistentCursorFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View v = super.onCreateView(inflater, container, savedInstanceState);
+        mAdapter = new StatusesCursorAdapter(getActivity(), null, 0);
         getLoaderManager().initLoader(0, null, this);
 
+        View v = super.onCreateView(inflater, container, savedInstanceState);
         return v;
     }
     @Override

@@ -8,90 +8,100 @@
    <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
-       android:layout_margin="1dp">
+       android:background="@android:color/white"
+       android:padding="3dp">
 
         <include
             android:id="@+id/image_slash_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             layout="@layout/image_slash_text"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"
+            android:layout_marginBottom="2dp" />
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_gravity="center_horizontal|top"
             android:padding="5dp">
 
             <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:layout_marginRight="5dp">
+                android:layout_marginRight="5dp"
+                android:layout_weight="1">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:id="@+id/profileImage"
                     android:background="@drawable/ic_profile_image_default"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginRight="5dp" />
+                    android:scaleType="centerCrop"
+                    android:layout_marginRight="1dp" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:text="screenname"
                     android:id="@+id/screenName"
                     android:layout_alignParentTop="true"
                     android:layout_toRightOf="@id/profileImage"
-                    android:layout_marginTop="2dp"
-                    android:textStyle="bold|italic" />
+                    android:textStyle="italic"
+                    android:textSize="5dp"
+                    android:visibility="gone" />
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:text="date"
                     android:id="@+id/date"
                     android:layout_alignBottom="@id/profileImage"
                     android:layout_toRightOf="@id/profileImage"
-                    android:layout_marginBottom="2dp" />
+                    android:layout_marginBottom="2dp"
+                    android:textSize="10dp"
+                    android:gravity="center" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:text="ATname"
                     android:id="@+id/name"
                     android:layout_below="@id/screenName"
                     android:layout_toRightOf="@id/profileImage"
-                    android:textStyle="bold|italic" />
+                    android:textStyle="italic"
+                    android:textSize="5dp"
+                    android:visibility="gone" />
             </RelativeLayout>
 
             <LinearLayout
                 android:orientation="horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:gravity="center_vertical">
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:layout_weight="1">
 
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:id="@+id/linearLayout"
                     android:layout_weight="1">
 
                     <ImageButton
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:id="@+id/followButn"
                         android:layout_gravity="center_horizontal"
                         android:background="@drawable/anchor_gray"
-                        android:layout_marginBottom="2dp" />
+                        android:scaleType="fitXY" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -101,23 +111,24 @@
                         android:id="@+id/followNum"
                         android:layout_gravity="center_horizontal"
                         android:textStyle="italic"
-                        android:gravity="center" />
+                        android:gravity="center"
+                        android:textSize="8dp" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:id="@+id/linearLayout2"
                     android:layout_weight="1">
 
                     <ImageButton
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:id="@+id/likeButn"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginBottom="2dp"
-                        android:background="@drawable/heart_gray" />
+                        android:background="@drawable/heart_gray"
+                        android:scaleType="fitXY" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -127,23 +138,24 @@
                         android:id="@+id/likesNum"
                         android:layout_gravity="center_horizontal"
                         android:textStyle="italic"
-                        android:gravity="center" />
+                        android:gravity="center"
+                        android:textSize="8dp" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:id="@+id/linearLayout3"
                     android:layout_weight="1">
 
                     <ImageButton
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:id="@+id/retweetButn"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginBottom="2dp"
-                        android:background="@drawable/bird_sing_gray" />
+                        android:background="@drawable/bird_sing_gray"
+                        android:scaleType="fitXY" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -153,7 +165,8 @@
                         android:id="@+id/retweetsNum"
                         android:layout_gravity="center_horizontal"
                         android:textStyle="italic"
-                        android:gravity="center" />
+                        android:gravity="center"
+                        android:textSize="8dp" />
                 </LinearLayout>
             </LinearLayout>
 

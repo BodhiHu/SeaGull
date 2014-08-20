@@ -18,6 +18,7 @@ import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.utils.imageloader.AccountExtra;
 import com.shawnhu.seagull.seagull.twitter.utils.imageloader.TwitterImageDownloader;
 import com.shawnhu.seagull.seagull.twitter.utils.imageloader.URLFileNameGenerator;
+import com.shawnhu.seagull.utils.ImageLoadingHandler;
 
 import java.io.File;
 
@@ -66,11 +67,11 @@ public class ImageLoaderWrapper {
             .bitmapConfig(Bitmap.Config.ARGB_8888)
             .resetViewBeforeLoading(true)
             .build();
-    static final DisplayImageOptions mImageDisplayOptions        =
+    public static final DisplayImageOptions mImageDisplayOptions =
             (new DisplayImageOptions.Builder())
             .cacheInMemory(true)
             .cacheOnDisk(true)
-            .bitmapConfig(Bitmap.Config.RGB_565)
+            .bitmapConfig(Bitmap.Config.ARGB_8888)
             .resetViewBeforeLoading(true)
             .build();
     static final DisplayImageOptions mBannerDisplayOptions       =

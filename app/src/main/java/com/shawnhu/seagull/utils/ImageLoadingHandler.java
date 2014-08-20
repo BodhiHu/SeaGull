@@ -1,4 +1,4 @@
-package com.shawnhu.seagull.seagull.twitter.utils;
+package com.shawnhu.seagull.utils;
 
 import android.graphics.Bitmap;
 import android.view.View;
@@ -20,7 +20,7 @@ public class ImageLoadingHandler implements ImageLoadingListener, ImageLoadingPr
     private final int[] mProgressBarIds;
 
     public ImageLoadingHandler() {
-        this(R.id.image_preview_progress);
+        this(R.id.progressBar);
     }
 
     public ImageLoadingHandler(final int... progressBarIds) {

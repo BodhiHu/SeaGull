@@ -18,7 +18,7 @@ import com.shawnhu.seagull.utils.PreferencesUtils;
 
 import java.util.LinkedHashMap;
 
-//TODO: should use ListFragment
+//TODO: should use ListFragmentz?
 public abstract class PersistentCursorFragment extends Fragment
         implements AbsListView.OnScrollListener, Persistent, LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -31,17 +31,14 @@ public abstract class PersistentCursorFragment extends Fragment
     protected ListAdapter mAdapter;
     private OnLoadMoreDataListener mOnLoadMoreDataListener;
 
-    private int mCurrentVisibleItemId = -1;
+    private int mCurrentVisibleItemId = Integer.valueOf(__DEFAULT_V);
 
-    /*
-    public HomeFragment() {
+    public PersistentCursorFragment() {
         // Required empty public constructor
     }
-    */
 
     @Override
     public void onAttach(Activity activity) {
-        mListView.setAdapter(mAdapter);
         super.onAttach(activity);
     }
 
@@ -107,18 +104,22 @@ public abstract class PersistentCursorFragment extends Fragment
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
                          int totalItemCount) {
         if (firstVisibleItem <= 0) {
-            Cursor c = (Cursor) mListView.getItemAtPosition(0);
-            mCurrentVisibleItemId = c.getInt(c.getColumnIndex(_ID));
+            Cursor c = (Cursor) mListView.getItemAtPosition(mListView.getFirstVisiblePosition());
+            if (c != null) {
+                mCurrentVisibleItemId = c.getInt(c.getColumnIndex(_ID));
 
-            if (mOnLoadMoreDataListener != null) {
-                mOnLoadMoreDataListener.onLoadMoreHead();
+                if (mOnLoadMoreDataListener != null) {
+                    mOnLoadMoreDataListener.onLoadMoreHead();
+                }
             }
         } else if (firstVisibleItem >= (mAdapter.getCount() - 1)) {
             Cursor c = (Cursor) mListView.getItemAtPosition(mListView.getLastVisiblePosition());
-            mCurrentVisibleItemId = c.getInt(c.getColumnIndex(_ID));
+            if (c != null) {
+                mCurrentVisibleItemId = c.getInt(c.getColumnIndex(_ID));
 
-            if (mOnLoadMoreDataListener != null) {
-                mOnLoadMoreDataListener.onLoadMoreTail();
+                if (mOnLoadMoreDataListener != null) {
+                    mOnLoadMoreDataListener.onLoadMoreTail();
+                }
             }
         }
     }
@@ -187,5 +188,4 @@ public abstract class PersistentCursorFragment extends Fragment
         public void onLoadMoreTail();
     }
 }
-
 

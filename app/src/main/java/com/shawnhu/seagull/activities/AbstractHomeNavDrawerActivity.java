@@ -19,6 +19,7 @@ import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.app.AppPreferences;
 import com.shawnhu.seagull.utils.ActivityUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 
@@ -114,18 +115,32 @@ public abstract class AbstractHomeNavDrawerActivity
                 //Fragment, transform to it
                 try {
                     Method newFragmentInstance = targetClass.getMethod("newInstance", Bundle.class);
-                    fragmentManager.beginTransaction()
-                            .replace(R.id.container, (Fragment) newFragmentInstance.invoke(null, i.mActionArgs))
-                            .commit();
+                    Fragment fragment = (Fragment) newFragmentInstance.invoke(null, i.mActionArgs);
 
-                    if (i.mName != null && i.mName != "") {
-                        mSubTitle = i.mName;
-                        getSupportActionBar().setSubtitle(mSubTitle);
+                    if (fragment != null) {
+                        fragmentManager.beginTransaction()
+                                .replace(R.id.container, fragment)
+                                .commit();
+
+                        if (i.mName != null && i.mName != "") {
+                            mSubTitle = i.mName;
+                            getSupportActionBar().setSubtitle(mSubTitle);
+                        }
+                        mLastFragmentPosition = position;
                     }
-                    mLastFragmentPosition = position;
                 } catch(Exception e) {
                     Log.e(AbstractHomeNavDrawerActivity.class.getSimpleName(), e.toString());
-                    //TODO: log this error
+                    e.printStackTrace();
+
+                    if (e instanceof InvocationTargetException) {
+                        InvocationTargetException ie = (InvocationTargetException) e;
+                        Throwable th = ie.getCause();
+                        if (th != null) {
+                            Log.e(AbstractHomeNavDrawerActivity.class.getSimpleName(), "InvocationTargetException caused by:");
+                            Log.e(AbstractHomeNavDrawerActivity.class.getSimpleName(), th.toString());
+                            th.printStackTrace();
+                        }
+                    }
                 }
 
             } else if (Activity.class.isAssignableFrom(targetClass)) {

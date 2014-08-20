@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterMedia;
 import com.shawnhu.seagull.utils.HtmlLinkExtractor;
+import com.shawnhu.seagull.utils.ImageLoadingHandler;
 import com.shawnhu.seagull.utils.ParseUtils;
 
 import org.json.JSONException;
