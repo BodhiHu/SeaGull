@@ -87,9 +87,6 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
             Bundle args = new Bundle();
             args.putLong(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, id);
             a.mActionArgs = args;
-            Toast.makeText(this,
-                    "Your id is " + id + ". Now you can reach Twitter now!", Toast.LENGTH_SHORT)
-                    .show();
         } else {
 
         }

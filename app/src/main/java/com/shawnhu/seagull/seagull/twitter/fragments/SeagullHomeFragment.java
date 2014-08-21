@@ -64,7 +64,6 @@ public class SeagullHomeFragment extends PersistentCursorFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         if (mAdapter == null) {
             mAdapter = new StatusesCursorAdapter(getActivity(), null, 0);
         }
@@ -77,6 +76,7 @@ public class SeagullHomeFragment extends PersistentCursorFragment
     }
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
     @Override
     public void onDestroyView() {

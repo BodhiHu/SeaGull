@@ -50,14 +50,6 @@ public abstract class PersistentCursorFragment extends Fragment
         Bundle args = getArguments();
         if (args != null) {
         }
-
-        __PERSISTENT_MAP.put(__CURRENT_VISIBLE_ITEM_ID, __DEFAULT_V);
-        restoreNow();
-        try {
-            mCurrentVisibleItemId = Integer.valueOf(getValue(__CURRENT_VISIBLE_ITEM_ID));
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -82,6 +74,16 @@ public abstract class PersistentCursorFragment extends Fragment
         mListView.setAdapter(mAdapter);
         mListView.setOnScrollListener(this);
 
+        return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        __PERSISTENT_MAP.put(__CURRENT_VISIBLE_ITEM_ID, __DEFAULT_V);
+        restoreNow();
+
         if (mAdapter != null) {
             Cursor c = (Cursor) mAdapter.getItem(0);
             if (c != null) {
@@ -101,22 +103,13 @@ public abstract class PersistentCursorFragment extends Fragment
                 }
             }
         }
-        return v;
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        Cursor c = (Cursor) mListView.getItemAtPosition(mListView.getFirstVisiblePosition());
-        mCurrentVisibleItemId = c.getInt(c.getColumnIndex(_ID));
-        setValue(__CURRENT_VISIBLE_ITEM_ID, String.valueOf(mCurrentVisibleItemId));
+    public void onPause() {
         saveNow();
 
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-
+        super.onPause();
     }
 
     @Override
@@ -134,8 +127,11 @@ public abstract class PersistentCursorFragment extends Fragment
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
                          int totalItemCount) {
-        if (firstVisibleItem <= 0) {
-            Cursor c = (Cursor) mListView.getItemAtPosition(mListView.getFirstVisiblePosition());
+        int firstVisiblePos = mListView.getFirstVisiblePosition();
+        int lastVisiblePos  = mListView.getLastVisiblePosition();
+
+        if (firstVisiblePos == 0) {
+            Cursor c = (Cursor) mListView.getItemAtPosition(firstVisiblePos);
             if (c != null) {
                 mCurrentVisibleItemId = c.getInt(c.getColumnIndex(_ID));
 
@@ -143,8 +139,9 @@ public abstract class PersistentCursorFragment extends Fragment
                     mOnLoadMoreDataListener.onLoadMoreHead();
                 }
             }
-        } else if (firstVisibleItem >= (mAdapter.getCount() - 1)) {
-            Cursor c = (Cursor) mListView.getItemAtPosition(mListView.getLastVisiblePosition());
+        } else if (lastVisiblePos >= (mListView.getCount() - 1)) {
+            lastVisiblePos = mListView.getCount() - 1;
+            Cursor c = (Cursor) mListView.getItemAtPosition(lastVisiblePos);
             if (c != null) {
                 mCurrentVisibleItemId = c.getInt(c.getColumnIndex(_ID));
 
@@ -176,10 +173,10 @@ public abstract class PersistentCursorFragment extends Fragment
             }
 
             if (pos >= 0) {
+                //FIXME
                 mListView.setSelection(pos);
             }
         }
-
     }
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
@@ -197,11 +194,25 @@ public abstract class PersistentCursorFragment extends Fragment
     static final public String              __DEFAULT_V                 = "-1";
     @Override
     public void saveNow() {
+        Cursor c = (Cursor) mListView.getItemAtPosition(mListView.getFirstVisiblePosition());
+        if (c != null) {
+            int index = c.getColumnIndex(_ID);
+            if (index >= 0) {
+                mCurrentVisibleItemId = c.getInt(index);
+                setValue(__CURRENT_VISIBLE_ITEM_ID, String.valueOf(mCurrentVisibleItemId));
+            }
+        }
+
         PreferencesUtils.savePreferencesMap(getActivity(), __PREFERENCE_NAME, __PERSISTENT_MAP);
     }
     @Override
     public void restoreNow() {
         PreferencesUtils.readPreferencesToMap(getActivity(), __PREFERENCE_NAME, __PERSISTENT_MAP, __DEFAULT_V);
+        try {
+            mCurrentVisibleItemId = Integer.valueOf(getValue(__CURRENT_VISIBLE_ITEM_ID));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
     }
     @Override
     public void setValue(String key, String v) {

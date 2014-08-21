@@ -12,7 +12,9 @@ public class PreferencesUtils {
         if (context != null && map != null) {
             for (String key : map.keySet()) {
                 context.getSharedPreferences(pref, Context.MODE_PRIVATE)
-                        .edit().putString(key, map.get(key));
+                        .edit()
+                        .putString(key, map.get(key))
+                        .commit();
             }
         }
     }
