@@ -17,7 +17,11 @@ public class BuildProperties {
 
 	private BuildProperties() throws IOException {
 		properties = new Properties();
-		properties.load(new FileInputStream(new File(Environment.getRootDirectory(), "build.prop")));
+        FileInputStream fs = new FileInputStream(new File(Environment.getRootDirectory(), "build.prop"));
+		properties.load(fs);
+        if (fs != null) {
+            fs.close();
+        }
 	}
 
 	public boolean containsKey(final Object key) {

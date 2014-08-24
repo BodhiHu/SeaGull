@@ -71,7 +71,7 @@ public class ImageLoaderWrapper {
             (new DisplayImageOptions.Builder())
             .cacheInMemory(true)
             .cacheOnDisk(true)
-            .bitmapConfig(Bitmap.Config.ARGB_8888)
+            .bitmapConfig(Bitmap.Config.RGB_565)
             .resetViewBeforeLoading(true)
             .build();
     static final DisplayImageOptions mBannerDisplayOptions       =

@@ -7,7 +7,8 @@
     <view
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        class="com.shawnhu.seagull.widgets.SwipeRefreshLayout">
+        class="com.shawnhu.seagull.widgets.SwipeRefreshLayout"
+        android:id="@+id/swipeRefreshLayout">
 
         <com.etsy.android.grid.StaggeredGridView
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -16,7 +17,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:item_margin="3dp"
-            app:column_count="@integer/column_count" />
+            app:column_count="@integer/column_count"
+            android:smoothScrollbar="false" />
 
     </view>
 

@@ -181,7 +181,12 @@ public abstract class PersistentCursorFragment extends Fragment
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         Cursor c = (Cursor) mListView.getItemAtPosition(mListView.getFirstVisiblePosition());
-        mCurrentVisibleItemId = c.getInt(c.getColumnIndex(_ID));//TODO: save
+        if (c != null) {
+            int index = c.getColumnIndex(_ID);
+            if (index >= 0) {
+                mCurrentVisibleItemId = c.getInt(index);//TODO: save
+            }
+        }
 
         //mAdapter.setValue(StatusesCursorAdapter.CURRENT_VISIBLE_ITEM_ID, String.valueOf(mCurrentVisibleItemId));
         //mAdapter.saveNow();

@@ -17,6 +17,7 @@ import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.adapters.StatusesCursorAdapter;
 import com.shawnhu.seagull.seagull.twitter.content.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.tasks.GetHomeTimelineTask;
+import com.shawnhu.seagull.widgets.SwipeRefreshLayout;
 
 import java.security.InvalidParameterException;
 
@@ -24,7 +25,8 @@ import java.security.InvalidParameterException;
  * Created by shawnhu on 8/16/14.
  */
 public class SeagullHomeFragment extends PersistentCursorFragment
-        implements PersistentCursorFragment.OnLoadMoreDataListener {
+        implements PersistentCursorFragment.OnLoadMoreDataListener,
+                   SwipeRefreshLayout.OnRefreshListener {
 
     static public SeagullHomeFragment newInstance(Bundle args) {
         SeagullHomeFragment fragment = new SeagullHomeFragment();
@@ -40,6 +42,7 @@ public class SeagullHomeFragment extends PersistentCursorFragment
     private long mAccountId = -1;
 
     private StatusesCursorAdapter mAdapter = null;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     public void onAttach(Activity activity) {
@@ -72,6 +75,10 @@ public class SeagullHomeFragment extends PersistentCursorFragment
         }
 
         View v = super.onCreateView(inflater, container, savedInstanceState);
+        swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeRefreshLayout);
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setOnRefreshListener(this);
+        }
         return v;
     }
     @Override
@@ -92,8 +99,7 @@ public class SeagullHomeFragment extends PersistentCursorFragment
         return R.layout.fragment_home;
     }
 
-    @Override
-    public void onLoadMoreHead() {
+    public void loadMoreHead() {
         Cursor c = (Cursor) mListView.getItemAtPosition(0);
         long since_id   = -1;
         if (c != null) {
@@ -107,8 +113,7 @@ public class SeagullHomeFragment extends PersistentCursorFragment
         );
 
     }
-    @Override
-    public void onLoadMoreTail() {
+    public void loadMoreTail() {
         Cursor c = (Cursor) mListView.getItemAtPosition(mListView.getCount() - 1);
         long max_id = -1;
         if (c != null) {
@@ -120,6 +125,20 @@ public class SeagullHomeFragment extends PersistentCursorFragment
                 new long[]{-1}
         );
     }
+
+    @Override
+    public void onRefreshUp() {
+        loadMoreHead();
+    }
+    @Override
+    public void onRefreshDown() {
+        loadMoreTail();
+    }
+
+    @Override
+    public void onLoadMoreHead() {}
+    @Override
+    public void onLoadMoreTail() {}
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -150,6 +169,8 @@ public class SeagullHomeFragment extends PersistentCursorFragment
         }
         mAdapter.swapCursor(data);
 
+        swipeRefreshLayout.setRefreshing(false);
+
         super.onLoadFinished(loader, data);
     }
     @Override
@@ -157,6 +178,8 @@ public class SeagullHomeFragment extends PersistentCursorFragment
         super.onLoaderReset(loader);
 
         mAdapter.swapCursor(null);
+
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     protected void getHomeTimelineAsync(final long[] account_ids, final long[] max_ids, final long[] since_ids) {

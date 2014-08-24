@@ -21,7 +21,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -329,6 +328,15 @@ public class SwipeRefreshLayout extends ViewGroup {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
+
+        final int width = getMeasuredWidth();
+        final int height = getMeasuredHeight();
+        if (mIsBeingDraggedUp) {
+            mProgressBar.setBounds(0, 0,                         width, mProgressBarHeight);
+        } else if (mIsBeingDraggedDown) {
+            mProgressBar.setBounds(0, height-mProgressBarHeight, width, height);
+        }
+
         mProgressBar.draw(canvas);
     }
 
@@ -336,7 +344,9 @@ public class SwipeRefreshLayout extends ViewGroup {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         final int width =  getMeasuredWidth();
         final int height = getMeasuredHeight();
-        mProgressBar.setBounds(0, 0, width, mProgressBarHeight);
+
+        //mProgressBar.setBounds(0, 0, width, mProgressBarHeight);
+
         if (getChildCount() == 0) {
             return;
         }
@@ -370,34 +380,27 @@ public class SwipeRefreshLayout extends ViewGroup {
      *         scroll up. Override this if the child view is a custom view.
      */
     public boolean canChildScrollUp() {
-        if (android.os.Build.VERSION.SDK_INT < 14) {
-            if (mTarget instanceof AbsListView) {
-                final AbsListView absListView = (AbsListView) mTarget;
-                return absListView.getChildCount() > 0 &&
-                       (absListView.getFirstVisiblePosition() > 0 ||
-                        absListView.getChildAt(0)
-                                .getTop() <= (0 + absListView.getPaddingTop()));
-            } else {
-                return mTarget.getScrollY() > 0;
-            }
+        if (mTarget instanceof AbsListView) {
+            final AbsListView absListView = (AbsListView) mTarget;
+            return absListView.getChildCount() > 0 &&
+                    (absListView.getFirstVisiblePosition() > 0 ||
+                            absListView.getChildAt(0)
+                                    .getTop() <= (0 + absListView.getPaddingTop()));
         } else {
-            return ViewCompat.canScrollVertically(mTarget, -1);
+            return mTarget.getScrollY() > 0;
         }
     }
     public boolean canChildScrollDown() {
-        if (android.os.Build.VERSION.SDK_INT < 14) {
-            if (mTarget instanceof AbsListView) {
-                final AbsListView absListView = (AbsListView) mTarget;
-                return absListView.getChildCount() > 0
-                       && (absListView.getLastVisiblePosition() < (absListView.getCount()-1) ||
-                           absListView.getChildAt(absListView.getCount()-1).getBottom()
-                                >= (absListView.getHeight()-1 - absListView.getPaddingBottom())
-                          );
-            } else {
-                return (mTarget.getScrollY() + mTarget.getHeight()) < (mTarget.getMeasuredHeight()-1);
-            }
+        if (mTarget instanceof AbsListView) {
+            final AbsListView absListView = (AbsListView) mTarget;
+
+            return absListView.getChildCount() > 0
+                    && (absListView.getLastVisiblePosition() < (absListView.getCount() - 1) ||
+                    absListView.getChildAt(absListView.getChildCount() - 1).getBottom()
+                            >= (absListView.getHeight() - 1 - absListView.getPaddingBottom())
+            );
         } else {
-            return ViewCompat.canScrollVertically(mTarget, 1);
+            return (mTarget.getScrollY() + mTarget.getHeight()) < (mTarget.getMeasuredHeight() - 1);
         }
     }
     public boolean canChildScrollLeft() { return false; }
@@ -413,12 +416,14 @@ public class SwipeRefreshLayout extends ViewGroup {
             mReturningToStart = false;
         }
 
-        if (!isEnabled() || mReturningToStart ||
-            (canChildScrollUp() && canChildScrollDown())) {
+        if (!isEnabled() || mReturningToStart
+            /*|| (canChildScrollUp() && canChildScrollDown())*/
+           ) {
             // Fail early if we're not in a state where a swipe is possible
             return false;
         }
 
+        //TODO: gesture up/down -> whether we can move to that specific direction
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 mLastMotionY = mInitialMotionY = ev.getY();
@@ -445,9 +450,13 @@ public class SwipeRefreshLayout extends ViewGroup {
                 if (Math.abs(yDiff) > mTouchSlop) {
                     mLastMotionY = y;
                     if (yDiff > 0) {
-                        mIsBeingDraggedUp = true;
+                        if (!canChildScrollUp()) {
+                            mIsBeingDraggedUp = true;
+                        }
                     } else {
-                        mIsBeingDraggedDown = true;
+                        if (!canChildScrollDown()) {
+                            mIsBeingDraggedDown = true;
+                        }
                     }
                 }
                 break;
@@ -481,8 +490,9 @@ public class SwipeRefreshLayout extends ViewGroup {
             mReturningToStart = false;
         }
 
-        if (!isEnabled() || mReturningToStart ||
-            (canChildScrollUp() && canChildScrollDown())) {
+        if (!isEnabled() || mReturningToStart
+            /*|| (canChildScrollUp() && canChildScrollDown())*/
+           ) {
             // Fail early if we're not in a state where a swipe is possible
             return false;
         }
@@ -509,9 +519,13 @@ public class SwipeRefreshLayout extends ViewGroup {
                 if ((!mIsBeingDraggedUp && !mIsBeingDraggedDown)
                     && Math.abs(yDiff) > mTouchSlop) {
                     if (yDiff > 0) {
-                        mIsBeingDraggedUp = true;
+                        if (!canChildScrollUp()) {
+                            mIsBeingDraggedUp = true;
+                        }
                     } else {
-                        mIsBeingDraggedDown = true;
+                        if (!canChildScrollDown()) {
+                            mIsBeingDraggedDown = true;
+                        }
                     }
                 }
 
@@ -524,9 +538,8 @@ public class SwipeRefreshLayout extends ViewGroup {
                         // Just track the user's movement
                         setTriggerPercentage(
                                 mAccelerateInterpolator.getInterpolation(
-                                        yDiff / mDistanceToTriggerSync));
-                        updateContentOffsetTop((int) (yDiff));
-                        /*
+                                        Math.abs(yDiff) / mDistanceToTriggerSync));
+                        updateContentOffsetTopAndBottom((int) (yDiff));
                         if (mLastMotionY > y && mTarget.getTop() == getPaddingTop()) {
                             // If the user puts the view back at the top, we
                             // don't need to. This shouldn't be considered
@@ -535,7 +548,6 @@ public class SwipeRefreshLayout extends ViewGroup {
                         } else {
                             updatePositionTimeout();
                         }
-                        */
                     }
                     mLastMotionY = y;
                 }
@@ -568,15 +580,33 @@ public class SwipeRefreshLayout extends ViewGroup {
         removeCallbacks(mCancel);
         mReturnToStartPosition.run();
         setRefreshing(true);
-        mListener.onRefresh();
+        //setRefreshing(true);
+        if (mListener != null) {
+            if (mIsBeingDraggedUp) {
+                mListener.onRefreshUp();
+            } else if (mIsBeingDraggedDown) {
+                mListener.onRefreshDown();
+            }
+        }
     }
 
-    private void updateContentOffsetTop(int targetTop) {
+    private void updateContentOffsetTopAndBottom(int targetTop) {
         final int currentTop = mTarget.getTop();
+
+        /*
         if (targetTop > mDistanceToTriggerSync) {
             targetTop = (int) mDistanceToTriggerSync;
         } else if (targetTop < 0) {
             targetTop = 0;
+        }
+        */
+
+        if (Math.abs(targetTop) > mDistanceToTriggerSync) {
+            if (targetTop > 0) {
+                targetTop = (int) mDistanceToTriggerSync;
+            } else {
+                targetTop = -1 * ((int) mDistanceToTriggerSync);
+            }
         }
         setTargetOffsetTopAndBottom(targetTop - currentTop);
     }
@@ -608,7 +638,8 @@ public class SwipeRefreshLayout extends ViewGroup {
      * triggers a refresh should implement this interface.
      */
     public interface OnRefreshListener {
-        public void onRefresh();
+        public void onRefreshUp();
+        public void onRefreshDown();
     }
 
     /**

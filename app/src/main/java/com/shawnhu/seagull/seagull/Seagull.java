@@ -1,6 +1,8 @@
 package com.shawnhu.seagull.seagull;
 
 
+import android.os.StrictMode;
+
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.fragments.SeagullHomeFragment;
@@ -68,8 +70,23 @@ public class Seagull extends SeagullApplication {
             Integer.toString(R.style.Theme_Night),
     };
 
+    static public final boolean DEVELOPER_MODE = true;
     @Override
     public void onCreate() {
+        if (DEVELOPER_MODE) {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork()   // or .detectAll() for all detectable problems
+                    .penaltyLog()
+                    .build());
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    .penaltyDeath()
+                    .build());
+        }
         super.onCreate();
 
         AppPreferences.addPreferencesToMap(AppPreferences.PREF_APP_THEME, SEAGULL_THEMES);
