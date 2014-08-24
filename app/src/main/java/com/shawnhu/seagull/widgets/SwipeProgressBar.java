@@ -35,10 +35,10 @@ import android.view.animation.Interpolator;
 final class SwipeProgressBar {
 
     // Default progress animation colors are grays.
-    private final static int COLOR1 = 0xB3000000;
-    private final static int COLOR2 = 0x80000000;
-    private final static int COLOR3 = 0x4d000000;
-    private final static int COLOR4 = 0x1a000000;
+    private final static int COLOR1 = 0xff99cc00;
+    private final static int COLOR2 = 0xffff4444;
+    private final static int COLOR3 = 0xff33b5e5;
+    private final static int COLOR4 = 0xffffbb33;
 
     // The duration of the animation cycle.
     private static final int ANIMATION_DURATION_MS = 2000;
@@ -237,6 +237,7 @@ final class SwipeProgressBar {
     }
 
     private void drawTrigger(Canvas canvas, int cx, int cy) {
+        //FIXME
         mPaint.setColor(mColor1);
         canvas.drawCircle(cx, cy, cx * mTriggerPercentage, mPaint);
     }

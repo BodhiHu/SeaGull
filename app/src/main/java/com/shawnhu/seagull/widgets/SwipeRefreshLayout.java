@@ -68,7 +68,7 @@ public class SwipeRefreshLayout extends ViewGroup {
     private static final float DECELERATE_INTERPOLATION_FACTOR = 2f;
     private static final float PROGRESS_BAR_HEIGHT = 4;
     private static final float MAX_SWIPE_DISTANCE_FACTOR = .6f;
-    private static final int REFRESH_TRIGGER_DISTANCE = 120;
+    private static final int REFRESH_TRIGGER_DISTANCE = 50;//120;
     private static final int INVALID_POINTER = -1;
 
     private SwipeProgressBar mProgressBar; //the thing that shows progress is going
@@ -89,6 +89,7 @@ public class SwipeRefreshLayout extends ViewGroup {
     private float mLastMotionY;
     private boolean mIsBeingDraggedUp;
     private boolean mIsBeingDraggedDown;
+    private boolean mIsRefreshingDown;
     private int mActivePointerId = INVALID_POINTER;
 
     // Target is returning to its start offset because it was cancelled or a
@@ -259,11 +260,16 @@ public class SwipeRefreshLayout extends ViewGroup {
             ensureTarget();
             mCurrPercentage = 0;
             mRefreshing = refreshing;
-            if (mRefreshing) {
+            if (mRefreshing && mIsBeingDraggedUp) {
                 mProgressBar.start();
             } else {
                 mProgressBar.stop();
             }
+        }
+
+        if (!mRefreshing && mIsRefreshingDown) {
+            mIsRefreshingDown = false;
+            mReturnToStartPosition.run();
         }
     }
 
@@ -333,11 +339,11 @@ public class SwipeRefreshLayout extends ViewGroup {
         final int height = getMeasuredHeight();
         if (mIsBeingDraggedUp) {
             mProgressBar.setBounds(0, 0,                         width, mProgressBarHeight);
+            mProgressBar.draw(canvas);
         } else if (mIsBeingDraggedDown) {
+            //FIXME
             mProgressBar.setBounds(0, height-mProgressBarHeight, width, height);
         }
-
-        mProgressBar.draw(canvas);
     }
 
     @Override
@@ -403,11 +409,13 @@ public class SwipeRefreshLayout extends ViewGroup {
             return (mTarget.getScrollY() + mTarget.getHeight()) < (mTarget.getMeasuredHeight() - 1);
         }
     }
-    public boolean canChildScrollLeft() { return false; }
-    public boolean canChildScrollRight() { return false; }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if (mIsRefreshingDown) {
+            return true;
+        }
+
         ensureTarget();
 
         final int action = MotionEventCompat.getActionMasked(ev);
@@ -484,6 +492,10 @@ public class SwipeRefreshLayout extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+        if (mIsRefreshingDown) {
+            return true;
+        }
+
         final int action = MotionEventCompat.getActionMasked(ev);
 
         if (mReturningToStart && action == MotionEvent.ACTION_DOWN) {
@@ -578,13 +590,15 @@ public class SwipeRefreshLayout extends ViewGroup {
 
     private void startRefresh() {
         removeCallbacks(mCancel);
-        mReturnToStartPosition.run();
+        if (mIsBeingDraggedUp) {
+            mReturnToStartPosition.run();
+        }
         setRefreshing(true);
-        //setRefreshing(true);
         if (mListener != null) {
             if (mIsBeingDraggedUp) {
                 mListener.onRefreshUp();
             } else if (mIsBeingDraggedDown) {
+                mIsRefreshingDown = true;
                 mListener.onRefreshDown();
             }
         }

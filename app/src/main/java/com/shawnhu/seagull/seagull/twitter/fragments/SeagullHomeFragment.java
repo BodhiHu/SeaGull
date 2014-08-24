@@ -1,25 +1,29 @@
 package com.shawnhu.seagull.seagull.twitter.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
+import android.os.Handler;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
+import android.widget.ProgressBar;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.fragments.PersistentCursorFragment;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.adapters.StatusesCursorAdapter;
 import com.shawnhu.seagull.seagull.twitter.content.TweetStore;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusListResponse;
 import com.shawnhu.seagull.seagull.twitter.tasks.GetHomeTimelineTask;
 import com.shawnhu.seagull.widgets.SwipeRefreshLayout;
 
 import java.security.InvalidParameterException;
+import java.util.List;
 
 /**
  * Created by shawnhu on 8/16/14.
@@ -42,7 +46,8 @@ public class SeagullHomeFragment extends PersistentCursorFragment
     private long mAccountId = -1;
 
     private StatusesCursorAdapter mAdapter = null;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private ProgressBar        mProgressBar;
 
     @Override
     public void onAttach(Activity activity) {
@@ -75,10 +80,13 @@ public class SeagullHomeFragment extends PersistentCursorFragment
         }
 
         View v = super.onCreateView(inflater, container, savedInstanceState);
-        swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeRefreshLayout);
-        if (swipeRefreshLayout != null) {
-            swipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeRefreshLayout);
+        if (mSwipeRefreshLayout != null) {
+            mSwipeRefreshLayout.setOnRefreshListener(this);
+                                                     //light red  light green  light blue   light orange
         }
+        mProgressBar = (ProgressBar) v.findViewById(R.id.progressBar);
+        mProgressBar.setVisibility(View.GONE);
         return v;
     }
     @Override
@@ -132,6 +140,7 @@ public class SeagullHomeFragment extends PersistentCursorFragment
     }
     @Override
     public void onRefreshDown() {
+        mProgressBar.setVisibility(View.VISIBLE);
         loadMoreTail();
     }
 
@@ -169,8 +178,6 @@ public class SeagullHomeFragment extends PersistentCursorFragment
         }
         mAdapter.swapCursor(data);
 
-        swipeRefreshLayout.setRefreshing(false);
-
         super.onLoadFinished(loader, data);
     }
     @Override
@@ -178,12 +185,30 @@ public class SeagullHomeFragment extends PersistentCursorFragment
         super.onLoaderReset(loader);
 
         mAdapter.swapCursor(null);
-
-        swipeRefreshLayout.setRefreshing(false);
     }
 
     protected void getHomeTimelineAsync(final long[] account_ids, final long[] max_ids, final long[] since_ids) {
-        (new GetHomeTimelineTask(getActivity(), account_ids, max_ids, since_ids))
+        (new LocalGetHomeTimelineTask(getActivity(), account_ids, max_ids, since_ids))
                 .execute();
+    }
+
+    final class LocalGetHomeTimelineTask extends GetHomeTimelineTask {
+        public LocalGetHomeTimelineTask(Context context, final long[] account_ids, final long[] max_ids, final long[] since_ids) {
+            super(context, account_ids, max_ids, since_ids);
+        }
+        @Override
+        protected void onPostExecute(final List<TwitterStatusListResponse> responses) {
+            super.onPostExecute(responses);
+
+            new Handler()
+                    .postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mProgressBar.setVisibility(View.GONE);
+                            mSwipeRefreshLayout.setRefreshing(false);
+                        }
+                    }, 3000);
+
+        }
     }
 }
