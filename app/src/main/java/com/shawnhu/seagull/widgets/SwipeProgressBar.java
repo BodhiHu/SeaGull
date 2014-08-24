@@ -34,7 +34,6 @@ import android.view.animation.Interpolator;
  */
 final class SwipeProgressBar {
 
-    // Default progress animation colors are grays.
     private final static int COLOR1 = 0xff99cc00;
     private final static int COLOR2 = 0xffff4444;
     private final static int COLOR3 = 0xff33b5e5;

@@ -271,6 +271,7 @@ public final class ContentValuesCreator {
         values.put(Statuses.TEXT_PLAIN, status.getText());
         values.put(Statuses.TEXT_UNESCAPED, HtmlEscapeHelper.toPlainText(text_html));
         values.put(Statuses.RETWEET_COUNT, status.getRetweetCount());
+        values.put(Statuses.FAVORITE_COUNT, status.getFavoriteCount());
         values.put(Statuses.IN_REPLY_TO_STATUS_ID, status.getInReplyToStatusId());
         values.put(Statuses.IN_REPLY_TO_USER_ID, status.getInReplyToUserId());
         values.put(Statuses.IN_REPLY_TO_USER_NAME, Utils.getInReplyToName(status));

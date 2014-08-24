@@ -174,7 +174,7 @@ public abstract class PersistentCursorFragment extends Fragment
 
             if (pos >= 0) {
                 //FIXME
-                mListView.setSelection(pos);
+                mListView.smoothScrollToPositionFromTop(pos, 0);
             }
         }
     }
