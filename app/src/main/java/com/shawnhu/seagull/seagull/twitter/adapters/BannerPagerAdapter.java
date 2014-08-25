@@ -86,7 +86,7 @@ public class BannerPagerAdapter extends ViewPagerAdapter {
 
             if (selfie != null) {
                 String sf = mUser.getDescription();
-                if (sf != null && sf != "") {
+                if (sf != null && sf.length() != 0) {
                     selfie.setText(mUser.getDescription());
                 } else {
                     selfie.setText("Lazy guy, doesn't have a selfie.\n" +
@@ -96,17 +96,17 @@ public class BannerPagerAdapter extends ViewPagerAdapter {
             }
             if (location != null) {
                 String lo = mUser.getLocation();
-                if (lo != null && lo != "") {
+                if (lo != null && lo.length() != 0) {
                     location.setText(mUser.getLocation());
                 } else {
                     location.setText("Lives at St.Mars");
                 }
             }
             if (webSite != null) {
-                if (mUser.getURL() != null && mUser.getURL().toString() != "") {
+                if (mUser.getURL() != null && mUser.getURL().toString().length() != 0) {
                     webSite.setText(mUser.getURL().toString());
                 } else {
-                    webSite.setText("Hmm, www.nullsite.com");
+                    webSite.setText("Another member of nullsite dot com");
                 }
             }
         }

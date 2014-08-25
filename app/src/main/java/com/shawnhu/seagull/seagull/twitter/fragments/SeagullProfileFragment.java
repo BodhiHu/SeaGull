@@ -95,10 +95,11 @@ public class SeagullProfileFragment extends Fragment {
                 /** load banner*/
                     User user = response.getData();
 
-                    String url = user.getProfileBannerImageUrl();
+                    //String url = user.getProfileBannerImageUrl();
+                    String url = user.getProfileBackgroundImageUrl();
                     if (url != null && url != "") {
-                        final String type = Utils.getBestBannerType(vp.getWidth());
-                        url = url + "/" + type;
+                        //final String type = Utils.getBestBannerType(vp.getWidth());
+                        //url = url + "/" + type;
 
                         ImageLoader imageLoader = TwitterManager.getInstance().getImageLoader();
                         Bitmap bitmap = imageLoader.loadImageSync(url, ImageLoaderWrapper.mBannerDisplayOptions);
