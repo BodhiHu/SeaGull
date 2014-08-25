@@ -43,9 +43,9 @@ public class AvatarCard implements AnyViewArrayAdapterItem.ItemViewInterface {
             v = convertView;
         }
 
-        ImageView iv = (ImageView) v.findViewById(R.id.avatarImage);
-        TextView  nameText = (TextView) v.findViewById(R.id.nameText);
-        TextView  atNameText = (TextView) v.findViewById(R.id.atNameText);
+        ImageView iv = (ImageView) v.findViewById(R.id.profileImage);
+        TextView  nameText = (TextView) v.findViewById(R.id.screenName);
+        TextView  atNameText = (TextView) v.findViewById(R.id.name);
 
         if (mAvatar != null) {
             iv.setImageDrawable(mAvatar);

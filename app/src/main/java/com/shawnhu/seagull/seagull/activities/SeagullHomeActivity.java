@@ -15,6 +15,7 @@ import com.shawnhu.seagull.misc.IconicItem;
 import com.shawnhu.seagull.seagull.Seagull;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.fragments.SeagullHomeFragment;
+import com.shawnhu.seagull.seagull.twitter.fragments.SeagullProfileFragment;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapter;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
@@ -73,23 +74,35 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
     }
 
     protected void setFragmentArgs(AnyViewArrayAdapterItem a) {
-        Intent  i   = getIntent();
+        Intent i = getIntent();
 
+        Seagull.sCurrentAccount.sAccountId = getCurrentAccountId(i);
+
+        /** PUT FRAGMENT'S ARGS HERE */
         if (a.mActionClass == SeagullHomeFragment.class) {
-
-            long id = i.getLongExtra(SeagullTwitterConstants.EXTRA_USER_ID, -1);
-
-            if (id == -1) {
-                long ids[] = Utils.getAccountIds(this);
-                id = ids[0];
-            }
-
             Bundle args = new Bundle();
-            args.putLong(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, id);
+            args.putLong(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, Seagull.sCurrentAccount.sAccountId);
             a.mActionArgs = args;
-        } else {
-
+        } else if (a.mActionClass == SeagullProfileFragment.class) {
+            Bundle args = new Bundle();
+            args.putLong(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, Seagull.sCurrentAccount.sAccountId);
+            args.putLong(SeagullTwitterConstants.EXTRA_USER_ID,    Seagull.sCurrentAccount.sAccountId);
+            a.mActionArgs = args;
         }
+    }
+
+    protected long getCurrentAccountId(Intent i) {
+        long id = -1;
+
+        if (i != null) {
+            id = i.getLongExtra(SeagullTwitterConstants.EXTRA_USER_ID, -1);
+        }
+
+        if (id == -1) {
+            long ids[] = Utils.getAccountIds(this);
+            id = ids[0];
+        }
+        return id;
     }
 
 }

@@ -6,6 +6,7 @@ import android.os.StrictMode;
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.fragments.SeagullHomeFragment;
+import com.shawnhu.seagull.seagull.twitter.fragments.SeagullProfileFragment;
 import com.shawnhu.seagull.utils.ActivityUtils;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
 import com.shawnhu.seagull.app.AppPreferences;
@@ -14,7 +15,6 @@ import com.shawnhu.seagull.fragments.DraftsFragment;
 import com.shawnhu.seagull.fragments.FollowersFragment;
 import com.shawnhu.seagull.fragments.FollowingsFragment;
 import com.shawnhu.seagull.fragments.NotificationsFragment;
-import com.shawnhu.seagull.fragments.ProfileFragment;
 import com.shawnhu.seagull.fragments.SearchFragment;
 import com.shawnhu.seagull.fragments.TweetsFragment;
 import com.shawnhu.seagull.misc.IconicItem;
@@ -42,7 +42,7 @@ public class Seagull extends SeagullApplication {
     static AvatarCard aC = new AvatarCard(null, "Seagull", "@Seagull");
     public static AnyViewArrayAdapterItem mSeagullDrawerItems[] = {
             /*  layout,          content,  getViewInterface,           targetActionClass, actionBarTitle */
-            new AnyViewArrayAdapterItem(R.layout.layout_avatar, aC, aC, ProfileFragment.class, DRAWER_MENU_PROF),
+            new AnyViewArrayAdapterItem(R.layout.layout_avatar, aC, aC, SeagullProfileFragment.class, DRAWER_MENU_PROF),
 
             /* ~default_layout~, content, ~default getViewInterface~,  targetActionClass, actionBarTitle */
             new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_info_details, DRAWER_MENU_HOME), SeagullHomeFragment.class,       DRAWER_MENU_HOME),
@@ -97,5 +97,12 @@ public class Seagull extends SeagullApplication {
         PREF_SEAGULL_NOTIFICATION_VIRATE = getString(R.string.PREF_SEAGULL_NOTIFICATION_VIRATE);
 
         TwitterManager.init(this);
+    }
+
+
+    static public CurrentAccount sCurrentAccount = new CurrentAccount();
+    /** app's globle data */
+    static public class CurrentAccount {
+        public long sAccountId = -1;
     }
 }

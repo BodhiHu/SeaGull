@@ -193,4 +193,7 @@ public abstract class AbstractHomeNavDrawerActivity
         }
     }
 
+    protected void setCurrentPosition(int pos) {
+        mNavigationDrawerFragment.setCurrentPosition(pos);
+    }
 }

@@ -266,7 +266,7 @@ public class NavigationDrawerFragment extends Fragment {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
             sp.edit().putInt(AppPreferences.PREF_HOME_NAV_CURRENT_POSITION,
                              AppPreferences.mPrefHomeNavCurrentPosition)
-                     .commit();
+                     .apply();
         }
     }
 

@@ -57,7 +57,7 @@ public class ImageLoaderWrapper {
         return sImageLoader;
     }
 
-    static final DisplayImageOptions mProfileImageDisplayOptions =
+    public static final DisplayImageOptions mProfileImageDisplayOptions =
             (new DisplayImageOptions.Builder())
             .cacheInMemory(true)
             .cacheOnDisk(true)
@@ -74,7 +74,7 @@ public class ImageLoaderWrapper {
             .bitmapConfig(Bitmap.Config.RGB_565)
             .resetViewBeforeLoading(true)
             .build();
-    static final DisplayImageOptions mBannerDisplayOptions       =
+    public static final DisplayImageOptions mBannerDisplayOptions       =
             (new DisplayImageOptions.Builder())
             .cacheInMemory(true)
             .cacheOnDisk(true)

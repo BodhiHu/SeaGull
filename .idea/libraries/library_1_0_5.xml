@@ -5,15 +5,6 @@
       <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.etsy.android.grid/library/1.0.5/res" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="file://$PROJECT_DIR$/../AndroidStaggeredGrid/sample/src/main/java" />
-      <root url="file://$PROJECT_DIR$/../AndroidStaggeredGrid/sample/build/generated/source/r/debug" />
-      <root url="file://$PROJECT_DIR$/../AndroidStaggeredGrid/sample/build/generated/source/buildConfig/debug" />
-      <root url="file://$PROJECT_DIR$/../AndroidStaggeredGrid/library/src/main/java" />
-      <root url="file://$PROJECT_DIR$/../AndroidStaggeredGrid/library/build/generated/source/r/debug" />
-      <root url="file://$PROJECT_DIR$/../AndroidStaggeredGrid/library/build/generated/source/r/release" />
-      <root url="file://$PROJECT_DIR$/../AndroidStaggeredGrid/library/build/generated/source/buildConfig/debug" />
-      <root url="file://$PROJECT_DIR$/../AndroidStaggeredGrid/library/build/generated/source/buildConfig/release" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>
