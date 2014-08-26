@@ -71,7 +71,7 @@ public class SeagullProfileFragment extends Fragment {
 
         bannerPager.setAdapter(new BannerPagerAdapter(getActivity(), null));
         bannerIndicator.setViewPager(bannerPager);
-        graphPager.setAdapter(new GraphPagerAdapter(getActivity(), null));
+        graphPager.setAdapter(new GraphPagerAdapter(getActivity(), mAccountId, null));
         graphTabInd.setViewPager(graphPager);
 
         loadViewAsync(bannerPager, graphPager);

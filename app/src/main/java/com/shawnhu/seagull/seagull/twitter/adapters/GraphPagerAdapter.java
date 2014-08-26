@@ -7,7 +7,9 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
-import com.shawnhu.seagull.seagull.twitter.fragments.TwitterStatusesFragment;
+import com.shawnhu.seagull.seagull.twitter.fragments.SeagullHomeFragment;
+import com.shawnhu.seagull.seagull.twitter.fragments.UserTimelineFragment;
+import com.shawnhu.seagull.seagull.twitter.fragments.UsersFragment;
 import com.shawnhu.seagull.utils.NumberUtils;
 
 import twitter4j.User;
@@ -19,11 +21,13 @@ public class GraphPagerAdapter extends FragmentPagerAdapter {
     static public final int    TAB_POS_FOLLOWERS    = 2;
 
     protected Context mContext;
+    protected long    mAccountId = -1;
     protected User    mUser;
 
     public GraphPagerAdapter(FragmentActivity activity, long accountId, User user) {
         super(activity.getSupportFragmentManager());
         mContext = activity;
+        mAccountId = accountId;
         mUser = user;
     }
 
@@ -39,13 +43,16 @@ public class GraphPagerAdapter extends FragmentPagerAdapter {
         switch (pos) {
             case TAB_POS_TWEETS: {
                 Bundle args = new Bundle();
-                args.putLong(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, mUser.getId());
-                return TwitterStatusesFragment.newInstance(args);
+                args.putLong(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, mAccountId);
+                args.putLong(SeagullTwitterConstants.EXTRA_USER_ID, mUser.getId());
+                return UserTimelineFragment.newInstance(args);
             }
-            case TAB_POS_FOLLOWINGS:
-                break;
-            case TAB_POS_FOLLOWERS:
-                break;
+            case TAB_POS_FOLLOWINGS: {
+                return UsersFragment.newInstance(null);
+            }
+            case TAB_POS_FOLLOWERS: {
+                return UsersFragment.newInstance(null);
+            }
         }
         return null;
     }

@@ -5,6 +5,8 @@
       <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.viewpagerindicator/library/2.4.1/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../Android-ViewPagerIndicator/library/src" />
+    </SOURCES>
   </library>
 </component>
