@@ -22,14 +22,14 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 class="android.support.v4.view.ViewPager"
-                android:id="@+id/pager"
+                android:id="@+id/bannerPager"
                 android:background="@android:color/holo_orange_dark" />
 
             <view
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
                 class="com.viewpagerindicator.CirclePageIndicator"
-                android:id="@+id/circleIndicator"
+                android:id="@+id/bannerIndicator"
                 android:background="#00000000"
                 android:layout_marginTop="-20dp"
                 app:radius="6dp"
@@ -39,43 +39,23 @@
 
         </LinearLayout>
 
-        <TabHost
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/tabHost"
-            android:visibility="gone">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:orientation="vertical">
+            <view
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                class="com.viewpagerindicator.TitlePageIndicator"
+                android:id="@+id/graphTabIndicator" />
 
-                <TabWidget
-                    android:id="@android:id/tabs"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"></TabWidget>
+            <view
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                class="android.support.v4.view.ViewPager"
+                android:id="@+id/graphPager" />
+        </LinearLayout>
 
-                <FrameLayout
-                    android:id="@android:id/tabcontent"
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent">
-
-                    <LinearLayout
-                        android:id="@+id/tab1"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"></LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/tab2"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"></LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/tab3"
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent"></LinearLayout>
-                </FrameLayout>
-            </LinearLayout>
-        </TabHost>
     </LinearLayout>
 </FrameLayout>

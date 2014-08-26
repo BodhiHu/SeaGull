@@ -32,4 +32,29 @@ public class NumberUtils {
     public static final String formatDecimal(int value) {
         return DecimalInstance.get().format(value).toString();
     }
+
+    static public final int K = 1000;
+    static public final int M = K*K;
+    static public final int B = K*M;
+
+    public static final String formatIntToRought(int value) {
+        String sign = value >= 0 ? "" : "-";
+        value = Math.abs(value);
+
+        String vs;
+        if (value < K) {
+            vs = String.valueOf(value);
+        } else if (value >= K && value < M) {
+            value /= K;
+            vs = String.valueOf(value) + "K";
+        } else if (value >= M && value < B) {
+            value /= M;
+            vs = String.valueOf(value) + "M";
+        } else {
+            value /= B;
+            vs = String.valueOf(value) + "B";
+        }
+
+        return sign+vs;
+    }
 }

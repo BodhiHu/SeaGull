@@ -3,11 +3,9 @@ package com.shawnhu.seagull.seagull.twitter.fragments;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,17 +13,15 @@ import android.view.ViewGroup;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.activities.AbstractLoginActivity;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.adapters.BannerPagerAdapter;
+import com.shawnhu.seagull.seagull.twitter.adapters.GraphPagerAdapter;
 import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.tasks.GetUserProfileTask;
 import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
-import com.shawnhu.seagull.seagull.twitter.utils.Utils;
 import com.viewpagerindicator.CirclePageIndicator;
-
-import java.io.InputStream;
+import com.viewpagerindicator.TabPageIndicator;
 
 import twitter4j.User;
 
@@ -68,13 +64,17 @@ public class SeagullProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        final ViewPager           pager     = (ViewPager) v.findViewById(R.id.pager);
-        final CirclePageIndicator indicator = (CirclePageIndicator) v.findViewById(R.id.circleIndicator);
+        final ViewPager           bannerPager     = (ViewPager) v.findViewById(R.id.bannerPager);
+        final CirclePageIndicator bannerIndicator = (CirclePageIndicator) v.findViewById(R.id.bannerIndicator);
+        final ViewPager           graphPager      = (ViewPager) v.findViewById(R.id.graphPager);
+        final TabPageIndicator    graphTabInd     = (TabPageIndicator) v.findViewById(R.id.graphTabIndicator);
 
-        pager.setAdapter(new BannerPagerAdapter(getActivity(), null));
-        indicator.setViewPager(pager);
+        bannerPager.setAdapter(new BannerPagerAdapter(getActivity(), null));
+        bannerIndicator.setViewPager(bannerPager);
+        graphPager.setAdapter(new GraphPagerAdapter(getActivity(), null));
+        graphTabInd.setViewPager(graphPager);
 
-        setUpBannerAsync(pager);
+        loadViewAsync(bannerPager, graphPager);
 
         return v;
     }
@@ -84,7 +84,7 @@ public class SeagullProfileFragment extends Fragment {
         super.onDetach();
     }
 
-    protected void setUpBannerAsync(final ViewPager vp) {
+    protected void loadViewAsync(final ViewPager viewPager, final ViewPager graphPager) {
         new GetUserProfileTask(getActivity(), mAccountId, mUserId) {
             BitmapDrawable mBanner = null;
             @Override
@@ -119,14 +119,19 @@ public class SeagullProfileFragment extends Fragment {
                 } else {
                     mUser = null;
                 }
-                BannerPagerAdapter adapter = (BannerPagerAdapter) vp.getAdapter();
-                if (adapter != null) {
-                    adapter.setUser(mUser);
-                    //FIXME: seems call notifyDatasetChanged won't work
-                    vp.setAdapter(adapter);
+                //FIXME: seems call notifyDatasetChanged won't work
+                BannerPagerAdapter bannerAdapter = (BannerPagerAdapter) viewPager.getAdapter();
+                if (bannerAdapter != null) {
+                    bannerAdapter.setUser(mUser);
+                    viewPager.setAdapter(bannerAdapter);
                     if (mBanner != null) {
-                        vp.setBackgroundDrawable(mBanner);
+                        viewPager.setBackgroundDrawable(mBanner);
                     }
+                }
+                GraphPagerAdapter  graphAdapter  = (GraphPagerAdapter)  graphPager.getAdapter();
+                if (graphAdapter != null) {
+                    graphAdapter.setUser(mUser);
+                    graphPager.setAdapter(graphAdapter);
                 }
             }
         }.execute();
