@@ -84,7 +84,7 @@ public class Seagull extends SeagullApplication {
                     .detectLeakedSqlLiteObjects()
                     .detectLeakedClosableObjects()
                     .penaltyLog()
-                    .penaltyDeath()
+                    .penaltyLog()
                     .build());
         }
         super.onCreate();

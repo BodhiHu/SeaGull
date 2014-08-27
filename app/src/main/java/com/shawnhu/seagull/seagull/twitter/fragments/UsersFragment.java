@@ -1,6 +1,7 @@
 package com.shawnhu.seagull.seagull.twitter.fragments;
 
 import android.app.Activity;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import com.shawnhu.seagull.seagull.twitter.adapters.UsersArrayAdapter;
 import com.shawnhu.seagull.seagull.twitter.model.ListResponse;
 import com.shawnhu.seagull.seagull.twitter.tasks.GetUsersTask;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import twitter4j.CursorPaging;
@@ -39,7 +41,7 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
     protected long                  mNextCursor = -1;
     final static protected int      PAGING_COUNT = 20;
 
-    public void setUserIds(long account_id, long user_id) {
+    public void setUpFragment(long account_id, long user_id) {
         mAccountId = account_id;
         mUserId = user_id;
         if (mUserId >= 0 && mAccountId >= 0) {
@@ -51,7 +53,7 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        mUsersAdapter = new UsersArrayAdapter(getActivity(), null);
+        mUsersAdapter = new UsersArrayAdapter(getActivity(), new ArrayList<User>(0));
     }
 
     @Override
@@ -70,6 +72,12 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = super.onCreateView(inflater, container, savedInstanceState);
+
+        if (mIsFriendsFragm) {
+            v.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
+        } else {
+            v.setBackgroundColor(getResources().getColor(android.R.color.holo_purple));
+        }
 
         ((StaggeredGridView) mListView).setColumnCount(1);
         mListView.setAdapter(mUsersAdapter);
@@ -104,10 +112,11 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
         count = count > PAGING_COUNT ? PAGING_COUNT : count;
         if (!insertAtEnd) {
             cursor -= PAGING_COUNT;
-            cursor = cursor >= 0 ? cursor : 0;
+            cursor = cursor >= 1 ? cursor : 1;
             count = cursor >= count ? count : (int) cursor;
         }
 
+        //FIXME: should cancel task when fragment detached
         new GetUsersTask(getActivity(),
                 mAccountId,
                 mUserId,
@@ -128,18 +137,15 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
                         if (insertAtEnd) {
                             mUsersAdapter.addAll(usersList);
 
-                            mNextCursor = nxt_cursor;
+                            mNextCursor = nxt_cursor >= 1 ? nxt_cursor : 1;
                             mPrevCursor = nxt_cursor - mUsersAdapter.getCount() -1;
-                            if (mPrevCursor < 0) {
-                                Log.e(getClass().getSimpleName(), "prev_cursor is negative: " + mPrevCursor);
-                                mPrevCursor = 0;
-                            }
+                            mPrevCursor = mPrevCursor >= 1 ? mPrevCursor : 1;
                         } else {
                             for (int i = usersList.size()-1; i >= 0; i--) {
                                 mUsersAdapter.insert(usersList.get(i), 0);
                             }
 
-                            mPrevCursor = pre_cursor;
+                            mPrevCursor = pre_cursor >= 1? pre_cursor : 1;
                             mNextCursor = pre_cursor + mUsersAdapter.getCount() + 1;
                         }
                     }

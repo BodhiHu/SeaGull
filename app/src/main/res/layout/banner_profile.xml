@@ -6,8 +6,8 @@
     android:gravity="center">
 
     <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:id="@+id/profileImage"
         android:layout_marginBottom="5dp"
         android:scaleType="centerCrop"
@@ -19,13 +19,16 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/screen_name"
         android:id="@+id/screenName"
-        android:layout_marginBottom="2dp" />
+        android:layout_marginBottom="2dp"
+        android:gravity="center"
+        android:layout_gravity="center" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/name"
-        android:id="@+id/name" />
+        android:id="@+id/name"
+        android:gravity="center" />
 
 </LinearLayout>

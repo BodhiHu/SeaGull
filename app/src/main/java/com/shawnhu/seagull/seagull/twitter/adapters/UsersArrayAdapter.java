@@ -5,12 +5,16 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.widgets.CapacityArrayAdapter;
 import com.viewpagerindicator.CirclePageIndicator;
 
+import org.apache.commons.lang3.RandomUtils;
+
 import java.util.List;
+import java.util.Random;
 
 import twitter4j.User;
 
@@ -35,6 +39,8 @@ public class UsersArrayAdapter extends CapacityArrayAdapter<User> {
 
             convertView = layoutInflater.inflate(mResource, parent, false);
         }
+
+        convertView.setBackgroundColor((new Random()).nextInt());
 
         User user = getItem(position);
         if (user != null && convertView != null && getContext() != null) {

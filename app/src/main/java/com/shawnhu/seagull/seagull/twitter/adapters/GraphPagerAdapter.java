@@ -39,10 +39,10 @@ public class GraphPagerAdapter extends FragmentPagerAdapter {
                         mUserTimelineFragment.setUserId(mUser.getId());
                     }
                     if (mFollowingsFragment != null) {
-                        mFollowingsFragment.setUserIds(mAccountId, mUser.getId());
+                        mFollowingsFragment.setUpFragment(mAccountId, mUser.getId());
                     }
                     if (mFollowersFragment != null) {
-                        mFollowersFragment.setUserIds(mAccountId, mUser.getId());
+                        mFollowersFragment.setUpFragment(mAccountId, mUser.getId());
                     }
                 }
             }

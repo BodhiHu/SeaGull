@@ -4,7 +4,8 @@
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.ProfileFragment">
+    tools:context=".fragments.ProfileFragment"
+    android:background="@android:color/holo_orange_light">
 
     <LinearLayout
         android:orientation="vertical"
@@ -14,7 +15,7 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="150dp"
             android:layout_gravity="bottom">
 
             <view
@@ -22,8 +23,7 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 class="android.support.v4.view.ViewPager"
-                android:id="@+id/bannerPager"
-                android:background="@android:color/holo_orange_dark" />
+                android:id="@+id/bannerPager" />
 
             <view
                 android:layout_width="match_parent"

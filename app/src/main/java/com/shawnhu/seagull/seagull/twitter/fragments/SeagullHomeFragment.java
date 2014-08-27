@@ -76,6 +76,7 @@ public class SeagullHomeFragment extends PersistentCursorFragment
         }
 
         View v = super.onCreateView(inflater, container, savedInstanceState);
+        v.setBackgroundColor(getResources().getColor(android.R.color.holo_orange_light));
         mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeRefreshLayout);
         if (mSwipeRefreshLayout != null) {
             mSwipeRefreshLayout.setOnRefreshListener(this);
