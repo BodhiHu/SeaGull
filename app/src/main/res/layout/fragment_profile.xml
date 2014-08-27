@@ -48,7 +48,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 class="com.viewpagerindicator.TitlePageIndicator"
-                android:id="@+id/graphTabIndicator" />
+                android:id="@+id/graphTabIndicator"
+
+                android:background="#ffffab3b"
+                android:textColor="#AA000000"
+                app:selectedColor="#FF000000"
+                app:selectedBold="true"
+            />
 
             <view
                 android:layout_width="match_parent"

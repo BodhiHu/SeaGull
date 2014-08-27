@@ -29,25 +29,28 @@ public class UserTimelineFragment extends SwipeRefreshStaggeredGridFragment {
 
     protected long                  mAccountId       = -1;
     protected long                  mUserId          = -1;
-    protected StatusesArrayAdapter  mStatusesAdapter = new StatusesArrayAdapter(getActivity());
+    protected StatusesArrayAdapter  mStatusesAdapter;
+
+    public void setUserId(long userId) {
+        mUserId = userId >= 0 ? userId : -1;
+        getUserTimelineAsync(-1, -1, false);
+    }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
+        mStatusesAdapter = new StatusesArrayAdapter(getActivity());
     }
     @Override
     public void onCreate(Bundle savedState) {
+        super.onCreate(savedState);
+
         Bundle args = getArguments();
         if (args != null) {
             mAccountId = args.getLong(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, -1);
             mUserId = args.getLong(SeagullTwitterConstants.EXTRA_USER_ID, -1);
         }
-
-        if (mUserId == -1 || mAccountId == -1) {
-            throw new InvalidParameterException("user id and account id must be specified.");
-        }
-
-        super.onCreate(savedState);
     }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,10 +68,12 @@ public class UserTimelineFragment extends SwipeRefreshStaggeredGridFragment {
 
     @Override
     public void onRefreshUp() {
-        long since_id;
+        long since_id = -1;
         if (mStatusesAdapter != null) {
-            Status status = mStatusesAdapter.getItem(0);
-            since_id = status.getId();
+            if (mStatusesAdapter.getCount() > 0) {
+                Status status = mStatusesAdapter.getItem(0);
+                since_id = status.getId();
+            }
             getUserTimelineAsync(-1, since_id, true);
         } else {
             mSwipeRefreshLayout.setRefreshing(false);
@@ -76,11 +81,13 @@ public class UserTimelineFragment extends SwipeRefreshStaggeredGridFragment {
     }
     @Override
     public void onRefreshDown() {
-        long max_id;
+        long max_id = -1;
         if (mStatusesAdapter != null) {
-            Status status = mStatusesAdapter.getItem(mStatusesAdapter.getCount()-1);
-            max_id = status.getId();
-            getUserTimelineAsync(max_id, -1, false);
+            if (mStatusesAdapter.getCount() > 0) {
+                Status status = mStatusesAdapter.getItem(mStatusesAdapter.getCount() - 1);
+                max_id = status.getId();
+            }
+            getUserTimelineAsync(max_id-1, -1, false);
         } else {
             mSwipeRefreshLayout.setRefreshing(false);
         }
@@ -88,13 +95,22 @@ public class UserTimelineFragment extends SwipeRefreshStaggeredGridFragment {
     }
 
     protected void getUserTimelineAsync(final long max_id, final long since_id, boolean insertAtStart) {
+        if (getView() == null) {
+            return;
+        }
+
+        if (mAccountId  == -1 || mUserId == -1) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            return;
+        }
+
         getUserTimelineAsync(new long[]{mAccountId},
                 new long[]{max_id},
                 new long[]{since_id},
                 new long[]{mUserId}, insertAtStart);
 
     }
-    protected void getUserTimelineAsync(final long[] account_ids, final long[] max_ids, final long[] since_ids, final long[] user_ids, final boolean insertAtStart) {
+    private void getUserTimelineAsync(final long[] account_ids, final long[] max_ids, final long[] since_ids, final long[] user_ids, final boolean insertAtStart) {
         new GetUserTimelineTask(getActivity(), account_ids, max_ids, since_ids, user_ids) {
             @Override
             protected void onPostExecute(final List<TwitterStatusListResponse> responses) {
@@ -115,4 +131,5 @@ public class UserTimelineFragment extends SwipeRefreshStaggeredGridFragment {
             }
         }.execute();
     }
+
 }

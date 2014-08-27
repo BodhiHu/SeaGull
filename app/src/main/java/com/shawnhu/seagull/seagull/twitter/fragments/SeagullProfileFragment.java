@@ -21,7 +21,7 @@ import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.tasks.GetUserProfileTask;
 import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
 import com.viewpagerindicator.CirclePageIndicator;
-import com.viewpagerindicator.TabPageIndicator;
+import com.viewpagerindicator.TitlePageIndicator;
 
 import twitter4j.User;
 
@@ -67,7 +67,7 @@ public class SeagullProfileFragment extends Fragment {
         final ViewPager           bannerPager     = (ViewPager) v.findViewById(R.id.bannerPager);
         final CirclePageIndicator bannerIndicator = (CirclePageIndicator) v.findViewById(R.id.bannerIndicator);
         final ViewPager           graphPager      = (ViewPager) v.findViewById(R.id.graphPager);
-        final TabPageIndicator    graphTabInd     = (TabPageIndicator) v.findViewById(R.id.graphTabIndicator);
+        final TitlePageIndicator    graphTabInd     = (TitlePageIndicator) v.findViewById(R.id.graphTabIndicator);
 
         bannerPager.setAdapter(new BannerPagerAdapter(getActivity(), null));
         bannerIndicator.setViewPager(bannerPager);

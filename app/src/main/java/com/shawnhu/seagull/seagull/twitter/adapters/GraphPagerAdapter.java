@@ -1,13 +1,13 @@
 package com.shawnhu.seagull.seagull.twitter.adapters;
 
 import android.content.Context;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
-import com.shawnhu.seagull.seagull.twitter.fragments.SeagullHomeFragment;
 import com.shawnhu.seagull.seagull.twitter.fragments.UserTimelineFragment;
 import com.shawnhu.seagull.seagull.twitter.fragments.UsersFragment;
 import com.shawnhu.seagull.utils.NumberUtils;
@@ -23,12 +23,31 @@ public class GraphPagerAdapter extends FragmentPagerAdapter {
     protected Context mContext;
     protected long    mAccountId = -1;
     protected User    mUser;
+    protected UserTimelineFragment mUserTimelineFragment;
+    protected UsersFragment mFollowingsFragment;
+    protected UsersFragment mFollowersFragment;
 
     public GraphPagerAdapter(FragmentActivity activity, long accountId, User user) {
         super(activity.getSupportFragmentManager());
         mContext = activity;
         mAccountId = accountId;
         mUser = user;
+        registerDataSetObserver(new DataSetObserver() {
+            @Override public void onChanged() {
+                if (mUser != null) {
+                    if (mUserTimelineFragment != null) {
+                        mUserTimelineFragment.setUserId(mUser.getId());
+                    }
+                    if (mFollowingsFragment != null) {
+                        //set user id
+                    }
+                    if (mFollowersFragment != null) {
+                        //set user id
+                    }
+                }
+            }
+            @Override public void onInvalidated() {}
+        });
     }
 
     public void setUser(User user) {
@@ -42,16 +61,27 @@ public class GraphPagerAdapter extends FragmentPagerAdapter {
         pos %= TAB_TITLES.length;
         switch (pos) {
             case TAB_POS_TWEETS: {
-                Bundle args = new Bundle();
-                args.putLong(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, mAccountId);
-                args.putLong(SeagullTwitterConstants.EXTRA_USER_ID, mUser.getId());
-                return UserTimelineFragment.newInstance(args);
+                if (mUserTimelineFragment == null) {
+                    Bundle args = new Bundle();
+                    args.putLong(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, mAccountId);
+                    if (mUser != null) {
+                        args.putLong(SeagullTwitterConstants.EXTRA_USER_ID, mUser.getId());
+                    }
+                    mUserTimelineFragment = UserTimelineFragment.newInstance(args);
+                }
+                return mUserTimelineFragment;
             }
             case TAB_POS_FOLLOWINGS: {
-                return UsersFragment.newInstance(null);
+                if (mFollowingsFragment == null) {
+                    mFollowingsFragment = UsersFragment.newInstance(null);
+                }
+                return mFollowingsFragment;
             }
             case TAB_POS_FOLLOWERS: {
-                return UsersFragment.newInstance(null);
+                if (mFollowersFragment == null) {
+                    mFollowersFragment = UsersFragment.newInstance(null);
+                }
+                return mFollowersFragment;
             }
         }
         return null;
