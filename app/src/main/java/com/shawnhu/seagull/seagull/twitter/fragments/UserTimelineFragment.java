@@ -13,7 +13,6 @@ import com.shawnhu.seagull.seagull.twitter.adapters.StatusesArrayAdapter;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusListResponse;
 import com.shawnhu.seagull.seagull.twitter.tasks.GetUserTimelineTask;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 
 import twitter4j.Status;

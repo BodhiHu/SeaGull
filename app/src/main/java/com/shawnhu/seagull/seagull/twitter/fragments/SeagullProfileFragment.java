@@ -67,7 +67,7 @@ public class SeagullProfileFragment extends Fragment {
         final ViewPager           bannerPager     = (ViewPager) v.findViewById(R.id.bannerPager);
         final CirclePageIndicator bannerIndicator = (CirclePageIndicator) v.findViewById(R.id.bannerIndicator);
         final ViewPager           graphPager      = (ViewPager) v.findViewById(R.id.graphPager);
-        final TitlePageIndicator    graphTabInd     = (TitlePageIndicator) v.findViewById(R.id.graphTabIndicator);
+        final TitlePageIndicator  graphTabInd     = (TitlePageIndicator) v.findViewById(R.id.graphTabIndicator);
 
         bannerPager.setAdapter(new BannerPagerAdapter(getActivity(), null));
         bannerIndicator.setViewPager(bannerPager);

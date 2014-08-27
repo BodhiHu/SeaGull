@@ -45,7 +45,6 @@ public class SeagullPreferenceActivity extends AbstractPreferenceActivity {
         }
 
         //TODO: handle preference changes
-        Toast.makeText(this, key + "'s value changed", Toast.LENGTH_SHORT).show();
 
 
         if (key == Seagull.PREF_SEAGULL_NOTIFICATION_ON) {
