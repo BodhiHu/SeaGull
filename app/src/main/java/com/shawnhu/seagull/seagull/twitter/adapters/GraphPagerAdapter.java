@@ -39,10 +39,10 @@ public class GraphPagerAdapter extends FragmentPagerAdapter {
                         mUserTimelineFragment.setUserId(mUser.getId());
                     }
                     if (mFollowingsFragment != null) {
-                        //set user id
+                        mFollowingsFragment.setUserIds(mAccountId, mUser.getId());
                     }
                     if (mFollowersFragment != null) {
-                        //set user id
+                        mFollowersFragment.setUserIds(mAccountId, mUser.getId());
                     }
                 }
             }
@@ -73,13 +73,25 @@ public class GraphPagerAdapter extends FragmentPagerAdapter {
             }
             case TAB_POS_FOLLOWINGS: {
                 if (mFollowingsFragment == null) {
-                    mFollowingsFragment = UsersFragment.newInstance(null);
+                    Bundle args = new Bundle();
+                    args.putBoolean(UsersFragment.EXTRA_FOLLOWINGS_FRAG, true);
+                    args.putLong(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, mAccountId);
+                    if (mUser != null) {
+                        args.putLong(SeagullTwitterConstants.EXTRA_USER_ID, mUser.getId());
+                    }
+                    mFollowingsFragment = UsersFragment.newInstance(args);
                 }
                 return mFollowingsFragment;
             }
             case TAB_POS_FOLLOWERS: {
                 if (mFollowersFragment == null) {
-                    mFollowersFragment = UsersFragment.newInstance(null);
+                    Bundle args = new Bundle();
+                    args.putBoolean(UsersFragment.EXTRA_FOLLOWINGS_FRAG, false);
+                    args.putLong(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, mAccountId);
+                    if (mUser != null) {
+                        args.putLong(SeagullTwitterConstants.EXTRA_USER_ID, mUser.getId());
+                    }
+                    mFollowersFragment = UsersFragment.newInstance(args);
                 }
                 return mFollowersFragment;
             }

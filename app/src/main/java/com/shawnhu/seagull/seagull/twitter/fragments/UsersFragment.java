@@ -1,8 +1,24 @@
 package com.shawnhu.seagull.seagull.twitter.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
+import com.etsy.android.grid.StaggeredGridView;
 import com.shawnhu.seagull.fragments.SwipeRefreshStaggeredGridFragment;
+import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
+import com.shawnhu.seagull.seagull.twitter.adapters.UsersArrayAdapter;
+import com.shawnhu.seagull.seagull.twitter.model.ListResponse;
+import com.shawnhu.seagull.seagull.twitter.tasks.GetUsersTask;
+
+import java.util.List;
+
+import twitter4j.CursorPaging;
+import twitter4j.PagableResponseList;
+import twitter4j.User;
 
 public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
     static public UsersFragment newInstance(Bundle args) {
@@ -13,4 +29,124 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
     }
 
     public UsersFragment() {}
+
+    public static final String EXTRA_FOLLOWINGS_FRAG = "EXTRA_FOLLOWINGS_FRAG";
+    protected long                  mAccountId       = -1;
+    protected long                  mUserId          = -1;
+    protected boolean               mIsFriendsFragm  = true;
+    protected UsersArrayAdapter     mUsersAdapter;
+    protected long                  mPrevCursor = -1;
+    protected long                  mNextCursor = -1;
+    final static protected int      PAGING_COUNT = 20;
+
+    public void setUserIds(long account_id, long user_id) {
+        mAccountId = account_id;
+        mUserId = user_id;
+        if (mUserId >= 0 && mAccountId >= 0) {
+            loadUsersAsync(PAGING_COUNT, -1, true);
+        }
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        mUsersAdapter = new UsersArrayAdapter(getActivity(), null);
+    }
+
+    @Override
+    public void onCreate(Bundle savedState) {
+        super.onCreate(savedState);
+
+        Bundle args = getArguments();
+        if (args != null) {
+            mIsFriendsFragm = args.getBoolean(EXTRA_FOLLOWINGS_FRAG, true);
+            mAccountId      = args.getLong(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, -1);
+            mUserId         = args.getLong(SeagullTwitterConstants.EXTRA_USER_ID, -1);
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View v = super.onCreateView(inflater, container, savedInstanceState);
+
+        ((StaggeredGridView) mListView).setColumnCount(1);
+        mListView.setAdapter(mUsersAdapter);
+
+        loadUsersAsync(PAGING_COUNT, -1, true);
+
+        return v;
+    }
+
+    @Override
+    public void onRefreshUp() {
+        loadUsersAsync(PAGING_COUNT, mPrevCursor, false);
+    }
+
+    @Override
+    public void onRefreshDown() {
+        loadUsersAsync(PAGING_COUNT, mNextCursor, true);
+    }
+
+    private void loadUsersAsync(int count, long cursor, final boolean insertAtEnd) {
+        if (count < 1 || (cursor != -1 && cursor < 1)) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            return;
+        }
+
+        if (mAccountId == -1 || mUserId == -1 || getActivity() == null) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            return;
+        }
+
+        CursorPaging paging = new CursorPaging();
+        count = count > PAGING_COUNT ? PAGING_COUNT : count;
+        if (!insertAtEnd) {
+            cursor -= PAGING_COUNT;
+            cursor = cursor >= 0 ? cursor : 0;
+            count = cursor >= count ? count : (int) cursor;
+        }
+
+        new GetUsersTask(getActivity(),
+                mAccountId,
+                mUserId,
+                mIsFriendsFragm,
+                new CursorPaging(cursor, count))
+        {
+            @Override
+            protected void onPostExecute(final ListResponse<User> result) {
+                if (result != null) {
+                    List<User> usersList = result.getList();
+
+                    if (usersList instanceof PagableResponseList
+                        && mUsersAdapter != null
+                        && usersList.size() > 0) {
+
+                        long pre_cursor = ((PagableResponseList) usersList).getPreviousCursor();
+                        long nxt_cursor = ((PagableResponseList) usersList).getNextCursor();
+                        if (insertAtEnd) {
+                            mUsersAdapter.addAll(usersList);
+
+                            mNextCursor = nxt_cursor;
+                            mPrevCursor = nxt_cursor - mUsersAdapter.getCount() -1;
+                            if (mPrevCursor < 0) {
+                                Log.e(getClass().getSimpleName(), "prev_cursor is negative: " + mPrevCursor);
+                                mPrevCursor = 0;
+                            }
+                        } else {
+                            for (int i = usersList.size()-1; i >= 0; i--) {
+                                mUsersAdapter.insert(usersList.get(i), 0);
+                            }
+
+                            mPrevCursor = pre_cursor;
+                            mNextCursor = pre_cursor + mUsersAdapter.getCount() + 1;
+                        }
+                    }
+                }
+
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        }.execute();
+    }
 }
