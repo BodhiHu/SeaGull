@@ -2,6 +2,7 @@ package com.shawnhu.seagull.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -51,6 +52,9 @@ public abstract class AbstractHomeNavDrawerActivity
     private CharSequence mAppTitle;
     private CharSequence mSubTitle;
 
+    protected String PRIVATE_PREFERENCE_NAME = (((Object) this).getClass().getName()) + "_private preference";
+    static final protected String PREF_LAST_POS = "PREF_LAST_POS";
+
     /**
      * currentTheme
      */
@@ -80,8 +84,15 @@ public abstract class AbstractHomeNavDrawerActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout),
                 mDrawerListArrayAdapter);
+
+        mLastFragmentPosition = getSharedPreferences(PRIVATE_PREFERENCE_NAME, MODE_PRIVATE).getInt(PREF_LAST_POS, 0);
+        setCurrentPosition(mLastFragmentPosition);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
     @Override
     protected void onResume() {
         if (mCurrentTheme !=
@@ -99,6 +110,11 @@ public abstract class AbstractHomeNavDrawerActivity
      *       But system will cache app, so, clear init data.
      */
         mDrawerListArrayAdapter.clear();
+
+        getSharedPreferences(PRIVATE_PREFERENCE_NAME, MODE_PRIVATE).edit()
+                .putInt(PREF_LAST_POS, mLastFragmentPosition)
+                .apply();
+
         super.onDestroy();
     }
 

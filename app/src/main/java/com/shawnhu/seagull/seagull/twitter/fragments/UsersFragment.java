@@ -1,6 +1,7 @@
 package com.shawnhu.seagull.seagull.twitter.fragments;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,7 +11,9 @@ import android.view.ViewGroup;
 
 import com.etsy.android.grid.StaggeredGridView;
 import com.shawnhu.seagull.fragments.SwipeRefreshStaggeredGridFragment;
+import com.shawnhu.seagull.seagull.activities.ShowUserActivity;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
+import com.shawnhu.seagull.seagull.twitter.adapters.OnShowUser;
 import com.shawnhu.seagull.seagull.twitter.adapters.UsersArrayAdapter;
 import com.shawnhu.seagull.seagull.twitter.model.ListResponse;
 import com.shawnhu.seagull.seagull.twitter.tasks.GetUsersTask;
@@ -81,6 +84,18 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
 
         ((StaggeredGridView) mListView).setColumnCount(1);
         mListView.setAdapter(mUsersAdapter);
+
+        mUsersAdapter.registerShowUserListener(new OnShowUser() {
+            @Override
+            public void onShowUser(User user) {
+                if (user != null && getActivity() != null) {
+                    Intent i = new Intent(getActivity(), ShowUserActivity.class);
+                    i.putExtra(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, mAccountId);
+                    i.putExtra(SeagullTwitterConstants.EXTRA_USER_ID,    user.getId());
+                    getActivity().startActivity(i);
+                }
+            }
+        });
 
         loadUsersAsync(PAGING_COUNT, -1, true);
 

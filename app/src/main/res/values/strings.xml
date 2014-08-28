@@ -664,5 +664,6 @@
     <string name="followers_num" formatted="false">%d\nfollowers</string>
     <string name="likes_num" formatted="false">%d\nLikes</string>
     <string name="retweet_num" formatted="false">%d\nRetweets</string>
+    <string name="title_activity_show_user">Twitter</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package com.shawnhu.seagull.seagull.twitter.fragments;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -127,7 +128,18 @@ public class SeagullProfileFragment extends Fragment {
                     graphAdapter.setUser(mUser);
                     graphPager.setAdapter(graphAdapter);
                 }
+
+                if (getActivity() != null) {
+                    ActionBar actionBar = getActivity().getActionBar();
+                    if (actionBar != null) {
+                        actionBar.setSubtitle(mUser.getScreenName());
+                    }
+                }
             }
         }.execute();
+    }
+
+    public String getUserScreenName() {
+        return mUser != null ? mUser.getScreenName() : "";
     }
 }
