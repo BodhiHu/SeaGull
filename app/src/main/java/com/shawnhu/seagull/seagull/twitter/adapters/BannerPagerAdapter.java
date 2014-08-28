@@ -47,68 +47,16 @@ public class BannerPagerAdapter extends ViewPagerAdapter {
         switch (pos) {
             case PROFILE_PAGE:
                 v = layoutInflater.inflate(R.layout.banner_profile, null);
-                fillProfilePage(v);
+                UserViewBuilder.buildProfileView(v, mUser);
                 break;
             case SELFIE_PAGE:
                 v = layoutInflater.inflate(R.layout.banner_selfie, null);
-                fillSelfiePage(v);
+                UserViewBuilder.buildSelfieView(v, mUser);
                 break;
             default:
                 break;
         }
 
         return v;
-    }
-
-    protected void fillProfilePage(View v) {
-        if (v != null && mUser != null) {
-            ImageView profileImage = (ImageView) v.findViewById(R.id.profileImage);
-            TextView  screenName   = (TextView)  v.findViewById(R.id.screenName);
-            TextView  name         = (TextView)  v.findViewById(R.id.name);
-
-            ImageLoaderWrapper imageLoaderWrapper = TwitterManager.getInstance().getImageLoaderWrapper();
-            if (profileImage != null && imageLoaderWrapper != null) {
-                imageLoaderWrapper.displayProfileImage(profileImage, mUser.getProfileImageURL().toString());
-            }
-            if (screenName != null) {
-                screenName.setText(mUser.getScreenName());
-            }
-            if (name != null) {
-                name.setText("@" + mUser.getName());
-            }
-        }
-    }
-    protected void fillSelfiePage(View v) {
-        if (v != null && mUser != null) {
-            TextView selfie     = (TextView) v.findViewById(R.id.selfie);
-            TextView location   = (TextView) v.findViewById(R.id.location);
-            TextView webSite    = (TextView) v.findViewById(R.id.webSite);
-
-            if (selfie != null) {
-                String sf = mUser.getDescription();
-                if (sf != null && sf.length() != 0) {
-                    selfie.setText(mUser.getDescription());
-                } else {
-                    selfie.setText("Lazy guy, doesn't have a selfie.\n" +
-                                   "And now All you can see is...\n" +
-                                   "#$%*(&(*#&@$(*%&)(!@*$(");
-                }
-            }
-            if (location != null) {
-                String lo = mUser.getLocation();
-                if (lo != null && lo.length() != 0) {
-                    location.setText(mUser.getLocation());
-                } else {
-                    location.setText("Lives at St.Mars");
-                }
-            }
-            if (webSite != null) {
-                if (mUser.getURL() != null && mUser.getURL().toString().length() != 0) {
-                    webSite.setText(mUser.getURL().toString());
-                } else {
-                    webSite.setText("Another member of nullsite dot com");
-                }
-            }
-        }
     }
 }

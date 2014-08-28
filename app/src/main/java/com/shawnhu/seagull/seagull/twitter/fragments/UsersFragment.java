@@ -76,7 +76,7 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
         if (mIsFriendsFragm) {
             v.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
         } else {
-            v.setBackgroundColor(getResources().getColor(android.R.color.holo_purple));
+            v.setBackgroundColor(getResources().getColor(android.R.color.holo_blue_dark));
         }
 
         ((StaggeredGridView) mListView).setColumnCount(1);
