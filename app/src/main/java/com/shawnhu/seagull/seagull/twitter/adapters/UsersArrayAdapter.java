@@ -1,17 +1,14 @@
 package com.shawnhu.seagull.seagull.twitter.adapters;
 
 import android.content.Context;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.widgets.CapacityArrayAdapter;
-import com.viewpagerindicator.CirclePageIndicator;
 
 import java.util.List;
-import java.util.Random;
 
 import twitter4j.User;
 
@@ -21,7 +18,7 @@ public class UsersArrayAdapter extends CapacityArrayAdapter<User> {
 
     public UsersArrayAdapter(Context context) {
         super(context, R.layout.user_profile);
-        //mResource = ;
+        mResource = R.layout.user_profile;
     }
 
     public UsersArrayAdapter(Context context, List<User> users) {
@@ -37,12 +34,19 @@ public class UsersArrayAdapter extends CapacityArrayAdapter<User> {
             convertView = layoutInflater.inflate(mResource, parent, false);
         }
 
-        convertView.setBackgroundColor((new Random()).nextInt());
-
-        User user = getItem(position);
+        final User user = getItem(position);
         if (user != null && convertView != null && getContext() != null) {
             UserViewBuilder.buildProfileView(convertView, user);
             UserViewBuilder.buildSelfieView(convertView, user);
+
+/*
+            ImageView profileImage  = (ImageView) convertView.findViewById(R.id.profileImage);
+            profileImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                }
+            });
+*/
         }
 
         return convertView;

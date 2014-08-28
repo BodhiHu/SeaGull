@@ -1,12 +1,17 @@
 package com.shawnhu.seagull.seagull.twitter.adapters;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
+import com.shawnhu.seagull.utils.ImageUtils;
 
 import twitter4j.User;
 
@@ -61,6 +66,54 @@ public class UserViewBuilder {
                     webSite.setText("Another member of nullsite dot com");
                 }
             }
+        }
+    }
+
+    static public BitmapDrawable loadUserBannerImageSync(User user) {
+        if (user != null) {
+            String url = user.getProfileBackgroundImageUrl();
+            if (url != null && url != "") {
+
+                ImageLoader imageLoader = TwitterManager.getInstance().getImageLoader();
+                Bitmap bitmap = imageLoader.loadImageSync(url, ImageLoaderWrapper.mBannerDisplayOptions);
+                if (bitmap != null) {
+                    return new BitmapDrawable(bitmap);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public class LoadBannerImageTask extends AsyncTask<Void, Void, BitmapDrawable> {
+        //FIXME: should cancel when frag/acti goes dead
+
+        protected User mUser;
+        protected int mWidth;
+        protected int mHeight;
+        public LoadBannerImageTask(User user, int width, int height) {
+            mUser = user;
+            mWidth = width;
+            mHeight = height;
+
+        }
+        @Override
+        protected BitmapDrawable doInBackground(Void... params) {
+            if (mUser != null && mWidth > 0 && mHeight > 0) {
+                BitmapDrawable bmpDrawable = UserViewBuilder.loadUserBannerImageSync(mUser);
+                if (bmpDrawable != null) {
+                    Bitmap bmp = ImageUtils.getCenterCropedBitmap(bmpDrawable.getBitmap(), mWidth, mHeight);
+                    if (bmp != null) {
+                        return new BitmapDrawable(bmp);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(BitmapDrawable result) {
         }
     }
 }

@@ -365,8 +365,39 @@ public class ImageUtils {
         return null;
     }
 
-    /*
-     Resize a bitmap to the targetSize on its longest side.
+    /**
+     * Center Crop at original ratio
+     */
+    public static Bitmap getCenterCropedBitmap(Bitmap bitmap, int targetWidth, int targetHeight) {
+        if (bitmap != null &&
+                targetWidth > 0 && targetHeight > 0 &&
+                bitmap.getHeight() > 0 && bitmap.getWidth() > 0) {
+            float height_ratio = ((float) targetHeight)/bitmap.getHeight();
+            float width_ratio  = ((float) targetWidth) /bitmap.getWidth();
+            boolean scaleByWidth = width_ratio > height_ratio;
+            int     targetSize   = scaleByWidth ? targetWidth : targetHeight;
+
+            bitmap = scaleBitmapWithOriginalRatio(bitmap, scaleByWidth, targetSize);
+            bitmap = Bitmap.createBitmap(bitmap,
+                    (bitmap.getWidth()-targetWidth)/2,
+                    (bitmap.getHeight()-targetHeight)/2,
+                    targetWidth, targetHeight);
+
+            return bitmap;
+        }
+
+        return null;
+    }
+    public static Bitmap scaleBitmapWithOriginalRatio(Bitmap bmp, boolean scaleByWidth, int targetSize) {
+        int targetWidth     = (int) (scaleByWidth ?
+                targetSize : bmp.getWidth() * (((float)targetSize)/bmp.getHeight()));
+        int targetHeight    = (int) (scaleByWidth ?
+                bmp.getHeight() * (((float)targetSize)/bmp.getWidth()) : targetSize);
+
+        return Bitmap.createScaledBitmap(bmp, targetWidth, targetHeight, true);
+    }
+    /**
+     * Resize a bitmap to the targetSize on its longest side.
      */
     public static Bitmap getScaledBitmapAtLongestSide(Bitmap bitmap, int targetSize) {
         if (bitmap.getWidth() <= targetSize && bitmap.getHeight() <= targetSize) {
