@@ -22,6 +22,7 @@ import com.shawnhu.seagull.seagull.twitter.adapters.UserViewBuilder;
 import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.tasks.GetUserProfileTask;
 import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
+import com.shawnhu.seagull.utils.ImageUtils;
 import com.viewpagerindicator.CirclePageIndicator;
 import com.viewpagerindicator.TitlePageIndicator;
 
@@ -120,7 +121,11 @@ public class SeagullProfileFragment extends Fragment {
                     bannerAdapter.setUser(mUser);
                     viewPager.setAdapter(bannerAdapter);
                     if (mBanner != null) {
-                        viewPager.setBackgroundDrawable(mBanner);
+                        Bitmap bmp = mBanner.getBitmap();
+                        if (bmp != null) {
+                            bmp = ImageUtils.getCenterCropedBitmap(bmp, viewPager.getWidth(), viewPager.getHeight());
+                        }
+                        viewPager.setBackgroundDrawable(new BitmapDrawable(bmp));
                     }
                 }
                 GraphPagerAdapter  graphAdapter  = (GraphPagerAdapter)  graphPager.getAdapter();
