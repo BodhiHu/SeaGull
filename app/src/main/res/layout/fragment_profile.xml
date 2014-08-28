@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                class="android.support.v4.view.ViewPager"
+                class="anroid.support.v4.view.ViewPager"
                 android:id="@+id/bannerPager" />
 
             <view
