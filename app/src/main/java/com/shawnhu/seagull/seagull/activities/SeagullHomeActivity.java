@@ -3,11 +3,11 @@ package com.shawnhu.seagull.seagull.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.AbstractHomeNavDrawerActivity;
@@ -72,6 +72,12 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
 
         super.onCreate(savedInstanceState);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
 
     protected void setFragmentArgs(AnyViewArrayAdapterItem a) {
         Intent i = getIntent();

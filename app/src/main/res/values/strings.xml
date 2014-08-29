@@ -7,7 +7,6 @@
     <string name="title_section3">Section 3</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_profile">ProfileActivity</string>
     <string name="hello_world">Hello world!</string>
@@ -665,5 +664,7 @@
     <string name="likes_num" formatted="false">%d\nLikes</string>
     <string name="retweet_num" formatted="false">%d\nRetweets</string>
     <string name="title_activity_show_user">Twitter</string>
+    <string name="action_search">Search</string>
+    <string name="title_activity_search">Search</string>
 
 </resources>
