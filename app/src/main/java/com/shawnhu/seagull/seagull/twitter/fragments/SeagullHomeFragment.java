@@ -101,7 +101,7 @@ public class SeagullHomeFragment extends PersistentCursorFragment
         return mCursorAdapter;
     }
     protected int getContentViewId() {
-        return R.layout.swipe_to_refresh_list;
+        return R.layout.fragment_home;
     }
 
     public void loadMoreHead() {

@@ -666,5 +666,6 @@
     <string name="title_activity_show_user">Twitter</string>
     <string name="action_search">Search</string>
     <string name="title_activity_search">Search</string>
+    <string name="action_new_tweet">Compose</string>
 
 </resources>

@@ -75,9 +75,12 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_new_tweet) {
+            //TODO: compose new tweet
+        }
         return super.onOptionsItemSelected(item);
     }
-
 
     protected void setFragmentArgs(AnyViewArrayAdapterItem a) {
         Intent i = getIntent();
