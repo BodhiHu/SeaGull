@@ -25,10 +25,13 @@ public class MixedResourcesArrayAdapter extends ArrayAdapter<Object> {
 
     static final protected int mUserLayout = R.layout.user_profile;
     static final protected int mStatusLayout = R.layout.status_item;
+    static final private String TAG_USER = "TAG_USER";
+    static final private String TAG_STATUS = "TAG_STATUS";
 
     protected long mAccountId = -1;
     protected OnShowUser mOnShowUser;
 
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Object item = getItem(position);
         if (item != null) {
@@ -43,11 +46,12 @@ public class MixedResourcesArrayAdapter extends ArrayAdapter<Object> {
     }
 
     public View getUserView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
+        if (convertView == null || convertView.getTag() == null || convertView.getTag().toString() != TAG_USER) {
             LayoutInflater layoutInflater =
                     (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             convertView = layoutInflater.inflate(mUserLayout, parent, false);
+            convertView.setTag(TAG_USER);
         }
 
         final User user = (User) getItem(position);
@@ -71,11 +75,12 @@ public class MixedResourcesArrayAdapter extends ArrayAdapter<Object> {
     }
 
     public View getStatusView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
+        if (convertView == null || convertView.getTag() == null || convertView.getTag().toString() != TAG_STATUS) {
             LayoutInflater layoutInflater =
                     (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             convertView = layoutInflater.inflate(mStatusLayout, parent, false);
+            convertView.setTag(TAG_STATUS);
         }
 
         Status status = (Status) getItem(position);

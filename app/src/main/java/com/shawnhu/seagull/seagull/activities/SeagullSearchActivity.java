@@ -30,7 +30,7 @@ public class SeagullSearchActivity extends Activity
     protected MixedResourcesArrayAdapter mAdapter;
     protected String             mQuery = "";
     protected int                mCurrentUserPage = 0;
-    protected int                mCurrentStatusPage = 0;
+    protected int                mCurrentStatusPage = -1;
 
 
     @Override
@@ -62,11 +62,9 @@ public class SeagullSearchActivity extends Activity
 
     protected void doSearch(String query) {
         mQuery = query;
-        mCurrentStatusPage = 0;
-        mCurrentUserPage   = 0;
         mAdapter.clear();
-        searchTweetsAsync(query, 0);
-        searchUsersAsync(query, 0);
+        searchUsersAsync(query, 1);
+        searchTweetsAsync(query, -1);
     }
 
 
@@ -75,10 +73,8 @@ public class SeagullSearchActivity extends Activity
     @Override
     public void onRefreshDown() {
         mProgressBar.setVisibility(View.VISIBLE);
-        searchUsersAsync(mQuery, mCurrentUserPage);
-        mCurrentUserPage++;
-        searchTweetsAsync(mQuery, mCurrentStatusPage);
-        mCurrentStatusPage++;
+        searchUsersAsync(mQuery, 1);
+        searchTweetsAsync(mQuery, -1);
     }
 
     protected void searchUsersAsync(String query, int page) {
