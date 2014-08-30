@@ -1,5 +1,8 @@
 package com.shawnhu.seagull.seagull.activities;
 
+import android.app.Activity;
+import android.app.SearchManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AbsListView;
@@ -15,9 +18,11 @@ import com.shawnhu.seagull.seagull.twitter.tasks.SearchTweetsTask;
 import com.shawnhu.seagull.seagull.twitter.tasks.SearchUsersTask;
 import com.shawnhu.seagull.widgets.SwipeRefreshLayout;
 
+import java.util.ArrayList;
+
 import twitter4j.User;
 
-public class SeagullSearchActivity extends AbsSearchActivity
+public class SeagullSearchActivity extends Activity
                                    implements SwipeRefreshLayout.OnRefreshListener {
     protected SwipeRefreshLayout mSwipeRefreshLayout;
     protected AbsListView        mListView;
@@ -27,8 +32,32 @@ public class SeagullSearchActivity extends AbsSearchActivity
     protected int                mCurrentUserPage = 0;
     protected int                mCurrentStatusPage = 0;
 
-    protected int getContentViewId() {
-        return R.layout.swipe_to_refresh_list;
+
+    @Override
+    public void onCreate(Bundle savedinstancestate) {
+        super.onCreate(savedinstancestate);
+
+        setContentView(R.layout.swipe_to_refresh_list);
+
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        mListView = (StaggeredGridView) findViewById(R.id.list_view);
+        ((StaggeredGridView) mListView).setColumnCount(1);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setEnableScrollUpDown(false, true);
+
+        mAdapter = new MixedResourcesArrayAdapter(this, new ArrayList<Object>(0));
+        mListView.setAdapter(mAdapter);
+
+        handleIntent(getIntent());
+    }
+
+    private void handleIntent(Intent intent) {
+
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            doSearch(query);
+        }
     }
 
     protected void doSearch(String query) {
@@ -40,29 +69,16 @@ public class SeagullSearchActivity extends AbsSearchActivity
         searchUsersAsync(query, 0);
     }
 
-    @Override
-    public void onCreate(Bundle saveInstance) {
-        super.onCreate(saveInstance);
 
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mListView = (StaggeredGridView) findViewById(R.id.list_view);
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-
-        mAdapter = new MixedResourcesArrayAdapter(this, null);
-        mListView.setAdapter(mAdapter);
-    }
-
-    @Override
-    public void onRefreshUp() {
-        mSwipeRefreshLayout.setRefreshing(false);
-    }
+    @Override public void onRefreshUp() { }
 
     @Override
     public void onRefreshDown() {
         mProgressBar.setVisibility(View.VISIBLE);
         searchUsersAsync(mQuery, mCurrentUserPage);
+        mCurrentUserPage++;
         searchTweetsAsync(mQuery, mCurrentStatusPage);
+        mCurrentStatusPage++;
     }
 
     protected void searchUsersAsync(String query, int page) {

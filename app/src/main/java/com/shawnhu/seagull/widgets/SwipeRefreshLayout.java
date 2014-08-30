@@ -89,7 +89,7 @@ public class SwipeRefreshLayout extends ViewGroup {
     private float mLastMotionY;
     private boolean mIsBeingDraggedUp;
     private boolean mIsBeingDraggedDown;
-    private boolean mIsRefreshingDown;
+    private boolean mIsRefreshing;
     private int mActivePointerId = INVALID_POINTER;
 
     // Target is returning to its start offset because it was cancelled or a
@@ -100,6 +100,14 @@ public class SwipeRefreshLayout extends ViewGroup {
     private static final int[] LAYOUT_ATTRS = new int[] {
         android.R.attr.enabled
     };
+
+    private boolean mEnabledScrollUp = true;
+    private boolean mEnabledScrollDown = true;
+
+    public void setEnableScrollUpDown(boolean enableScrollUp, boolean enableScrollDown) {
+        mEnabledScrollUp = enableScrollUp;
+        mEnabledScrollDown = enableScrollDown;
+    }
 
     private final Animation mAnimateToStartPosition = new Animation() {
         @Override
@@ -267,8 +275,8 @@ public class SwipeRefreshLayout extends ViewGroup {
             }
         }
 
-        if (!mRefreshing && mIsRefreshingDown) {
-            mIsRefreshingDown = false;
+        if (!mRefreshing && mIsRefreshing) {
+            mIsRefreshing = false;
             mReturnToStartPosition.run();
         }
     }
@@ -412,7 +420,11 @@ public class SwipeRefreshLayout extends ViewGroup {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        if (mIsRefreshingDown) {
+        if (!mEnabledScrollDown && !mEnabledScrollUp) {
+            return false;
+        }
+
+        if (mIsRefreshing) {
             return true;
         }
 
@@ -482,7 +494,7 @@ public class SwipeRefreshLayout extends ViewGroup {
                 break;
         }
 
-        return mIsBeingDraggedUp || mIsBeingDraggedDown;
+        return (mIsBeingDraggedUp && mEnabledScrollUp) || (mIsBeingDraggedDown && mEnabledScrollDown);
     }
 
     @Override
@@ -492,7 +504,7 @@ public class SwipeRefreshLayout extends ViewGroup {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if (mIsRefreshingDown) {
+        if (mIsRefreshing) {
             return true;
         }
 
@@ -598,7 +610,7 @@ public class SwipeRefreshLayout extends ViewGroup {
             if (mIsBeingDraggedUp) {
                 mListener.onRefreshUp();
             } else if (mIsBeingDraggedDown) {
-                mIsRefreshingDown = true;
+                mIsRefreshing = true;
                 mListener.onRefreshDown();
             }
         }

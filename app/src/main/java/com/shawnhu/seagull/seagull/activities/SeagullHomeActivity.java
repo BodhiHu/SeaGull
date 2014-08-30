@@ -1,8 +1,19 @@
 package com.shawnhu.seagull.seagull.activities;
 
+import android.app.Activity;
+import android.app.SearchManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +25,7 @@ import com.shawnhu.seagull.activities.AbstractHomeNavDrawerActivity;
 import com.shawnhu.seagull.misc.IconicItem;
 import com.shawnhu.seagull.seagull.Seagull;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
+import com.shawnhu.seagull.seagull.twitter.fragments.ComposeFragment;
 import com.shawnhu.seagull.seagull.twitter.fragments.SeagullHomeFragment;
 import com.shawnhu.seagull.seagull.twitter.fragments.SeagullProfileFragment;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
@@ -74,12 +86,23 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_new_tweet) {
-            //TODO: compose new tweet
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        if (!mNavigationDrawerFragment.isDrawerOpen()) {
+            onCreateHomeMenu(this, menu, getMenuInflater());
         }
-        return super.onOptionsItemSelected(item);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (onHomeItemSelected(this, item)) {
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     protected void setFragmentArgs(AnyViewArrayAdapterItem a) {
@@ -114,4 +137,34 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
         return id;
     }
 
+    public static void onCreateHomeMenu(Activity activity, Menu menu, MenuInflater menuInflater) {
+        menuInflater.inflate(R.menu.home, menu);
+        SearchManager searchManager =
+                (SearchManager) activity.getSystemService(Context.SEARCH_SERVICE);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        if (searchView != null) {
+            searchView.setSearchableInfo(
+                    searchManager.getSearchableInfo(new ComponentName(activity, SeagullSearchActivity.class)));
+        }
+    }
+    public static boolean onHomeItemSelected(SeagullHomeActivity activity, MenuItem item) {
+
+        int id = item.getItemId();
+        if (id == R.id.action_compose) {
+            ComposeFragment composeFragment = ComposeFragment.newInstance(null);
+            FragmentManager fragmentManager = activity.getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, composeFragment)
+                    .addToBackStack(null)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    .commit();
+            return true;
+        } else if (id == R.id.action_settings) {
+            activity.setCurrentPosition(8);
+            return true;
+        }
+
+        return false;
+    }
 }

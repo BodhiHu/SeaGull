@@ -1,7 +1,11 @@
 package com.shawnhu.seagull.utils;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,6 +20,7 @@ import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.widget.ImageView;
@@ -29,9 +34,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.util.Date;
 
 public class ImageUtils {
     public static int[] getImageSize(Uri uri, Context context){
@@ -582,4 +591,106 @@ public class ImageUtils {
 
         return output;
     }
+
+
+    public static void pickImage(final Activity activity, final int CODE, boolean pickFromGallery, final String photo_name) {
+        if (pickFromGallery) {
+            Intent intent = new Intent(
+                    Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            intent.setType("image/*");
+            activity.startActivityForResult(
+                    Intent.createChooser(intent, "Select File"),
+                    CODE);
+        } else {
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            File f = new File(android.os.Environment
+                    .getExternalStorageDirectory(),
+                    photo_name);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
+            activity.startActivityForResult(intent, CODE);
+        }
+    }
+
+    public static void showSelectImageDialog(final Activity activity, final int CODE_TAKE_PHOTO, final int CODE_PICK_PHOTO, final String photo_name) {
+        final CharSequence[] items = { "Take Photo", "Choose from Gallery",
+                "Cancel" };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Add Photo!");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                if (items[item].equals("Take Photo")) {
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    File f = new File(android.os.Environment
+                            .getExternalStorageDirectory(), photo_name);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
+                    activity.startActivityForResult(intent, CODE_TAKE_PHOTO);
+                } else if (items[item].equals("Choose from Library")) {
+                    Intent intent = new Intent(
+                            Intent.ACTION_PICK,
+                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent.setType("image/*");
+                    activity.startActivityForResult(
+                            Intent.createChooser(intent, "Select File"),
+                            CODE_PICK_PHOTO);
+                } else if (items[item].equals("Cancel")) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.show();
+    }
+
+    public static Uri onPickPhotoResult(final Activity activity, int requestCode, Intent data,
+                                 final int CODE_TAKE_PHOTO, final int CODE_PICK_PHOTO, String photo_name,
+                                 final int size, Bitmap outPhoto) throws FileNotFoundException {
+        Uri selectedImageUri = null;
+
+        if (requestCode == CODE_TAKE_PHOTO) {
+            File f = new File(Environment.getExternalStorageDirectory()
+                    .toString());
+            for (File temp : f.listFiles()) {
+                if (temp.getName().equals(photo_name)) {
+                    selectedImageUri = Uri.fromFile(temp);
+                    outPhoto = downsampleBmp(activity, selectedImageUri, size);
+                    break;
+                }
+            }
+        } else if (requestCode == CODE_PICK_PHOTO) {
+            selectedImageUri = data.getData();
+            outPhoto = downsampleBmp(activity, selectedImageUri, size);
+        }
+
+        return selectedImageUri;
+    }
+
+    public static Bitmap downsampleBmp(Activity activity, Uri selectedImage, final int REQUIRED_SIZE) throws FileNotFoundException {
+
+        // Decode image size
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(activity.getContentResolver().openInputStream(selectedImage), null, o);
+
+        // Find the correct scale value. It should be the power of 2.
+        int width = o.outWidth, height = o.outHeight;
+        int scale = 1;
+        while (true) {
+            if (width <= REQUIRED_SIZE && height <= REQUIRED_SIZE) {
+                break;
+            }
+
+            width   >>= 1; // /2
+            height  >>= 1; // /2
+            scale   <<= 1; // *2
+        }
+
+        // Decode with inSampleSize
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = scale;
+        return BitmapFactory.decodeStream(activity.getContentResolver().openInputStream(selectedImage), null, o2);
+
+    }
+
 }

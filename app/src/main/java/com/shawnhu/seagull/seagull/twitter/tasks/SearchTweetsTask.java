@@ -32,7 +32,6 @@ public class SearchTweetsTask extends AsyncTask<Void, Void, ListResponse<twitter
         final Twitter twitter = getTwitterInstance(mContext, mAccountId, false);
         if (twitter != null) {
             try {
-                List<twitter4j.Status> statusesList;
                 Query query = new Query(mQuery);
                 query.setPage(mPage);
                 QueryResult queryResult = twitter.search(query);

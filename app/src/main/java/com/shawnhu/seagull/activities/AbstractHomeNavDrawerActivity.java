@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
 
@@ -183,30 +184,17 @@ public abstract class AbstractHomeNavDrawerActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
         if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            getMenuInflater().inflate(R.menu.home, menu);
-            SearchManager searchManager =
-                    (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-            SearchView searchView =
-                    (SearchView) menu.findItem(R.id.action_search).getActionView();
-            searchView.setSearchableInfo(
-                    searchManager.getSearchableInfo(getComponentName()));
-
-
             restoreActionBar();
-            return true;
         }
-        return super.onCreateOptionsMenu(menu);
+
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            setCurrentPosition(8);
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -219,4 +207,5 @@ public abstract class AbstractHomeNavDrawerActivity
     protected void setCurrentPosition(int pos) {
         mNavigationDrawerFragment.setCurrentPosition(pos);
     }
+
 }

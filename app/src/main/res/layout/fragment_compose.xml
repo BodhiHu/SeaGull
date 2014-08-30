@@ -1,0 +1,91 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.shawnhu.seagull.seagull.twitter.fragments.ComposeFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@android:color/holo_orange_dark">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="1dp">
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/text"
+                android:layout_gravity="top"
+                android:hint="@string/hint_compose_tweet"
+                android:padding="5dp"
+                android:background="@android:color/black"
+                android:autoText="false"
+                android:editable="true"
+                android:enabled="true"
+                android:maxLength="140" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="0"
+                android:id="@+id/textCount"
+                android:layout_gravity="center_horizontal|bottom"
+                android:layout_margin="5dp"
+                android:editable="false"
+                android:enabled="true" />
+
+            <ImageButton
+                android:layout_width="70dp"
+                android:layout_height="25dp"
+                android:id="@+id/sendTweetBtn"
+                android:background="@drawable/send_tweet"
+                android:layout_gravity="bottom|right"
+                android:layout_margin="5dp" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:id="@+id/linearLayout"
+            android:gravity="center">
+
+            <ImageButton
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:id="@+id/pickPictureBtn"
+                android:background="@drawable/pictures"
+                android:layout_marginRight="30dp" />
+
+            <ImageButton
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:id="@+id/takePhotoBtn"
+                android:background="@drawable/camera" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/image"
+            android:layout_gravity="center"
+            android:padding="5dp"
+            android:scaleType="matrix" />
+
+    </LinearLayout>
+
+</FrameLayout>
