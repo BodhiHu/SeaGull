@@ -305,7 +305,7 @@
     <string name="activity_by_friends_list_created"><xliff:g id="user">%1$s</xliff:g> created list <xliff:g id="target">%2$s</xliff:g>.</string>
     <string name="activity_by_friends_list_created_multi"><xliff:g id="user">%1$s</xliff:g> created list <xliff:g id="target">%2$s</xliff:g> and <xliff:g id="count">%3$d</xliff:g> more.</string>
     <string name="status_not_updated">Tweet not sent.</string>
-    <string name="status_not_updated_summary">Tweet not sent, and saved to drafts.</string>
+    <string name="status_saved_as_draft">Tweet was saved to drafts.</string>
     <string name="incoming_friendships">Pending follow requests</string>
     <string name="send_follow_request">Send follow request</string>
     <string name="follow_request_sent">Follow request sent</string>
@@ -668,5 +668,6 @@
     <string name="title_activity_search">Search</string>
     <string name="action_new_tweet">Compose</string>
     <string name="hint_compose_tweet">Compose tweet...</string>
+    <string name="tweet_sent">Your tweet was posted</string>
 
 </resources>

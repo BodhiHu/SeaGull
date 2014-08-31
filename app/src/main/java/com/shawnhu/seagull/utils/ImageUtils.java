@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.widget.ImageView;
 
@@ -593,13 +594,14 @@ public class ImageUtils {
     }
 
 
-    public static void pickImage(final Activity activity, final int CODE, boolean pickFromGallery, final String photo_name) {
+    public static void pickImage(final Fragment fragment,
+                                 final int CODE, boolean pickFromGallery, final String photo_name) {
         if (pickFromGallery) {
             Intent intent = new Intent(
                     Intent.ACTION_PICK,
                     android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             intent.setType("image/*");
-            activity.startActivityForResult(
+            fragment.startActivityForResult(
                     Intent.createChooser(intent, "Select File"),
                     CODE);
         } else {
@@ -608,15 +610,15 @@ public class ImageUtils {
                     .getExternalStorageDirectory(),
                     photo_name);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
-            activity.startActivityForResult(intent, CODE);
+            fragment.startActivityForResult(intent, CODE);
         }
     }
 
-    public static void showSelectImageDialog(final Activity activity, final int CODE_TAKE_PHOTO, final int CODE_PICK_PHOTO, final String photo_name) {
+    public static void showSelectImageDialog(final Fragment fragment, final int CODE_TAKE_PHOTO, final int CODE_PICK_PHOTO, final String photo_name) {
         final CharSequence[] items = { "Take Photo", "Choose from Gallery",
                 "Cancel" };
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = new AlertDialog.Builder(fragment.getActivity());
         builder.setTitle("Add Photo!");
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
@@ -626,13 +628,13 @@ public class ImageUtils {
                     File f = new File(android.os.Environment
                             .getExternalStorageDirectory(), photo_name);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(f));
-                    activity.startActivityForResult(intent, CODE_TAKE_PHOTO);
+                    fragment.startActivityForResult(intent, CODE_TAKE_PHOTO);
                 } else if (items[item].equals("Choose from Library")) {
                     Intent intent = new Intent(
                             Intent.ACTION_PICK,
                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     intent.setType("image/*");
-                    activity.startActivityForResult(
+                    fragment.startActivityForResult(
                             Intent.createChooser(intent, "Select File"),
                             CODE_PICK_PHOTO);
                 } else if (items[item].equals("Cancel")) {
@@ -643,10 +645,11 @@ public class ImageUtils {
         builder.show();
     }
 
-    public static Uri onPickPhotoResult(final Activity activity, int requestCode, Intent data,
+    public static Object[] onPickPhotoResult(final Activity activity, int requestCode, Intent data,
                                  final int CODE_TAKE_PHOTO, final int CODE_PICK_PHOTO, String photo_name,
-                                 final int size, Bitmap outPhoto) throws FileNotFoundException {
+                                 final int size) throws FileNotFoundException {
         Uri selectedImageUri = null;
+        Bitmap outPhoto = null;
 
         if (requestCode == CODE_TAKE_PHOTO) {
             File f = new File(Environment.getExternalStorageDirectory()
@@ -663,7 +666,10 @@ public class ImageUtils {
             outPhoto = downsampleBmp(activity, selectedImageUri, size);
         }
 
-        return selectedImageUri;
+        Object[] rets = new Object[2];
+        rets[0] = selectedImageUri;
+        rets[1] = outPhoto;
+        return rets;
     }
 
     public static Bitmap downsampleBmp(Activity activity, Uri selectedImage, final int REQUIRED_SIZE) throws FileNotFoundException {

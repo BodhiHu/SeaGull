@@ -2,16 +2,24 @@ package com.shawnhu.seagull.seagull.twitter.fragments;
 
 
 import android.app.Activity;
+import android.app.Notification;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -28,6 +36,7 @@ import com.shawnhu.seagull.utils.ImageUtils;
 
 import java.io.FileNotFoundException;
 
+import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.BROADCAST_STATUS_UPDATED;
 import static com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants.INTENT_ACTION_UPDATE_STATUS;
 
 public class ComposeFragment extends Fragment {
@@ -46,6 +55,40 @@ public class ComposeFragment extends Fragment {
     ImageButton     mSendBtn;
     ImageButton     mPickPicBtn;
     ImageButton     mTakePhotoBtn;
+
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() == BROADCAST_STATUS_UPDATED) {
+                int resCode = intent.getIntExtra(BackgroundIntentService.STATUS_UPDATE_RESULT, -1);
+                if (resCode == BackgroundIntentService.STATUS_UPDATE_SUCCESS) {
+                    Notification notification = new NotificationCompat.Builder(getActivity())
+                            .setSmallIcon(R.drawable.ic_stat_send)
+                            .setTicker(getActivity().getString(R.string.tweet_sent))
+                            .setContentTitle(getActivity().getString(R.string.tweet_sent))
+                            .setContentText(getActivity().getString(R.string.tweet_sent))
+                            .build();
+                    NotificationManagerCompat.from(getActivity()).notify(0, notification);
+
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mTweetTxt.getWindowToken(), 0);
+                    getActivity().getSupportFragmentManager().popBackStack();
+                }
+            }
+        }
+    };
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        LocalBroadcastManager.getInstance(activity).registerReceiver(mBroadcastReceiver, new IntentFilter(BROADCAST_STATUS_UPDATED));
+    }
+    @Override
+    public void onDetach() {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mBroadcastReceiver);
+
+        super.onDetach();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -86,14 +129,14 @@ public class ComposeFragment extends Fragment {
         mPickPicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ImageUtils.pickImage(getActivity(), SELECT_PHOTO, true, null);
+                ImageUtils.pickImage(ComposeFragment.this, SELECT_PHOTO, true, null);
             }
         });
         mTakePhotoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new_photo_name = getActivity().getPackageName() + System.currentTimeMillis() + ".jpg";
-                ImageUtils.pickImage(getActivity(), TAKE_A_PHOTO, false, new_photo_name);
+                ImageUtils.pickImage(ComposeFragment.this, TAKE_A_PHOTO, false, new_photo_name);
             }
         });
         mSendBtn.setOnClickListener(new View.OnClickListener() {
@@ -125,14 +168,15 @@ public class ComposeFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             Bitmap bmp = null;
             Uri tmp_uri = null;
             int size = mTweetImage.getWidth();
             try {
-                tmp_uri = ImageUtils.onPickPhotoResult(getActivity(), requestCode, data,
-                        TAKE_A_PHOTO, SELECT_PHOTO, new_photo_name, size, bmp);
+                Object[] rets = ImageUtils.onPickPhotoResult(getActivity(), requestCode, data,
+                        TAKE_A_PHOTO, SELECT_PHOTO, new_photo_name, size);
+                tmp_uri = (Uri) (rets[0]);
+                bmp = (Bitmap) (rets[1]);
             } catch (FileNotFoundException fnfe) {
                 fnfe.printStackTrace();
             }
@@ -142,5 +186,7 @@ public class ComposeFragment extends Fragment {
                 mImageUri = tmp_uri;
             }
         }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

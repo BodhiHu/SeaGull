@@ -56,7 +56,12 @@ public class TwitterStatusUpdate implements Parcelable {
         accounts = in.createTypedArray(TwitterAccount.CREATOR);
         text = in.readString();
         location = in.readParcelable(TwitterLocation.class.getClassLoader());
-        medias = in.createTypedArray(TwitterMediaUpdate.CREATOR);
+        TwitterMediaUpdate[] _medias = in.createTypedArray(TwitterMediaUpdate.CREATOR);
+        if (_medias != null && _medias.length == 1 && _medias[0] == null) {
+            medias = null;
+        } else {
+            medias = _medias;
+        }
         in_reply_to_status_id = in.readLong();
         is_possibly_sensitive = in.readInt() == 1;
     }

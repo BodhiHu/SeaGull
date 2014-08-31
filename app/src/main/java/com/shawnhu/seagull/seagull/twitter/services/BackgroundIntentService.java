@@ -16,6 +16,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.seagull.twitter.content.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterAccount;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterDirectMessage;
@@ -23,7 +24,6 @@ import com.shawnhu.seagull.seagull.twitter.model.TwitterLocation;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterMediaUpdate;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusUpdate;
-import com.shawnhu.seagull.seagull.twitter.content.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator;
 import com.shawnhu.seagull.seagull.twitter.utils.StatusCodeMessageUtils;
 import com.shawnhu.seagull.seagull.twitter.utils.TwitterValidator;
@@ -77,6 +77,7 @@ public class BackgroundIntentService extends IntentService {
     private NotificationManager mNotificationManager;
 
     static final public String  STATUS_UPDATE_RESULT            = "STATUS_UPDATE_RESULT";
+    static final public int     STATUS_UPDATE_SUCCESS           = 0;
     static final public String  DIRECT_MESSAGE_SEND_RESULT      = "DIRECT_MESSAGE_SEND_RESULT";
 
     public BackgroundIntentService() {
@@ -103,16 +104,15 @@ public class BackgroundIntentService extends IntentService {
         final String action = intent.getAction();
         int          retRes;
         Intent       i = new Intent();
-        Bundle       args = new Bundle();
         if (INTENT_ACTION_UPDATE_STATUS.equals(action)) {
             retRes = updateStatus(intent);
             i.setAction(BROADCAST_STATUS_UPDATED);
-            args.putInt(STATUS_UPDATE_RESULT, retRes);
+            i.putExtra(STATUS_UPDATE_RESULT, retRes);
         }
         if (INTENT_ACTION_SEND_DIRECT_MESSAGE.equals(action)) {
             retRes = sendDirectMessage(intent);
             i.setAction(BROADCAST_DIRECT_MESSAGE_SENT);
-            args.putInt(DIRECT_MESSAGE_SEND_RESULT, retRes);
+            i.putExtra(DIRECT_MESSAGE_SEND_RESULT, retRes);
         }
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
@@ -185,7 +185,7 @@ public class BackgroundIntentService extends IntentService {
      * @return: 0: update OK; others: error string res id;
      */
     private int updateStatus(final Intent intent) {
-        int ret = 0;
+        int ret = STATUS_UPDATE_SUCCESS;
 
         final NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this);
@@ -214,7 +214,9 @@ public class BackgroundIntentService extends IntentService {
 
         if (result == null || result.getData() == null) {
             failed = true;
-            exception = result.getException();
+            if (result != null) {
+                exception = result.getException();
+            }
         }
 
         if (failed) {
@@ -230,7 +232,7 @@ public class BackgroundIntentService extends IntentService {
                 ret = R.string.status_not_updated;
             }
         } else {
-            if (status.medias != null) {
+/*            if (status.medias != null) {
                 for (final TwitterMediaUpdate media : status.medias) {
                     final String path = getImagePathFromUri(this, Uri.parse(media.uri));
                     if (path != null) {
@@ -238,6 +240,7 @@ public class BackgroundIntentService extends IntentService {
                     }
                 }
             }
+*/
         }
 
         stopForeground(false);
@@ -252,7 +255,7 @@ public class BackgroundIntentService extends IntentService {
                         status, ArrayUtils.fromList(account_ids));
         mResolver.insert(Drafts.CONTENT_URI, values);
         final String title      = getString(R.string.status_not_updated);
-        final String message    = getString(R.string.status_not_updated_summary);
+        final String message    = getString(R.string.status_saved_as_draft);
         final Intent intent     = new Intent(INTENT_ACTION_DRAFTS);
         final Notification notification =
                 buildNotification(
@@ -295,7 +298,7 @@ public class BackgroundIntentService extends IntentService {
 
     private Response<TwitterStatus> updateStatus(final TwitterStatusUpdate statusUpdate) {
 
-        if (statusUpdate.accounts.length == 0) {
+        if (statusUpdate == null || statusUpdate.accounts.length == 0) {
             return null;
         }
 
@@ -320,15 +323,18 @@ public class BackgroundIntentService extends IntentService {
         try {
             final boolean hasMedia =
                     statusUpdate.medias != null &&
-                            statusUpdate.medias.length > 0;
+                            (statusUpdate.medias.length > 1 ||
+                            (statusUpdate.medias.length == 1 && statusUpdate.medias[0] != null));
             final String unshortenedText = statusUpdate.text;
 
-            if (statusUpdate.medias != null) {
+            if (statusUpdate.medias != null && statusUpdate.medias.length > 0) {
                 for (final TwitterMediaUpdate media : statusUpdate.medias) {
-                    final String path = getImagePathFromUri(this, Uri.parse(media.uri));
-                    final File file = path != null ? new File(path) : null;
-                    if (file != null && file.exists()) {
-                        Utils.downscaleImageIfNeeded(file, 95);
+                    if (media != null) {
+                        final String path = getImagePathFromUri(this, Uri.parse(media.uri));
+                        final File file = path != null ? new File(path) : null;
+                        if (file != null && file.exists()) {
+                            Utils.downscaleImageIfNeeded(file, 95);
+                        }
                     }
                 }
             }
@@ -345,7 +351,7 @@ public class BackgroundIntentService extends IntentService {
             if (hasMedia) {
                 final BitmapFactory.Options o = new BitmapFactory.Options();
                 o.inJustDecodeBounds = true;
-                if (statusUpdate.medias.length == 1) {
+                if (statusUpdate.medias.length == 1 && statusUpdate.medias[0] != null) {
                     final TwitterMediaUpdate media = statusUpdate.medias[0];
                     final String path = getImagePathFromUri(this, Uri.parse(media.uri));
                     BitmapFactory.decodeFile(path, o);
@@ -354,19 +360,25 @@ public class BackgroundIntentService extends IntentService {
 
                     status.setMedia(file.getName(), is, o.outMimeType);
                 } else {
-                    final long[] mediaIds = new long[statusUpdate.medias.length];
-                    for (int i = 0, j = mediaIds.length; i < j; i++) {
+                    ArrayList<Long> mediaIds = new ArrayList<Long>();
+                    for (int i = 0, j = statusUpdate.medias.length; i < j; i++) {
                         final TwitterMediaUpdate media = statusUpdate.medias[i];
-                        final String path = getImagePathFromUri(this, Uri.parse(media.uri));
-                        BitmapFactory.decodeFile(path, o);
-                        final File file = new File(path);
-                        final FileInputStream is = new FileInputStream(file);
-                        final MediaUploadResponse uploadResp = twitter.uploadMedia(file.getName(), is,
-                                o.outMimeType);
-                        mediaIds[i] = uploadResp.getId();
+                        if (media != null) {
+                            final String path = getImagePathFromUri(this, Uri.parse(media.uri));
+                            BitmapFactory.decodeFile(path, o);
+                            final File file = new File(path);
+                            final FileInputStream is = new FileInputStream(file);
+                            final MediaUploadResponse uploadResp = twitter.uploadMedia(file.getName(), is,
+                                    o.outMimeType);
+                            mediaIds.add(uploadResp.getId());
+                        } else {
+                            Log.e(TAG, "Got null media, this much likely a bug");
+                        }
                     }
 
-                    status.mediaIds(mediaIds);
+                    if (mediaIds.size() > 0) {
+                        status.mediaIds(ArrayUtils.fromList(mediaIds));
+                    }
                 }
             }
 
