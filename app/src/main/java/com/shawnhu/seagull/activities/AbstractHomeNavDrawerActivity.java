@@ -195,6 +195,17 @@ public abstract class AbstractHomeNavDrawerActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            DrawerLayout mDrawerLayout = ((DrawerLayout) findViewById(R.id.drawer_layout));
+            if (mNavigationDrawerFragment.isDrawerOpen()) {
+                mDrawerLayout.closeDrawer(findViewById(R.id.navigation_drawer));
+            } else {
+                mDrawerLayout.openDrawer(findViewById(R.id.navigation_drawer));
+            }
+
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
