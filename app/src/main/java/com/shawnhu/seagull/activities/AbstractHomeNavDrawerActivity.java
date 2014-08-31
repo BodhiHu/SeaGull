@@ -1,19 +1,14 @@
 package com.shawnhu.seagull.activities;
 
 import android.app.Activity;
-import android.app.SearchManager;
-import android.content.Context;
 import android.content.Intent;
-import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
-import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.support.v4.widget.DrawerLayout;
 
@@ -90,7 +85,7 @@ public abstract class AbstractHomeNavDrawerActivity
                 mDrawerListArrayAdapter);
 
         mLastFragmentPosition = getSharedPreferences(PRIVATE_PREFERENCE_NAME, MODE_PRIVATE).getInt(PREF_LAST_POS, 0);
-        setCurrentPosition(mLastFragmentPosition);
+        saveCurrentPosition(mLastFragmentPosition);
     }
 
     @Override
@@ -165,7 +160,7 @@ public abstract class AbstractHomeNavDrawerActivity
 
             } else if (Activity.class.isAssignableFrom(targetClass)) {
                 //TwitterActivity, start it
-                mNavigationDrawerFragment.setCurrentPosition(mLastFragmentPosition);
+                mNavigationDrawerFragment.saveCurrentPosition(mLastFragmentPosition);
                 startActivity(new Intent(this, targetClass));
             } else {
                 //Other stuff, TODO
@@ -215,8 +210,11 @@ public abstract class AbstractHomeNavDrawerActivity
         }
     }
 
+    protected void saveCurrentPosition(int pos) {
+        mNavigationDrawerFragment.saveCurrentPosition(pos);
+    }
     protected void setCurrentPosition(int pos) {
-        mNavigationDrawerFragment.setCurrentPosition(pos);
+        mNavigationDrawerFragment.setPosition(pos);
     }
 
 }

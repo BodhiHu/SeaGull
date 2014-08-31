@@ -175,6 +175,10 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
 
+    public void setPosition(int position) {
+        selectItem(position);
+    }
+
     private void selectItem(int position) {
         AppPreferences.mPrefHomeNavCurrentPosition = position;
         if (mDrawerListView != null) {
@@ -245,7 +249,7 @@ public class NavigationDrawerFragment extends Fragment {
         return ((ActionBarActivity) getActivity()).getSupportActionBar();
     }
 
-    public void setCurrentPosition(int p) {
+    public void saveCurrentPosition(int p) {
         if (p >= 0 && p < mDrawerListViewAdapter.getCount()) {
 
             AppPreferences.mPrefHomeNavCurrentPosition = p;
