@@ -1,9 +1,9 @@
 package com.shawnhu.seagull.seagull.twitter.tasks;
 
 import android.content.Context;
-import android.os.*;
 
 import com.shawnhu.seagull.seagull.twitter.model.ListResponse;
+import com.shawnhu.seagull.tasks.ContextAsyncTask;
 
 import java.util.List;
 
@@ -13,16 +13,14 @@ import twitter4j.User;
 
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTwitterInstance;
 
-/**
- * Created by shawn on 14-8-29.
- */
-public class SearchUsersTask extends android.os.AsyncTask<Void, Void, ListResponse<User>> {
+public class SearchUsersTask extends ContextAsyncTask<Void, Void, ListResponse<User>> {
 
     protected Context       mContext;
     protected long          mAccountId;
     protected String        mQuery;
     protected int           mPage;
     public SearchUsersTask(Context context, long accountId, String query, int page) {
+        super(context);
         mContext = context;
         mAccountId = accountId;
         mQuery = query;
@@ -44,5 +42,5 @@ public class SearchUsersTask extends android.os.AsyncTask<Void, Void, ListRespon
     }
 
     @Override
-    protected void onPostExecute(final ListResponse<twitter4j.User> result) {}
+    protected void onPostExecuteSafe(final ListResponse<twitter4j.User> result) {}
 }

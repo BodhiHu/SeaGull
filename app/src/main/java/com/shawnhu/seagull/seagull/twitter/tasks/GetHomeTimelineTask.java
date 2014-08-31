@@ -11,9 +11,6 @@ import twitter4j.ResponseList;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
-/**
- * Created by shawn on 14-8-18.
- */
 public class GetHomeTimelineTask extends GetStatusesTask {
 
     static final public String TAG = "GetHomeTimelineTask";
@@ -30,15 +27,9 @@ public class GetHomeTimelineTask extends GetStatusesTask {
 
 
     @Override
-    protected void onPostExecute(final List<TwitterStatusListResponse> responses) {
-        super.onPostExecute(responses);
+    protected void onPostExecuteSafe(final List<TwitterStatusListResponse> responses) {
         (new StoreHomeTimelineTask(mContext, responses, !isMaxIdsValid()))
                 .execute();
-    }
-
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
     }
 
 }

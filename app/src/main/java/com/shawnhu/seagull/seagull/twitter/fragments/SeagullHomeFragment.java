@@ -69,7 +69,7 @@ public class SeagullHomeFragment extends PersistentCursorFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (mCursorAdapter == null) {
-            mCursorAdapter = new StatusesCursorAdapter(getActivity(), null, 0);
+            mCursorAdapter = new StatusesCursorAdapter(getActivity(), null, 0, this);
         }
         if (mCursorAdapter != null && mCursorAdapter.getCount() == 0) {
             getLoaderManager().initLoader(0, null, this);
@@ -185,21 +185,28 @@ public class SeagullHomeFragment extends PersistentCursorFragment
     }
 
     protected void getHomeTimelineAsync(final long[] account_ids, final long[] max_ids, final long[] since_ids) {
+        GetHomeTimelineTask getHomeTimelineTask =
         new GetHomeTimelineTask(getActivity(), account_ids, max_ids, since_ids) {
             @Override
-            protected void onPostExecute(final List<TwitterStatusListResponse> responses) {
-                super.onPostExecute(responses);
-
+            protected void onPostExecuteSafe(final List<TwitterStatusListResponse> responses) {
                 new Handler()
                         .postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                mProgressBar.setVisibility(View.GONE);
-                                mSwipeRefreshLayout.setRefreshing(false);
+                                if (mProgressBar != null && mProgressBar.isFocusable()) {
+                                    mProgressBar.setVisibility(View.GONE);
+                                }
+                                if (mSwipeRefreshLayout != null && mSwipeRefreshLayout.isFocusable()) {
+                                    mSwipeRefreshLayout.setRefreshing(false);
+                                }
                             }
                         }, 1000);
 
             }
-        }.execute();
+        };
+
+        getHomeTimelineTask.setHost(this);
+        getHomeTimelineTask.execute();
     }
+
 }

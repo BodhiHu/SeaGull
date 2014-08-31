@@ -1,26 +1,27 @@
 package com.shawnhu.seagull.seagull.twitter.tasks;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.shawnhu.seagull.seagull.twitter.model.ListResponse;
+import com.shawnhu.seagull.tasks.ContextAsyncTask;
 
 import java.util.Arrays;
-import java.util.List;
 
 import twitter4j.Query;
 import twitter4j.QueryResult;
+import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTwitterInstance;
 
-public class SearchTweetsTask extends AsyncTask<Void, Void, ListResponse<twitter4j.Status>>{
+public class SearchTweetsTask extends ContextAsyncTask<Void, Void, ListResponse<Status>> {
     protected Context       mContext;
     protected long          mAccountId;
     protected String        mQuery;
     protected int           mPage;
     public SearchTweetsTask(Context context, long accountId, String query, int page) {
+        super(context);
         mContext = context;
         mAccountId = accountId;
         mQuery = query;
@@ -44,7 +45,4 @@ public class SearchTweetsTask extends AsyncTask<Void, Void, ListResponse<twitter
         }
         return new ListResponse<twitter4j.Status>(null, null);
     }
-
-    @Override
-    protected void onPostExecute(final ListResponse<twitter4j.Status> result) {}
 }

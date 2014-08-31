@@ -3,18 +3,18 @@ package com.shawnhu.seagull.seagull.twitter.tasks;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import com.shawnhu.seagull.seagull.twitter.content.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
+import com.shawnhu.seagull.tasks.ContextAsyncTask;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 
-public class DestroyFavoriteTask extends AsyncTask<Void, Void, Response<TwitterStatus>> {
+public class DestroyFavoriteTask extends ContextAsyncTask<Void, Void, Response<TwitterStatus>> {
 
     private final long account_id;
 
@@ -23,6 +23,7 @@ public class DestroyFavoriteTask extends AsyncTask<Void, Void, Response<TwitterS
     protected Context mContext;
 
     public DestroyFavoriteTask(Context context, final long account_id, final long status_id) {
+        super(context);
         mContext = context;
         this.account_id = account_id;
         this.status_id = status_id;
@@ -55,9 +56,5 @@ public class DestroyFavoriteTask extends AsyncTask<Void, Void, Response<TwitterS
         }
         return new Response<TwitterStatus>(null, null);
     }
-
-    @Override
-    protected void onPostExecute(final Response<TwitterStatus> result) {}
-
 }
 

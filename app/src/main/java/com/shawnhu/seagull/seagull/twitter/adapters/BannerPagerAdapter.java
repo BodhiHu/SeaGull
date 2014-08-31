@@ -1,6 +1,8 @@
 package com.shawnhu.seagull.seagull.twitter.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -15,7 +17,26 @@ import twitter4j.User;
 
 public class BannerPagerAdapter extends ViewPagerAdapter {
 
-    public BannerPagerAdapter(Context context, User user) {
+    protected Fragment mHostFragment;
+    protected Activity mHostActivity;
+
+    public BannerPagerAdapter(Context context, User user, Fragment fragment) {
+        this(context, user);
+        if (fragment == null) {
+            throw new NullPointerException("Hosting Fragment can not be null");
+        }
+        mHostFragment = fragment;
+    }
+    public BannerPagerAdapter(Context context, User user, Activity activity) {
+        this(context, user);
+
+        if (activity == null) {
+            throw new NullPointerException("Hosting Activity can not be null");
+        }
+
+        mHostActivity = activity;
+    }
+    private BannerPagerAdapter(Context context, User user) {
         mContext = context;
         mUser = user;
     }
@@ -44,14 +65,21 @@ public class BannerPagerAdapter extends ViewPagerAdapter {
 
         View v = null;
         LayoutInflater layoutInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        UserViewBuilder viewBuilder;
+        if (mHostFragment != null) {
+            viewBuilder = new UserViewBuilder(mHostFragment);
+        } else {
+            viewBuilder = new UserViewBuilder(mHostActivity);
+        }
+
         switch (pos) {
             case PROFILE_PAGE:
                 v = layoutInflater.inflate(R.layout.banner_profile, null);
-                UserViewBuilder.buildProfileView(v, mUser);
+                viewBuilder.buildProfileView(v, mUser);
                 break;
             case SELFIE_PAGE:
                 v = layoutInflater.inflate(R.layout.banner_selfie, null);
-                UserViewBuilder.buildSelfieView(v, mUser);
+                viewBuilder.buildSelfieView(v, mUser);
                 break;
             default:
                 break;

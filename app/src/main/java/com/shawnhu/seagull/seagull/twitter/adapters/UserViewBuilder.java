@@ -1,8 +1,9 @@
 package com.shawnhu.seagull.seagull.twitter.adapters;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -11,13 +12,29 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
+import com.shawnhu.seagull.tasks.ContextAsyncTask;
 import com.shawnhu.seagull.utils.ImageUtils;
 
 import twitter4j.User;
 
 public class UserViewBuilder {
+    protected Fragment mHostFragment;
+    protected Activity mHostActivity;
 
-    static public void buildProfileView(View v, User mUser) {
+    public UserViewBuilder(Fragment fragment) {
+        if (fragment == null) {
+            throw new NullPointerException("Hosting Fragment can't be null.");
+        }
+        mHostFragment = fragment;
+    }
+    public UserViewBuilder(Activity activity) {
+        if (activity == null) {
+            throw new NullPointerException("Hosting Activity can't be null.");
+        }
+        mHostActivity = activity;
+    }
+
+    public void buildProfileView(View v, User mUser) {
         if (v != null && mUser != null) {
             ImageView profileImage  = (ImageView) v.findViewById(R.id.profileImage);
             TextView screenName     = (TextView)  v.findViewById(R.id.screenName);
@@ -35,7 +52,7 @@ public class UserViewBuilder {
             }
         }
     }
-    static public void buildSelfieView(View v, User mUser) {
+    public void buildSelfieView(View v, User mUser) {
         if (v != null && mUser != null) {
             TextView selfie     = (TextView) v.findViewById(R.id.selfie);
             TextView location   = (TextView) v.findViewById(R.id.location);
@@ -85,22 +102,32 @@ public class UserViewBuilder {
         return null;
     }
 
-    public class LoadBannerImageTask extends AsyncTask<Void, Void, BitmapDrawable> {
+    public class LoadBannerImageTask extends ContextAsyncTask<Void, Void, BitmapDrawable> {
         //FIXME: should cancel when frag/acti goes dead
 
         protected User mUser;
         protected int mWidth;
         protected int mHeight;
-        public LoadBannerImageTask(User user, int width, int height) {
+        public LoadBannerImageTask(Fragment fragment, User user, int width, int height) {
+            super(fragment);
+
             mUser = user;
             mWidth = width;
             mHeight = height;
-
         }
+
+        public LoadBannerImageTask(Activity activity, User user, int width, int height) {
+            super(activity);
+
+            mUser = user;
+            mWidth = width;
+            mHeight = height;
+        }
+
         @Override
         protected BitmapDrawable doInBackground(Void... params) {
             if (mUser != null && mWidth > 0 && mHeight > 0) {
-                BitmapDrawable bmpDrawable = UserViewBuilder.loadUserBannerImageSync(mUser);
+                BitmapDrawable bmpDrawable = loadUserBannerImageSync(mUser);
                 if (bmpDrawable != null) {
                     Bitmap bmp = ImageUtils.getCenterCropedBitmap(bmpDrawable.getBitmap(), mWidth, mHeight);
                     if (bmp != null) {
@@ -113,7 +140,7 @@ public class UserViewBuilder {
         }
 
         @Override
-        protected void onPostExecute(BitmapDrawable result) {
+        protected void onPostExecuteSafe(BitmapDrawable result) {
         }
     }
 }

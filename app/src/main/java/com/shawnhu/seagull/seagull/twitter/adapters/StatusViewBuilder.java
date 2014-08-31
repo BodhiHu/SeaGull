@@ -1,8 +1,10 @@
 package com.shawnhu.seagull.seagull.twitter.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -28,28 +30,49 @@ import twitter4j.Status;
 import twitter4j.User;
 
 public class StatusViewBuilder {
-    static public void buildStatusView(final View view, final Context context, final Cursor cursor) {
+    protected Fragment mHostFragment = null;
+    protected Activity mHostActivity = null;
+
+    public StatusViewBuilder(Fragment fragment) {
+        if (fragment == null) {
+            throw new NullPointerException("Hosting Fragment can't be null.");
+        }
+        mHostFragment = fragment;
+    }
+    public StatusViewBuilder(Activity activity) {
+        if (activity == null) {
+            throw new NullPointerException("Hosting Activity can't be null.");
+        }
+        mHostActivity = activity;
+    }
+
+    public void buildStatusView(final View view, final Cursor cursor) {
         if (cursor == null) {
             return;
         }
         final TwitterStatus status = new TwitterStatus(cursor);
-        buildStatusView(view, context, status);
+        buildStatusView(view, status);
     }
 
-    static public void buildStatusView(final View view, final Context context, final Status _4jstatus, long account_id, boolean is_gap) {
+    public void buildStatusView(final View view, final Status _4jstatus, long account_id, boolean is_gap) {
         if (_4jstatus == null) {
             return;
         }
 
+        if (mHostFragment != null) {
+
+        }
+
         final TwitterStatus status = new TwitterStatus(_4jstatus, account_id, is_gap);
-        buildStatusView(view, context, status);
+        buildStatusView(view, status);
     }
 
-
-    static public void buildStatusView(final View view, final Context context, final TwitterStatus  status) {
-        if (view == null || context == null || status == null) {
+    public void buildStatusView(final View view, final TwitterStatus  status) {
+        if (view == null || status == null) {
             return;
         }
+
+        final Context context = getContext();
 
         final ImageView   tweetImage = (ImageView)    view.findViewById(R.id.tweetImage);
         final TextView    tweetText  = (TextView)     view.findViewById(R.id.tweetText);
@@ -160,18 +183,33 @@ public class StatusViewBuilder {
         retwtNum.setText(String.format(context.getString(R.string.retweet_num), status.retweet_count));
     }
 
-    static public class LocalCreateFavoriteTask extends CreateFavoriteTask {
+    private Context getContext() {
+        if (mHostFragment != null) {
+            return mHostFragment.getActivity();
+        } else {
+            return mHostActivity;
+        }
+    }
+
+    protected class LocalCreateFavoriteTask extends CreateFavoriteTask {
         protected ImageButton mImageBtn;
         protected TextView    mTextView;
         public LocalCreateFavoriteTask(ImageButton b, TextView t, Context context, final long account_id, final long status_id) {
             super(context, account_id, status_id);
+
+            if (mHostFragment != null) {
+                setHost(mHostFragment);
+            } else {
+                setHost(mHostActivity);
+            }
 
             mImageBtn = b;
             mTextView = t;
         }
 
         @Override
-        protected void onPostExecute(final Response<TwitterStatus> result) {
+        protected void onPostExecuteSafe(final Response<TwitterStatus> result) {
+            super.onPostExecuteSafe(result);
             if (result.hasData()) {
                 TwitterStatus status = result.getData();
                 if (mImageBtn != null) {
@@ -185,17 +223,25 @@ public class StatusViewBuilder {
             }
         }
     }
-    static public class LocalDestroyFavoriteTask extends DestroyFavoriteTask {
+    protected class LocalDestroyFavoriteTask extends DestroyFavoriteTask {
         protected ImageButton imageButton;
         protected TextView    textView;
         public LocalDestroyFavoriteTask(ImageButton imageButton, TextView textView, Context context, final long account_id, final long status_id) {
             super(context, account_id, status_id);
+
+            if (mHostFragment != null) {
+                setHost(mHostFragment);
+            } else {
+                setHost(mHostActivity);
+            }
+
             this.imageButton = imageButton;
             this.textView = textView;
         }
 
         @Override
-        protected void onPostExecute(final Response<TwitterStatus> result) {
+        protected void onPostExecuteSafe(final Response<TwitterStatus> result) {
+            super.onPostExecuteSafe(result);
             if (result.hasData()) {
                 TwitterStatus status = result.getData();
                 if (imageButton != null) {
@@ -210,17 +256,25 @@ public class StatusViewBuilder {
         }
 
     }
-    static public class LocalCreateFriendshipTask extends CreateFriendshipTask {
+    protected class LocalCreateFriendshipTask extends CreateFriendshipTask {
         protected ImageButton imageButton;
         protected TextView    textView;
         public LocalCreateFriendshipTask(ImageButton imageButton, TextView textView, Context context, final long account_id, final long user_id) {
             super(context, account_id, user_id);
+
+            if (mHostFragment != null) {
+                setHost(mHostFragment);
+            } else {
+                setHost(mHostActivity);
+            }
+
             this.imageButton = imageButton;
             this.textView = textView;
         }
 
         @Override
-        protected void onPostExecute(final Response<User> result) {
+        protected void onPostExecuteSafe(final Response<User> result) {
+            super.onPostExecuteSafe(result);
             if (result.hasData()) {
                 User user = result.getData();
                 if (imageButton != null) {
@@ -235,17 +289,25 @@ public class StatusViewBuilder {
         }
 
     }
-    static public class LocalDestroyFriendshipTask extends DestroyFriendshipTask {
+    protected class LocalDestroyFriendshipTask extends DestroyFriendshipTask {
         protected ImageButton imageButton;
         protected TextView    textView;
         public LocalDestroyFriendshipTask(ImageButton imageButton, TextView textView, Context context, final long account_id, final long user_id) {
             super(context, account_id, user_id);
+
+            if (mHostFragment != null) {
+                setHost(mHostFragment);
+            } else {
+                setHost(mHostActivity);
+            }
+
             this.imageButton = imageButton;
             this.textView = textView;
         }
 
         @Override
-        protected void onPostExecute(final Response<User> result) {
+        protected void onPostExecuteSafe(final Response<User> result) {
+            super.onPostExecuteSafe(result);
             if (result.hasData()) {
                 User user = result.getData();
                 if (imageButton != null) {
@@ -260,17 +322,25 @@ public class StatusViewBuilder {
         }
 
     }
-    static public class LocalRetweetStatusTask extends RetweetStatusTask {
+    protected class LocalRetweetStatusTask extends RetweetStatusTask {
         protected ImageButton imageButton;
         protected TextView    textView;
         public LocalRetweetStatusTask(ImageButton imageButton, TextView textView, Context context, final long account_id, final long status_id) {
             super(context, account_id, status_id);
+
+            if (mHostFragment != null) {
+                setHost(mHostFragment);
+            } else {
+                setHost(mHostActivity);
+            }
+
             this.imageButton = imageButton;
             this.textView = textView;
         }
 
         @Override
-        protected void onPostExecute(final Response<twitter4j.Status> result) {
+        protected void onPostExecuteSafe(final Response<twitter4j.Status> result) {
+            super.onPostExecuteSafe(result);
             if (result.hasData()) {
                 twitter4j.Status status = result.getData();
                 if (imageButton != null) {

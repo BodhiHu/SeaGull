@@ -1,6 +1,8 @@
 package com.shawnhu.seagull.seagull.twitter.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,21 +10,34 @@ import android.view.ViewGroup;
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.widgets.CapacityArrayAdapter;
 
-import java.util.List;
-
 import twitter4j.Status;
 
 public class StatusesArrayAdapter extends CapacityArrayAdapter<Status> {
     protected int   mResource;
     protected long  mAccountId = -1;
 
-    public StatusesArrayAdapter(Context context) {
-        super(context, R.layout.status_item);
-        mResource = R.layout.status_item;
+    protected Fragment mHostFragment;
+    protected Activity mHostActivity;
+
+    public StatusesArrayAdapter(Context context, Fragment fragment) {
+        this(context);
+
+        if (fragment == null) {
+            throw new NullPointerException("Host Fragment must not be null");
+        }
+        mHostFragment = fragment;
+    }
+    public StatusesArrayAdapter(Context context, Activity activity) {
+        this(context);
+
+        if (activity == null) {
+            throw new NullPointerException("Host Activity must not be null");
+        }
+        mHostActivity = activity;
     }
 
-    public StatusesArrayAdapter(Context context, List<Status> statuses) {
-        super(context, R.layout.status_item, statuses);
+    private StatusesArrayAdapter(Context context) {
+        super(context, R.layout.status_item);
         mResource = R.layout.status_item;
     }
 
@@ -35,7 +50,14 @@ public class StatusesArrayAdapter extends CapacityArrayAdapter<Status> {
         }
 
         Status status = getItem(position);
-        StatusViewBuilder.buildStatusView(convertView, getContext(), status, mAccountId, false);
+        StatusViewBuilder viewBuilder;
+        if (mHostFragment != null) {
+            viewBuilder = new StatusViewBuilder(mHostFragment);
+        } else {
+            viewBuilder = new StatusViewBuilder(mHostActivity);
+        }
+
+        viewBuilder.buildStatusView(convertView, status, mAccountId, false);
 
         return convertView;
     }

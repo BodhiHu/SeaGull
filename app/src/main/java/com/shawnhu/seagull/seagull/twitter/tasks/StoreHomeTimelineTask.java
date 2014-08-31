@@ -10,10 +10,6 @@ import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusListResponse;
 
 import java.util.List;
 
-/**
- * Created by shawnhu on 8/20/14.
- */
-
 class StoreHomeTimelineTask
         extends StoreStatusesTask {
 

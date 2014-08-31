@@ -76,7 +76,7 @@ public class SeagullProfileFragment extends Fragment {
         final ViewPager           graphPager      = (ViewPager) v.findViewById(R.id.graphPager);
         final TitlePageIndicator  graphTabInd     = (TitlePageIndicator) v.findViewById(R.id.graphTabIndicator);
 
-        bannerPager.setAdapter(new BannerPagerAdapter(getActivity(), null));
+        bannerPager.setAdapter(new BannerPagerAdapter(getActivity(), null, getActivity()));
         bannerIndicator.setViewPager(bannerPager);
         graphPager.setAdapter(new GraphPagerAdapter(getActivity(), mAccountId, null));
         graphTabInd.setViewPager(graphPager);
@@ -92,6 +92,7 @@ public class SeagullProfileFragment extends Fragment {
     }
 
     protected void loadViewAsync(final ViewPager viewPager, final ViewPager graphPager) {
+        GetUserProfileTask getUserProfileTask =
         new GetUserProfileTask(getActivity(), mAccountId, mUserId) {
             BitmapDrawable mBanner = null;
             @Override
@@ -112,7 +113,7 @@ public class SeagullProfileFragment extends Fragment {
                 return response;
             }
             @Override
-            protected void onPostExecute(final Response<User> result) {
+            protected void onPostExecuteSafe(final Response<User> result) {
                 //on UI thread
                 if (result.hasData()) {
                     mUser = result.getData();
@@ -145,7 +146,10 @@ public class SeagullProfileFragment extends Fragment {
                     }
                 }
             }
-        }.execute();
+        };
+
+        getUserProfileTask.setHost(this);
+        getUserProfileTask.execute();
     }
 
     public String getUserScreenName() {

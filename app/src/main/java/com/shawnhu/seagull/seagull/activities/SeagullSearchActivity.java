@@ -46,7 +46,7 @@ public class SeagullSearchActivity extends Activity
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mSwipeRefreshLayout.setEnableScrollUpDown(false, true);
 
-        mAdapter = new MixedResourcesArrayAdapter(this, new ArrayList<Object>(0));
+        mAdapter = new MixedResourcesArrayAdapter(this, new ArrayList<Object>(0), this);
         mListView.setAdapter(mAdapter);
 
         handleIntent(getIntent());
@@ -78,27 +78,35 @@ public class SeagullSearchActivity extends Activity
     }
 
     protected void searchUsersAsync(String query, int page) {
+        SearchUsersTask searchUsersTask =
         new SearchUsersTask(this, Seagull.sCurrentAccount.sAccountId, query, page) {
             @Override
-            protected void onPostExecute(final ListResponse<User> result) {
+            protected void onPostExecuteSafe(final ListResponse<User> result) {
                 if (result != null && result.getList() != null) {
                     mAdapter.addAll(result.getList());
                     mSwipeRefreshLayout.setRefreshing(false);
                     mProgressBar.setVisibility(View.GONE);
                 }
             }
-        }.execute();
+        };
+
+        searchUsersTask.setHost(this);
+        searchUsersTask.execute();
     }
     protected void searchTweetsAsync(String query, int page) {
+        SearchTweetsTask searchTweetsTask =
         new SearchTweetsTask(this, Seagull.sCurrentAccount.sAccountId, query, page) {
             @Override
-            protected void onPostExecute(final ListResponse<twitter4j.Status> result) {
+            protected void onPostExecuteSafe(final ListResponse<twitter4j.Status> result) {
                 if (result != null && result.getList() != null) {
                     mAdapter.addAll(result.getList());
                     mSwipeRefreshLayout.setRefreshing(false);
                     mProgressBar.setVisibility(View.GONE);
                 }
             }
-        }.execute();
+        };
+
+        searchTweetsTask.setHost(this);
+        searchTweetsTask.execute();
     }
 }

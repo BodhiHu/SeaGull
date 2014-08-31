@@ -1,6 +1,8 @@
 package com.shawnhu.seagull.seagull.twitter.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,18 +11,32 @@ import android.widget.ImageView;
 
 import com.shawnhu.seagull.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import twitter4j.Status;
 import twitter4j.User;
 
 public class MixedResourcesArrayAdapter extends ArrayAdapter<Object> {
-    public MixedResourcesArrayAdapter(Context context) {
-        super(context, 0);
+
+    public MixedResourcesArrayAdapter(Context context, List<Object> resources, Fragment fragment) {
+        super(context, 0, resources);
+
+        if (fragment == null) {
+            throw new NullPointerException("Hosting fragment can not be null");
+        }
+
+        mHostFragment = fragment;
     }
 
-    public MixedResourcesArrayAdapter(Context context, List<Object> resources) {
+    public MixedResourcesArrayAdapter(Context context, List<Object> resources, Activity activity) {
         super(context, 0, resources);
+
+        if (activity == null) {
+            throw new NullPointerException("Hosting activity can not be null");
+        }
+
+        mHostActivity = activity;
     }
 
     static final protected int mUserLayout = R.layout.user_profile;
@@ -30,6 +46,15 @@ public class MixedResourcesArrayAdapter extends ArrayAdapter<Object> {
 
     protected long mAccountId = -1;
     protected OnShowUser mOnShowUser;
+
+    protected Fragment mHostFragment;
+    protected Activity mHostActivity;
+    public void setHost(Fragment fragment) {
+        mHostFragment = fragment;
+    }
+    public void setHost(Activity activity) {
+        mHostActivity = activity;
+    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -55,9 +80,16 @@ public class MixedResourcesArrayAdapter extends ArrayAdapter<Object> {
         }
 
         final User user = (User) getItem(position);
+        UserViewBuilder viewBuilder;
+        if (mHostFragment != null) {
+            viewBuilder = new UserViewBuilder(mHostFragment);
+        } else {
+            viewBuilder = new UserViewBuilder(mHostActivity);
+        }
+
         if (user != null && convertView != null && getContext() != null) {
-            UserViewBuilder.buildProfileView(convertView, user);
-            UserViewBuilder.buildSelfieView(convertView, user);
+            viewBuilder.buildProfileView(convertView, user);
+            viewBuilder.buildSelfieView(convertView, user);
 
             ImageView profileImage  = (ImageView) convertView.findViewById(R.id.profileImage);
             profileImage.setOnClickListener(new View.OnClickListener() {
@@ -84,7 +116,15 @@ public class MixedResourcesArrayAdapter extends ArrayAdapter<Object> {
         }
 
         Status status = (Status) getItem(position);
-        StatusViewBuilder.buildStatusView(convertView, getContext(), status, mAccountId, false);
+        StatusViewBuilder viewBuilder;
+        if (mHostFragment != null) {
+            viewBuilder = new StatusViewBuilder(mHostFragment);
+        } else if (mHostActivity != null) {
+            viewBuilder = new StatusViewBuilder(mHostActivity);
+        } else {
+            throw new NullPointerException("You must set host activity or fragment");
+        }
+        viewBuilder.buildStatusView(convertView, status, mAccountId, false);
 
         return convertView;
     }

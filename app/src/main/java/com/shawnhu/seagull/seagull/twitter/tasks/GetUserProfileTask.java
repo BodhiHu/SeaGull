@@ -1,9 +1,9 @@
 package com.shawnhu.seagull.seagull.twitter.tasks;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.shawnhu.seagull.seagull.twitter.model.Response;
+import com.shawnhu.seagull.tasks.ContextAsyncTask;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -14,11 +14,12 @@ import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTwitterInstance
 /**
  * Created by shawn on 14-8-25.
  */
-public class GetUserProfileTask extends AsyncTask<Void, Void, Response<User>> {
+public class GetUserProfileTask extends ContextAsyncTask<Void, Void, Response<User>> {
     protected Context   mContext;
     protected long      mAccountId;
     protected long      mUserId;
     public GetUserProfileTask(Context context, long accountId, long userId) {
+        super(context);
         mContext = context;
         mAccountId = accountId;
         mUserId = userId;
@@ -40,6 +41,4 @@ public class GetUserProfileTask extends AsyncTask<Void, Void, Response<User>> {
         return new Response<twitter4j.User>(null, null);
     }
 
-    @Override
-    protected void onPostExecute(final Response<twitter4j.User> result) {}
 }

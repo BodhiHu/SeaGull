@@ -1,11 +1,12 @@
 package com.shawnhu.seagull.seagull.twitter.tasks;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import com.shawnhu.seagull.seagull.twitter.content.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.model.Response;
+import com.shawnhu.seagull.tasks.ContextAsyncTask;
 
 import twitter4j.Status;
 import twitter4j.Twitter;
@@ -13,7 +14,7 @@ import twitter4j.TwitterException;
 
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTwitterInstance;
 
-public class RetweetStatusTask extends AsyncTask<Void, Void, Response<Status>> {
+public class RetweetStatusTask extends ContextAsyncTask<Void, Void, Response<Status>> {
 
     private final long account_id;
 
@@ -22,6 +23,7 @@ public class RetweetStatusTask extends AsyncTask<Void, Void, Response<Status>> {
     protected Context mContext;
 
     public RetweetStatusTask(Context context, final long account_id, final long status_id) {
+        super(context);
         this.account_id = account_id;
         this.status_id = status_id;
         mContext = context;
@@ -45,7 +47,7 @@ public class RetweetStatusTask extends AsyncTask<Void, Void, Response<Status>> {
     }
 
     @Override
-    protected void onPostExecute(final Response<twitter4j.Status> result) {
+    protected void onPostExecuteSafe(final Response<twitter4j.Status> result) {
         if (result.hasData() && result.getData().getId() > 0) {
             final ContentValues values = new ContentValues();
             values.put(TweetStore.Statuses.MY_RETWEET_ID, result.getData().getId());

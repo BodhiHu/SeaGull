@@ -3,10 +3,10 @@ package com.shawnhu.seagull.seagull.twitter.tasks;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.shawnhu.seagull.seagull.twitter.content.TweetStore;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterListResponse;
+import com.shawnhu.seagull.tasks.ContextAsyncTask;
 import com.shawnhu.seagull.utils.querybuilder.Where;
 import com.twitter.Extractor;
 
@@ -21,9 +21,6 @@ import static com.shawnhu.seagull.seagull.twitter.utils.ContentValuesCreator.mak
 import static com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils.bulkDelete;
 import static com.shawnhu.seagull.seagull.twitter.utils.content.ContentResolverUtils.bulkInsert;
 
-/**
- * Created by shawnhu on 8/20/14.
- */
 public class CacheUsersStatusesTask
         extends AsyncTask<Void, Void, Void> {
 

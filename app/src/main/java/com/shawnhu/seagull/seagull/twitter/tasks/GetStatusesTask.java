@@ -1,11 +1,11 @@
 package com.shawnhu.seagull.seagull.twitter.tasks;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatusListResponse;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
+import com.shawnhu.seagull.tasks.ContextAsyncTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,13 +18,13 @@ import twitter4j.TwitterException;
 /**
  * Created by shawn on 14-8-18.
  */
-abstract public class GetStatusesTask extends AsyncTask<Void, Void, List<TwitterStatusListResponse>> {
+abstract public class GetStatusesTask extends ContextAsyncTask<Void, Void, List<TwitterStatusListResponse>> {
 
     private final long[] mAccountIds, mMaxIds, mSinceIds;
     protected Context mContext;
 
     public GetStatusesTask(Context context, final long[] account_ids, final long[] max_ids, final long[] since_ids) {
-        super();
+        super(context);
         mAccountIds = account_ids;
         mMaxIds = max_ids;
         mSinceIds = since_ids;

@@ -42,7 +42,6 @@ abstract class StoreStatusesTask
 
     public StoreStatusesTask(Context context, final List<TwitterStatusListResponse> result,
                              final Uri uri, final boolean notify) {
-        super();
         mContext = context;
         responses = result;
         mResolver = mContext.getContentResolver();
@@ -104,9 +103,9 @@ abstract class StoreStatusesTask
 
     @Override
     protected void onPreExecute() {
-        super.onPreExecute();
         final TwitterStatusListResponse[] array = new TwitterStatusListResponse[responses.size()];
-        new CacheUsersStatusesTask(mContext, responses.toArray(array)).execute();
+        CacheUsersStatusesTask task = new CacheUsersStatusesTask(mContext, responses.toArray(array));
+        task.execute();
     }
 }
 

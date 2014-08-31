@@ -56,7 +56,7 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        mUsersAdapter = new UsersArrayAdapter(getActivity(), new ArrayList<User>(0));
+        mUsersAdapter = new UsersArrayAdapter(getActivity(), new ArrayList<User>(0), this);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
             count = cursor >= count ? count : (int) cursor;
         }
 
-        //FIXME: should cancel task when fragment detached
+        GetUsersTask getUsersTask =
         new GetUsersTask(getActivity(),
                 mAccountId,
                 mUserId,
@@ -139,7 +139,7 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
                 new CursorPaging(cursor, count))
         {
             @Override
-            protected void onPostExecute(final ListResponse<User> result) {
+            protected void onPostExecuteSafe(final ListResponse<User> result) {
                 if (result != null) {
                     List<User> usersList = result.getList();
 
@@ -168,6 +168,9 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
 
                 mSwipeRefreshLayout.setRefreshing(false);
             }
-        }.execute();
+        };
+
+        getUsersTask.setHost(this);
+        getUsersTask.execute();
     }
 }

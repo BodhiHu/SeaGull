@@ -39,7 +39,7 @@ public class UserTimelineFragment extends SwipeRefreshStaggeredGridFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        mStatusesAdapter = new StatusesArrayAdapter(getActivity());
+        mStatusesAdapter = new StatusesArrayAdapter(getActivity(), this);
     }
     @Override
     public void onCreate(Bundle savedState) {
@@ -110,9 +110,10 @@ public class UserTimelineFragment extends SwipeRefreshStaggeredGridFragment {
 
     }
     private void getUserTimelineAsync(final long[] account_ids, final long[] max_ids, final long[] since_ids, final long[] user_ids, final boolean insertAtStart) {
+        GetUserTimelineTask getUserTimelineTask =
         new GetUserTimelineTask(getActivity(), account_ids, max_ids, since_ids, user_ids) {
             @Override
-            protected void onPostExecute(final List<TwitterStatusListResponse> responses) {
+            protected void onPostExecuteSafe(final List<TwitterStatusListResponse> responses) {
                 if (responses != null && responses.size() > 0) {
                     for (TwitterStatusListResponse response : responses) {
                         List<twitter4j.Status> statuses = response.getList();
@@ -128,7 +129,10 @@ public class UserTimelineFragment extends SwipeRefreshStaggeredGridFragment {
 
                 mSwipeRefreshLayout.setRefreshing(false);
             }
-        }.execute();
+        };
+
+        getUserTimelineTask.setHost(this);
+        getUserTimelineTask.execute();
     }
 
 }

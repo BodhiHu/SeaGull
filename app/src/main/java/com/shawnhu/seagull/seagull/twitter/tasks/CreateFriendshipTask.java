@@ -1,9 +1,9 @@
 package com.shawnhu.seagull.seagull.twitter.tasks;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.shawnhu.seagull.seagull.twitter.model.Response;
+import com.shawnhu.seagull.tasks.ContextAsyncTask;
 
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -11,13 +11,14 @@ import twitter4j.User;
 
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTwitterInstance;
 
-public class CreateFriendshipTask extends AsyncTask<Void, Void, Response<User>> {
+public class CreateFriendshipTask extends ContextAsyncTask<Void, Void, Response<User>> {
 
     private final long account_id;
     private final long user_id;
     protected Context mContext;
 
     public CreateFriendshipTask(Context context, final long account_id, final long user_id) {
+        super(context);
         this.account_id = account_id;
         this.user_id = user_id;
 
@@ -44,9 +45,6 @@ public class CreateFriendshipTask extends AsyncTask<Void, Void, Response<User>> 
             return new Response<User>(null, e);
         }
     }
-
-    @Override
-    protected void onPostExecute(final Response<User> result) {}
 }
 
 

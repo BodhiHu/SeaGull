@@ -3,6 +3,7 @@ package com.shawnhu.seagull.seagull.twitter.tasks;
 import android.content.Context;
 
 import com.shawnhu.seagull.seagull.twitter.model.ListResponse;
+import com.shawnhu.seagull.tasks.ContextAsyncTask;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ import twitter4j.User;
 
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTwitterInstance;
 
-public class GetUsersTask  extends AsyncTask<Void, Void, ListResponse<User>> {
+public class GetUsersTask  extends ContextAsyncTask<Void, Void, ListResponse<User>> {
 
     protected Context       mContext;
     protected long          mAccountId;
@@ -21,6 +22,7 @@ public class GetUsersTask  extends AsyncTask<Void, Void, ListResponse<User>> {
     protected boolean       mGetFriendsList;
     protected CursorPaging  mPaging;
     public GetUsersTask(Context context, long accountId, long userId, boolean shouldGetFriends, CursorPaging paging) {
+        super(context);
         mContext = context;
         mAccountId = accountId;
         mUserId = userId;
@@ -49,6 +51,4 @@ public class GetUsersTask  extends AsyncTask<Void, Void, ListResponse<User>> {
         return new ListResponse<twitter4j.User>(null, null);
     }
 
-    @Override
-    protected void onPostExecute(final ListResponse<twitter4j.User> result) {}
 }
