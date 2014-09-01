@@ -10,17 +10,18 @@
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@android:color/holo_orange_dark"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:layout_gravity="center"
+        android:background="@android:color/black">
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="3dp"
             android:layout_marginLeft="5dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="5dp"
-            android:layout_marginBottom="1dp">
+            android:padding="3dp"
+            android:background="@android:color/holo_orange_dark">
 
             <EditText
                 android:layout_width="match_parent"
@@ -50,22 +51,27 @@
 
         </FrameLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:id="@+id/linearLayout"
-            android:gravity="right">
+            android:id="@+id/ctrlLayout"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@android:color/holo_orange_dark"
+            android:gravity="center_vertical"
+            android:padding="3dp">
 
             <ImageButton
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:id="@+id/pickPictureBtn"
                 android:background="@drawable/pictures"
-                android:layout_marginRight="30dp"
                 android:layout_gravity="center"
-                android:clickable="true" />
+                android:clickable="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="30dp"
+                android:layout_marginLeft="5dp" />
 
             <ImageButton
                 android:layout_width="30dp"
@@ -73,28 +79,41 @@
                 android:id="@+id/takePhotoBtn"
                 android:background="@drawable/camera"
                 android:layout_gravity="center"
-                android:clickable="true" />
+                android:clickable="true"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/pickPictureBtn"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="2dp" />
 
             <ImageButton
                 android:layout_width="70dp"
                 android:layout_height="25dp"
                 android:id="@+id/sendTweetBtn"
                 android:background="@drawable/send_tweet"
-                android:layout_marginLeft="50dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="5dp"
                 android:layout_gravity="center_vertical"
-                android:clickable="true" />
-        </LinearLayout>
+                android:clickable="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="5dp" />
+        </RelativeLayout>
 
-        <ImageView
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/image"
-            android:layout_gravity="center"
+            android:layout_height="match_parent"
             android:padding="5dp"
-            android:scaleType="center" />
+            android:layout_margin="5dp"
+            android:background="@android:color/holo_orange_dark">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/image"
+                android:layout_gravity="center"
+                android:background="@drawable/ic_indicator_media"
+                android:scaleType="center" />
+        </FrameLayout>
 
     </LinearLayout>
 
