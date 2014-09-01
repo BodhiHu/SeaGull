@@ -1,6 +1,8 @@
 package com.shawnhu.seagull.seagull.twitter.adapters;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.app.Fragment;
@@ -10,6 +12,9 @@ import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.seagull.Seagull;
+import com.shawnhu.seagull.seagull.activities.ShowUserActivity;
+import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
 import com.shawnhu.seagull.tasks.ContextAsyncTask;
@@ -34,7 +39,7 @@ public class UserViewBuilder {
         mHostActivity = activity;
     }
 
-    public void buildProfileView(View v, User mUser) {
+    public void buildProfileView(View v, final User mUser) {
         if (v != null && mUser != null) {
             ImageView profileImage  = (ImageView) v.findViewById(R.id.profileImage);
             TextView screenName     = (TextView)  v.findViewById(R.id.item_name);
@@ -43,7 +48,29 @@ public class UserViewBuilder {
             ImageLoaderWrapper imageLoaderWrapper = TwitterManager.getInstance().getImageLoaderWrapper();
             if (profileImage != null && imageLoaderWrapper != null) {
                 imageLoaderWrapper.displayProfileImage(profileImage, mUser.getProfileImageURL().toString());
+
+                profileImage.setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Context context;
+                                if (mHostFragment != null) {
+                                    context = mHostFragment.getActivity();
+                                } else {
+                                    context = mHostActivity;
+                                }
+                                if (context != null) {
+                                    Intent i = new Intent(context, ShowUserActivity.class);
+                                    i.putExtra(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, Seagull.sCurrentAccount.sAccountId);
+                                    i.putExtra(SeagullTwitterConstants.EXTRA_USER_ID, mUser.getId());
+                                    context.startActivity(i);
+                                }
+                            }
+                        }
+                );
             }
+
+
             if (screenName != null) {
                 screenName.setText(mUser.getScreenName());
             }

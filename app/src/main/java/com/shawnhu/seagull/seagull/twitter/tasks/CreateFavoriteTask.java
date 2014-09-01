@@ -16,7 +16,7 @@ import twitter4j.TwitterException;
 public class CreateFavoriteTask
             extends ContextAsyncTask<Void, Void, Response<TwitterStatus>> {
 
-    private final long account_id, status_id;
+    protected final long account_id, status_id;
     protected Context mContext;
 
     public CreateFavoriteTask(Context context, final long account_id, final long status_id) {

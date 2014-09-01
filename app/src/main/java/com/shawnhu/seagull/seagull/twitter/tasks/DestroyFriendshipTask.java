@@ -15,7 +15,7 @@ import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTwitterInstance
 public class DestroyFriendshipTask extends ContextAsyncTask<Void, Void, Response<User>> {
 
     private final long account_id;
-    private final long user_id;
+    protected final long user_id;
     protected Context mContext;
 
     public DestroyFriendshipTask(Context context, final long account_id, final long user_id) {

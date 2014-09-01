@@ -16,9 +16,9 @@ import twitter4j.TwitterException;
 
 public class DestroyFavoriteTask extends ContextAsyncTask<Void, Void, Response<TwitterStatus>> {
 
-    private final long account_id;
+    protected final long account_id;
 
-    private final long status_id;
+    protected final long status_id;
 
     protected Context mContext;
 

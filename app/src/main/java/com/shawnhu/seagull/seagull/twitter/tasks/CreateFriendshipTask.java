@@ -13,8 +13,8 @@ import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getTwitterInstance
 
 public class CreateFriendshipTask extends ContextAsyncTask<Void, Void, Response<User>> {
 
-    private final long account_id;
-    private final long user_id;
+    protected final long account_id;
+    protected final long user_id;
     protected Context mContext;
 
     public CreateFriendshipTask(Context context, final long account_id, final long user_id) {

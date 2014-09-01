@@ -2,6 +2,7 @@ package com.shawnhu.seagull.seagull.twitter.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.support.v4.app.Fragment;
@@ -14,6 +15,8 @@ import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.seagull.activities.ShowUserActivity;
+import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
@@ -46,12 +49,12 @@ public class StatusViewBuilder {
         mHostActivity = activity;
     }
 
-    public void buildStatusView(final View view, final Cursor cursor) {
+    public void buildStatusView(final View view, final long account_id, final Cursor cursor) {
         if (cursor == null) {
             return;
         }
         final TwitterStatus status = new TwitterStatus(cursor);
-        buildStatusView(view, status);
+        buildStatusView(view, account_id, status);
     }
 
     public void buildStatusView(final View view, final Status _4jstatus, long account_id, boolean is_gap) {
@@ -64,10 +67,10 @@ public class StatusViewBuilder {
         }
 
         final TwitterStatus status = new TwitterStatus(_4jstatus, account_id, is_gap);
-        buildStatusView(view, status);
+        buildStatusView(view, account_id, status);
     }
 
-    public void buildStatusView(final View view, final TwitterStatus  status) {
+    public void buildStatusView(final View view, final long account_id, final TwitterStatus  status) {
         if (view == null || status == null) {
             return;
         }
@@ -119,9 +122,36 @@ public class StatusViewBuilder {
 
         imageLoaderWrapper.displayProfileImage(proflImage, status.user_profile_image_url);
 
+        proflImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Context context;
+                if (mHostFragment != null) {
+                    context = mHostFragment.getActivity();
+                } else {
+                    context = mHostActivity;
+                }
+                if (context != null && account_id != -1) {
+                    Intent i = new Intent(context, ShowUserActivity.class);
+                    i.putExtra(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, account_id);
+                    i.putExtra(SeagullTwitterConstants.EXTRA_USER_ID, status.user_id);
+                    context.startActivity(i);
+                }
+            }
+        });
+
         screenName.setText(status.user_screen_name);
         name.setText(status.user_name);
         date.setText(TimeDateUtils.formatTimeStampString(context, status.timestamp));
+
+        Long status_id = status.id;
+        Long user_id   = status.user_id;
+        followBtn.setTag(user_id);
+        folwersNum.setTag(user_id);
+        likeBtn.setTag(status_id);
+        likesNum.setTag(status_id);
+        retwtBtn.setTag(status_id);
+        retwtNum.setTag(status_id);
 
         followBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -212,10 +242,10 @@ public class StatusViewBuilder {
             super.onPostExecuteSafe(result);
             if (result.hasData()) {
                 TwitterStatus status = result.getData();
-                if (mImageBtn != null) {
+                if (mImageBtn != null && (Long) mImageBtn.getTag() == status_id) {
                     mImageBtn.setImageResource(R.drawable.heart_orange);
                 }
-                if (mTextView != null) {
+                if (mTextView != null && (Long) mTextView.getTag() == status_id) {
                     mTextView.setText(String.format(mContext.getString(R.string.likes_num), status.favorite_count));
                 }
             } else {
@@ -244,10 +274,10 @@ public class StatusViewBuilder {
             super.onPostExecuteSafe(result);
             if (result.hasData()) {
                 TwitterStatus status = result.getData();
-                if (imageButton != null) {
+                if (imageButton != null && (Long) imageButton.getTag() == status_id) {
                     imageButton.setImageResource(R.drawable.heart_gray);
                 }
-                if (textView != null) {
+                if (textView != null && (Long) textView.getTag() == status_id) {
                     textView.setText(String.format(mContext.getString(R.string.likes_num), status.favorite_count));
                 }
             } else {
@@ -277,10 +307,10 @@ public class StatusViewBuilder {
             super.onPostExecuteSafe(result);
             if (result.hasData()) {
                 User user = result.getData();
-                if (imageButton != null) {
+                if (imageButton != null && (Long) imageButton.getTag() == user_id) {
                     imageButton.setImageResource(R.drawable.anchor_blue);
                 }
-                if (textView != null) {
+                if (textView != null && (Long) textView.getTag() == user_id) {
                     textView.setText(String.format(mContext.getString(R.string.followers_num), user.getFollowersCount()));
                 }
             } else {
@@ -310,10 +340,10 @@ public class StatusViewBuilder {
             super.onPostExecuteSafe(result);
             if (result.hasData()) {
                 User user = result.getData();
-                if (imageButton != null) {
+                if (imageButton != null && (Long) imageButton.getTag() == user_id) {
                     imageButton.setImageResource(R.drawable.anchor_gray);
                 }
-                if (textView != null) {
+                if (textView != null && (Long) textView.getTag() == user_id) {
                     textView.setText(String.format(mContext.getString(R.string.followers_num), user.getFollowersCount()));
                 }
             } else {
@@ -343,10 +373,10 @@ public class StatusViewBuilder {
             super.onPostExecuteSafe(result);
             if (result.hasData()) {
                 twitter4j.Status status = result.getData();
-                if (imageButton != null) {
+                if (imageButton != null && (Long) imageButton.getTag() == status_id) {
                     imageButton.setImageResource(R.drawable.bird_sing_blue);
                 }
-                if (textView != null) {
+                if (textView != null && (Long) textView.getTag() == status_id) {
                     textView.setText(String.format(mContext.getString(R.string.retweet_num), status.getRetweetCount()));
                 }
             } else {

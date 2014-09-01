@@ -62,6 +62,11 @@ final public class StatusesCursorAdapter extends SimpleCursorAdapter {
             viewBuilder = new StatusViewBuilder(mHostActivity);
         }
 
-        viewBuilder.buildStatusView(view, cursor);
+        if (cursor != null) {
+            int account_id_idx = cursor.getColumnIndex(TweetStore.Statuses.ACCOUNT_ID);
+            if (account_id_idx >= 0) {
+                viewBuilder.buildStatusView(view, cursor.getLong(account_id_idx), cursor);
+            }
+        }
     }
 }

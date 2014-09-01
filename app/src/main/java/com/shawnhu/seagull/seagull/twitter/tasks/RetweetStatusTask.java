@@ -18,7 +18,7 @@ public class RetweetStatusTask extends ContextAsyncTask<Void, Void, Response<Sta
 
     private final long account_id;
 
-    private final long status_id;
+    protected final long status_id;
 
     protected Context mContext;
 
