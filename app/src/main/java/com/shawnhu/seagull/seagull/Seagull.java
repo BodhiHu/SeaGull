@@ -36,8 +36,8 @@ public class Seagull extends SeagullApplication {
             new AnyViewArrayAdapterItem(R.layout.layout_avatar, aC, aC, SeagullProfileFragment.class, DRAWER_MENU_PROF),
 
             /* ~default_layout~, content, ~default getViewInterface~,  targetActionClass, actionBarTitle */
-            new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_info_details, DRAWER_MENU_HOME), SeagullHomeFragment.class,       DRAWER_MENU_HOME),
-            new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_preferences,  DRAWER_MENU_PRFS), SeagullPreferenceActivity.class, DRAWER_MENU_PRFS),
+            new AnyViewArrayAdapterItem(new IconicItem(R.drawable.ic_home_128, DRAWER_MENU_HOME), SeagullHomeFragment.class,       DRAWER_MENU_HOME),
+            new AnyViewArrayAdapterItem(new IconicItem(R.drawable.ic_settings_128,  DRAWER_MENU_PRFS), SeagullPreferenceActivity.class, DRAWER_MENU_PRFS),
     };
 
     /**
@@ -56,6 +56,8 @@ public class Seagull extends SeagullApplication {
     };
 
     static public final boolean DEVELOPER_MODE = true;
+    static public final int NAV_PREFRENCE = 2;
+
     @Override
     public void onCreate() {
         if (DEVELOPER_MODE) {

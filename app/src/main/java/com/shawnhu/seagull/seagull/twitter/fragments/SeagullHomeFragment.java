@@ -76,11 +76,10 @@ public class SeagullHomeFragment extends PersistentCursorFragment
         }
 
         View v = super.onCreateView(inflater, container, savedInstanceState);
-        v.setBackgroundColor(getResources().getColor(android.R.color.holo_orange_light));
+        v.setBackgroundColor(getResources().getColor(android.R.color.holo_orange_dark));
         mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeRefreshLayout);
         if (mSwipeRefreshLayout != null) {
             mSwipeRefreshLayout.setOnRefreshListener(this);
-                                                     //light red  light green  light blue   light orange
         }
         mProgressBar = (ProgressBar) v.findViewById(R.id.progressBar);
         mProgressBar.setVisibility(View.GONE);
@@ -189,19 +188,9 @@ public class SeagullHomeFragment extends PersistentCursorFragment
         new GetHomeTimelineTask(getActivity(), account_ids, max_ids, since_ids) {
             @Override
             protected void onPostExecuteSafe(final List<TwitterStatusListResponse> responses) {
-                new Handler()
-                        .postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (mProgressBar != null && mProgressBar.isFocusable()) {
-                                    mProgressBar.setVisibility(View.GONE);
-                                }
-                                if (mSwipeRefreshLayout != null && mSwipeRefreshLayout.isFocusable()) {
-                                    mSwipeRefreshLayout.setRefreshing(false);
-                                }
-                            }
-                        }, 1000);
-
+                super.onPostExecuteSafe(responses);
+                mProgressBar.setVisibility(View.GONE);
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         };
 

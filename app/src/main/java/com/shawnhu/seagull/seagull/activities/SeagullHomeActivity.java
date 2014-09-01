@@ -65,8 +65,8 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
 
                             Object target = item.mTarget;
                             if (target != null && target instanceof IconicItem) {
-                                ImageView iv = (ImageView) v.findViewById(R.id.imageView);
-                                TextView tv  = (TextView)  v.findViewById(R.id.screenName);
+                                ImageView iv = (ImageView) v.findViewById(R.id.item_icon);
+                                TextView tv  = (TextView)  v.findViewById(R.id.item_name);
                                 iv.setImageResource(((IconicItem) target).iconResId);
                                 tv.setText(((IconicItem) target).name);
                             } else {
@@ -171,7 +171,7 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
                     .commit();
             return true;
         } else if (id == R.id.action_settings) {
-            activity.setCurrentPosition(8);
+            activity.setCurrentPosition(Seagull.NAV_PREFRENCE);
             return true;
         }
 

@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/screen_name"
-        android:id="@+id/screenName"
+        android:id="@+id/item_name"
         android:layout_marginBottom="2dp"
         android:gravity="center"
         android:layout_gravity="center" />

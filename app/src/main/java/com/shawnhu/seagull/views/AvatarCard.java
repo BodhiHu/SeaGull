@@ -1,5 +1,7 @@
 package com.shawnhu.seagull.views;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,13 +10,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.utils.ImageUtils;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
 
 /**
  * Created by shawn on 14-7-25.
  */
 public class AvatarCard implements AnyViewArrayAdapterItem.ItemViewInterface {
-    Drawable mAvatar;
+    BitmapDrawable mAvatar;
     String mScreenName;
     String mName;
 
@@ -22,14 +25,18 @@ public class AvatarCard implements AnyViewArrayAdapterItem.ItemViewInterface {
 
     }
 
-    public AvatarCard(Drawable d, String n, String aT) {
+    public AvatarCard(BitmapDrawable d, String n, String aT) {
         mAvatar = d;
         mScreenName = n;
         mName = aT;
     }
 
-    public void setUpCard(Drawable d, String screenName, String name) {
-        mAvatar = d;
+    public void setUpCard(BitmapDrawable d, String screenName, String name) {
+        Bitmap roundCornerBmp;
+        if (d != null && d.getBitmap() != null) {
+            roundCornerBmp = ImageUtils.roundCornerBitmap(d.getBitmap(), 5);
+            mAvatar = new BitmapDrawable(roundCornerBmp);
+        }
         mScreenName = screenName;
         mName = name;
     }
@@ -44,7 +51,7 @@ public class AvatarCard implements AnyViewArrayAdapterItem.ItemViewInterface {
         }
 
         ImageView iv = (ImageView) v.findViewById(R.id.profileImage);
-        TextView  nameText = (TextView) v.findViewById(R.id.screenName);
+        TextView  nameText = (TextView) v.findViewById(R.id.item_name);
         TextView  atNameText = (TextView) v.findViewById(R.id.name);
 
         if (mAvatar != null) {

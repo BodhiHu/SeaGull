@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.ProfileFragment"
-    android:background="@android:color/holo_orange_light">
+    android:background="@android:color/holo_orange_dark">
 
     <LinearLayout
         android:orientation="vertical"

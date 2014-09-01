@@ -77,7 +77,7 @@ public class StatusViewBuilder {
         final ImageView   tweetImage = (ImageView)    view.findViewById(R.id.tweetImage);
         final TextView    tweetText  = (TextView)     view.findViewById(R.id.tweetText);
         final ImageView   proflImage = (ImageView)    view.findViewById(R.id.profileImage);
-        final TextView    screenName = (TextView)     view.findViewById(R.id.screenName);
+        final TextView    screenName = (TextView)     view.findViewById(R.id.item_name);
         final TextView    name       = (TextView)     view.findViewById(R.id.name);
         final TextView    date       = (TextView)     view.findViewById(R.id.date);
         final ImageButton followBtn  = (ImageButton)  view.findViewById(R.id.followButn);

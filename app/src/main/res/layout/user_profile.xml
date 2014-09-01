@@ -35,7 +35,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:text="..."
-                    android:id="@+id/screenName"
+                    android:id="@+id/item_name"
                     android:gravity="center" />
 
                 <TextView

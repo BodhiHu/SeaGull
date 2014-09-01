@@ -37,7 +37,7 @@ public class UserViewBuilder {
     public void buildProfileView(View v, User mUser) {
         if (v != null && mUser != null) {
             ImageView profileImage  = (ImageView) v.findViewById(R.id.profileImage);
-            TextView screenName     = (TextView)  v.findViewById(R.id.screenName);
+            TextView screenName     = (TextView)  v.findViewById(R.id.item_name);
             TextView  name          = (TextView)  v.findViewById(R.id.name);
 
             ImageLoaderWrapper imageLoaderWrapper = TwitterManager.getInstance().getImageLoaderWrapper();
