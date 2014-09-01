@@ -4,6 +4,7 @@ import android.content.Intent;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.LauncherActivity;
+import com.shawnhu.seagull.seagull.Seagull;
 
 import static com.shawnhu.seagull.seagull.twitter.utils.Utils.getAccountIds;
 
@@ -11,6 +12,7 @@ public class SeagullLauncherActivity extends LauncherActivity {
 
     protected boolean isUserAlreadyLoggedIn() {
         long ids[] = getAccountIds(this);
+        Seagull.sCurrentAccount.sAccountId = ids[0];
         return (ids != null && ids.length > 0);
     }
     protected int     getContentView() {

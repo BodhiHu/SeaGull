@@ -15,8 +15,8 @@ import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
  */
 public class AvatarCard implements AnyViewArrayAdapterItem.ItemViewInterface {
     Drawable mAvatar;
-    String   mName;
-    String   mAtName;
+    String mScreenName;
+    String mName;
 
     public AvatarCard() {
 
@@ -24,14 +24,14 @@ public class AvatarCard implements AnyViewArrayAdapterItem.ItemViewInterface {
 
     public AvatarCard(Drawable d, String n, String aT) {
         mAvatar = d;
-        mName = n;
-        mAtName = aT;
+        mScreenName = n;
+        mName = aT;
     }
 
-    public void setUpCard(Drawable d, String n, String aT) {
+    public void setUpCard(Drawable d, String screenName, String name) {
         mAvatar = d;
-        mName = n;
-        mAtName = aT;
+        mScreenName = screenName;
+        mName = name;
     }
 
     @Override
@@ -50,11 +50,11 @@ public class AvatarCard implements AnyViewArrayAdapterItem.ItemViewInterface {
         if (mAvatar != null) {
             iv.setImageDrawable(mAvatar);
         }
-        if (mName != null) {
-            nameText.setText(mName);
+        if (mScreenName != null) {
+            nameText.setText(mScreenName);
         }
-        if (mAtName != null) {
-            atNameText.setText(mAtName);
+        if (mName != null) {
+            atNameText.setText(mName);
         }
 
         return v;

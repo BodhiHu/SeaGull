@@ -669,5 +669,6 @@
     <string name="action_new_tweet">Compose</string>
     <string name="hint_compose_tweet">Compose tweet...</string>
     <string name="tweet_sent">Your tweet was posted</string>
+    <string name="AtTwitter">\@Twitter</string>
 
 </resources>

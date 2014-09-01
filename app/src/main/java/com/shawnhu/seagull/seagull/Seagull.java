@@ -21,9 +21,6 @@ import com.shawnhu.seagull.misc.IconicItem;
 import com.shawnhu.seagull.seagull.activities.SeagullPreferenceActivity;
 import com.shawnhu.seagull.views.AvatarCard;
 
-/**
- * Created by shawn on 14-7-23.
- */
 public class Seagull extends SeagullApplication {
 
     /**
@@ -31,27 +28,15 @@ public class Seagull extends SeagullApplication {
      */
     public static final String DRAWER_MENU_PROF = "Profile";
     public static final String DRAWER_MENU_HOME = "Home";
-    public static final String DRAWER_MENU_NOTI = "Notifications";
-    public static final String DRAWER_MENU_SRCH = "Search";
-    public static final String DRAWER_MENU_TWTS = "Tweets";
-    public static final String DRAWER_MENU_FLIN = "Followings";
-    public static final String DRAWER_MENU_FLRS = "Followers";
-    public static final String DRAWER_MENU_DRFS = "Drafts";
     public static final String DRAWER_MENU_PRFS = "Preferences";
 
-    static AvatarCard aC = new AvatarCard(null, "Seagull", "@Seagull");
+    static public AvatarCard aC = new AvatarCard(null, "Twitter", "@Twitter");
     public static AnyViewArrayAdapterItem mSeagullDrawerItems[] = {
             /*  layout,          content,  getViewInterface,           targetActionClass, actionBarTitle */
             new AnyViewArrayAdapterItem(R.layout.layout_avatar, aC, aC, SeagullProfileFragment.class, DRAWER_MENU_PROF),
 
             /* ~default_layout~, content, ~default getViewInterface~,  targetActionClass, actionBarTitle */
             new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_info_details, DRAWER_MENU_HOME), SeagullHomeFragment.class,       DRAWER_MENU_HOME),
-            new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_info_details, DRAWER_MENU_NOTI), NotificationsFragment.class,     DRAWER_MENU_NOTI),
-            new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_search,       DRAWER_MENU_SRCH), SearchFragment.class,            DRAWER_MENU_SRCH),
-            new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_info_details, DRAWER_MENU_TWTS), TweetsFragment.class,            DRAWER_MENU_TWTS),
-            new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_info_details, DRAWER_MENU_FLIN), FollowingsFragment.class,        DRAWER_MENU_FLIN),
-            new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_info_details, DRAWER_MENU_FLRS), FollowersFragment.class,         DRAWER_MENU_FLRS),
-            new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_edit,         DRAWER_MENU_DRFS), DraftsFragment.class,            DRAWER_MENU_DRFS),
             new AnyViewArrayAdapterItem(new IconicItem(android.R.drawable.ic_menu_preferences,  DRAWER_MENU_PRFS), SeagullPreferenceActivity.class, DRAWER_MENU_PRFS),
     };
 

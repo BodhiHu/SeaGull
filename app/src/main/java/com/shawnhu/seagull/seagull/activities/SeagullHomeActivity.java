@@ -5,6 +5,8 @@ import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -18,15 +20,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.AbstractHomeNavDrawerActivity;
 import com.shawnhu.seagull.misc.IconicItem;
 import com.shawnhu.seagull.seagull.Seagull;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
+import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.fragments.ComposeFragment;
 import com.shawnhu.seagull.seagull.twitter.fragments.SeagullHomeFragment;
 import com.shawnhu.seagull.seagull.twitter.fragments.SeagullProfileFragment;
+import com.shawnhu.seagull.seagull.twitter.model.Response;
+import com.shawnhu.seagull.seagull.twitter.tasks.GetUserProfileTask;
 import com.shawnhu.seagull.seagull.twitter.utils.Utils;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapter;
 import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
@@ -34,6 +41,8 @@ import com.shawnhu.seagull.widgets.AnyViewArrayAdapterItem;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.util.ArrayList;
+
+import twitter4j.User;
 
 public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
     static ArrayList<AnyViewArrayAdapterItem> mSeagullHomeDrawerItems = new ArrayList<AnyViewArrayAdapterItem>();
@@ -82,6 +91,8 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
         }
 
         super.onCreate(savedInstanceState);
+
+        mGetUserProfileTask.execute();
     }
 
     @Override
@@ -166,4 +177,39 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
 
         return false;
     }
+
+    GetUserProfileTask mGetUserProfileTask =
+        new GetUserProfileTask(this, Seagull.sCurrentAccount.sAccountId, Seagull.sCurrentAccount.sAccountId) {
+            User mUser;
+            Bitmap mProfileBmp = null;
+            @Override
+            protected Response<twitter4j.User> doInBackground(final Void... params) {
+                Response<User> response = super.doInBackground(params);
+                if (response != null && response.hasData()) {
+                    mUser = response.getData();
+
+                    ImageLoader imageLoader = TwitterManager.getInstance().getImageLoaderWrapper().getImageLoader();
+                    mProfileBmp = imageLoader.loadImageSync(mUser.getProfileImageURL().toString());
+                }
+
+                return response;
+            }
+            @Override
+            protected void onPostExecuteSafe(final Response<User> result) {
+                //on UI thread
+                if (result.hasData()) {
+                    BitmapDrawable profileDrawable = null;
+                    if (mProfileBmp != null) {
+                        profileDrawable = new BitmapDrawable(mProfileBmp);
+                    }
+
+                    Seagull.aC.setUpCard(profileDrawable, mUser.getScreenName(), "@" + mUser.getName());
+                    mDrawerListArrayAdapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(SeagullHomeActivity.this,
+                            "Failed to load profile data from twitter.", Toast.LENGTH_LONG)
+                            .show();
+                }
+            }
+        };
 }
