@@ -51,6 +51,10 @@
             android:label="@string/title_activity_show_user" >
         </activity>
         <activity
+            android:name=".seagull.activities.TwitterMediasViewActivity"
+            android:label="@string/image_preview" >
+        </activity>
+        <activity
             android:name=".seagull.activities.SeagullSearchActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"

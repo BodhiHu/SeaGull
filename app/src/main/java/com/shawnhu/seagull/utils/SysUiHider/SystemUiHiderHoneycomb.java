@@ -56,9 +56,11 @@ public class SystemUiHiderHoneycomb extends SystemUiHiderBase {
             // at compile-time and do nothing on pre-Jelly Bean devices.
             mShowFlags |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
             mHideFlags |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN;
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         }
 
+        //TODO
         if ((mFlags & FLAG_HIDE_NAVIGATION) != 0) {
             // If the client requested hiding navigation, add relevant flags.
             mShowFlags |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
@@ -78,12 +80,14 @@ public class SystemUiHiderHoneycomb extends SystemUiHiderBase {
     @Override
     public void hide() {
         mAnchorView.setSystemUiVisibility(mHideFlags);
+        mActivity.getActionBar().hide();
     }
 
     /** {@inheritDoc} */
     @Override
     public void show() {
         mAnchorView.setSystemUiVisibility(mShowFlags);
+        mActivity.getActionBar().show();
     }
 
     /** {@inheritDoc} */
@@ -109,7 +113,6 @@ public class SystemUiHiderHoneycomb extends SystemUiHiderBase {
 
                 // Trigger the registered listener and cache the visibility
                 // state.
-
                 mOnVisibilityChangeListener.onVisibilityChange(false);
                 mVisible = false;
 

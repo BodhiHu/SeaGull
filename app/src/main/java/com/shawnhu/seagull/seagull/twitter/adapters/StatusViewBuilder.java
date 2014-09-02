@@ -15,11 +15,14 @@ import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.activities.AbsMediasViewActivity;
 import com.shawnhu.seagull.seagull.Seagull;
 import com.shawnhu.seagull.seagull.activities.ShowUserActivity;
+import com.shawnhu.seagull.seagull.activities.TwitterMediasViewActivity;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.model.Response;
+import com.shawnhu.seagull.seagull.twitter.model.TwitterMedia;
 import com.shawnhu.seagull.seagull.twitter.model.TwitterStatus;
 import com.shawnhu.seagull.seagull.twitter.tasks.CreateFavoriteTask;
 import com.shawnhu.seagull.seagull.twitter.tasks.CreateFriendshipTask;
@@ -110,6 +113,20 @@ public class StatusViewBuilder {
                         }
                         @Override public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                             super.onLoadingComplete(imageUri, view, loadedImage);
+                            tweetImage.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    String[] mediaUrls = new String[status.medias.length];
+                                    int i = 0;
+                                    for (TwitterMedia media : status.medias) {
+                                        mediaUrls[i] = media.url;
+                                        i++;
+                                    }
+                                    Intent intent = new Intent(getContext(), TwitterMediasViewActivity.class);
+                                    intent.putExtra(AbsMediasViewActivity.EXTRA_URIS, mediaUrls);
+                                    getContext().startActivity(intent);
+                                }
+                            });
                         }
                         @Override public void onLoadingCancelled(String imageUri, View view) {
                             super.onLoadingCancelled(imageUri, view);

@@ -532,6 +532,7 @@ public class SeagullTwitterConstants {
     public static final String EXTRA_LATITUDE = "latitude";
     public static final String EXTRA_LONGITUDE = "longitude";
     public static final String EXTRA_URI = "uri";
+    public static final String EXTRA_URIS = "uris";
     public static final String EXTRA_URI_ORIG = "uri_orig";
     public static final String EXTRA_MENTIONS = "mentions";
     public static final String EXTRA_ACCOUNT_ID = "account_id";

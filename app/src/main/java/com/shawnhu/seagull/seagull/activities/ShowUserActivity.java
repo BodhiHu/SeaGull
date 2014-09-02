@@ -1,7 +1,7 @@
 package com.shawnhu.seagull.seagull.activities;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -9,7 +9,7 @@ import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.fragments.SeagullProfileFragment;
 
-public class ShowUserActivity extends FragmentActivity {
+public class ShowUserActivity extends ActionBarActivity {
     protected long mAccountId = -1;
     protected long mUserId = -1;
 
@@ -18,8 +18,8 @@ public class ShowUserActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_user);
 
-        if (getActionBar() != null) {
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
         if (savedInstanceState == null) {

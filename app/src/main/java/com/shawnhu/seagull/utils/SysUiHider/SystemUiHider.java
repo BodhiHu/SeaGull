@@ -51,7 +51,7 @@ public abstract class SystemUiHider {
      * the device allows hiding it. In cases where the navigation bar is present
      * but cannot be hidden, show and hide will toggle low profile mode.
      */
-    public static final int FLAG_HIDE_NAVIGATION = 0x4;
+    public static final int FLAG_HIDE_NAVIGATION = FLAG_FULLSCREEN | 0x4;
 
     /**
      * The activity associated with this UI hider object.
@@ -65,7 +65,7 @@ public abstract class SystemUiHider {
 
     /**
      * The current UI hider flags.
-     * 
+     *
      * @see #FLAG_FULLSCREEN
      * @see #FLAG_HIDE_NAVIGATION
      * @see #FLAG_LAYOUT_IN_SCREEN_OLDER_DEVICES
@@ -78,11 +78,11 @@ public abstract class SystemUiHider {
     protected OnVisibilityChangeListener mOnVisibilityChangeListener = sDummyListener;
 
     /**
-     * Creates and returns an instance of {@link com.shawnhu.seagull.utils.SysUiHider.SystemUiHider} that is
+     * Creates and returns an instance of {@link SystemUiHider} that is
      * appropriate for this device. The object will be either a
      * {@link SystemUiHiderBase} or {@link SystemUiHiderHoneycomb} depending on
      * the device.
-     * 
+     *
      * @param activity The activity whose window's system UI should be
      *            controlled by this class.
      * @param anchorView The view on which
