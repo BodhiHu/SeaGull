@@ -6,27 +6,23 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.shawnhu.seagull.R;
-import com.shawnhu.seagull.seagull.activities.SeagullHomeActivity;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
-import com.shawnhu.seagull.seagull.twitter.TwitterManager;
 import com.shawnhu.seagull.seagull.twitter.adapters.BannerPagerAdapter;
 import com.shawnhu.seagull.seagull.twitter.adapters.GraphPagerAdapter;
 import com.shawnhu.seagull.seagull.twitter.adapters.UserViewBuilder;
 import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.tasks.GetUserProfileTask;
-import com.shawnhu.seagull.seagull.twitter.utils.ImageLoaderWrapper;
 import com.shawnhu.seagull.utils.ImageUtils;
+import com.shawnhu.seagull.utils.gestures.VerticalPinGestureListener;
 import com.viewpagerindicator.CirclePageIndicator;
 import com.viewpagerindicator.TitlePageIndicator;
 
@@ -50,6 +46,7 @@ public class SeagullProfileFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
     }
 
     @Override
@@ -70,6 +67,17 @@ public class SeagullProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        View upperView = v.findViewById(R.id.upperView);
+
+        final GestureDetectorCompat mGestureListener =
+                new GestureDetectorCompat(getActivity(), new VerticalPinGestureListener(upperView));
+        v.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return mGestureListener.onTouchEvent(event);
+            }
+        });
 
         final ViewPager           bannerPager     = (ViewPager) v.findViewById(R.id.bannerPager);
         final CirclePageIndicator bannerIndicator = (CirclePageIndicator) v.findViewById(R.id.bannerIndicator);

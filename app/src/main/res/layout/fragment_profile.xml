@@ -16,6 +16,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="150dp"
+            android:id="@+id/upperView"
             android:layout_gravity="bottom">
 
             <view
