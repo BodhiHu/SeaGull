@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ProgressBar;
 
 import com.etsy.android.grid.StaggeredGridView;
 import com.shawnhu.seagull.R;
@@ -15,6 +16,7 @@ public abstract class SwipeRefreshStaggeredGridFragment extends Fragment
                                   implements SwipeRefreshLayout.OnRefreshListener {
     protected AbsListView mListView;
     protected SwipeRefreshLayout mSwipeRefreshLayout;
+    protected ProgressBar        mProgressBar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -24,6 +26,7 @@ public abstract class SwipeRefreshStaggeredGridFragment extends Fragment
         mListView = (StaggeredGridView) v.findViewById(R.id.list_view);
         mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeRefreshLayout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
+        mProgressBar = (ProgressBar) v.findViewById(R.id.progressBar);
 
         return v;
     }
@@ -34,7 +37,7 @@ public abstract class SwipeRefreshStaggeredGridFragment extends Fragment
     }
     @Override
     public void onRefreshDown() {
-
+        mProgressBar.setVisibility(View.VISIBLE);
     }
 
 }

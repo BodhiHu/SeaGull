@@ -1,80 +1,34 @@
 package com.shawnhu.seagull.seagull.activities;
 
-import android.app.Activity;
-import android.app.SearchManager;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.AbsListView;
-import android.widget.ProgressBar;
+import android.widget.ArrayAdapter;
 
-import com.etsy.android.grid.StaggeredGridView;
-import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.activities.AbsSearchActivity;
 import com.shawnhu.seagull.seagull.Seagull;
 import com.shawnhu.seagull.seagull.twitter.adapters.MixedResourcesArrayAdapter;
 import com.shawnhu.seagull.seagull.twitter.model.ListResponse;
 import com.shawnhu.seagull.seagull.twitter.tasks.SearchTweetsTask;
 import com.shawnhu.seagull.seagull.twitter.tasks.SearchUsersTask;
-import com.shawnhu.seagull.widgets.SwipeRefreshLayout;
 
 import java.util.ArrayList;
 
 import twitter4j.User;
 
-public class SeagullSearchActivity extends Activity
-                                   implements SwipeRefreshLayout.OnRefreshListener {
-    protected SwipeRefreshLayout mSwipeRefreshLayout;
-    protected AbsListView        mListView;
-    protected ProgressBar        mProgressBar;
-    protected MixedResourcesArrayAdapter mAdapter;
-    protected String             mQuery = "";
-    protected int                mCurrentUserPage = 0;
-    protected int                mCurrentStatusPage = -1;
+public class SeagullSearchActivity extends AbsSearchActivity {
+    MixedResourcesArrayAdapter mAdapter;
 
-
-    @Override
-    public void onCreate(Bundle savedinstancestate) {
-        super.onCreate(savedinstancestate);
-
-        setContentView(R.layout.swipe_to_refresh_list);
-
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mListView = (StaggeredGridView) findViewById(R.id.list_view);
-        ((StaggeredGridView) mListView).setColumnCount(1);
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-        mSwipeRefreshLayout.setEnableScrollUpDown(false, true);
-
+    protected ArrayAdapter getAdapter() {
         mAdapter = new MixedResourcesArrayAdapter(this, new ArrayList<Object>(0), this);
-        mListView.setAdapter(mAdapter);
-
-        handleIntent(getIntent());
-    }
-
-    private void handleIntent(Intent intent) {
-
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            String query = intent.getStringExtra(SearchManager.QUERY);
-            doSearch(query);
-        }
+        return mAdapter;
     }
 
     protected void doSearch(String query) {
-        mQuery = query;
-        mAdapter.clear();
         searchUsersAsync(query, 1);
         searchTweetsAsync(query, -1);
     }
-
-
-    @Override public void onRefreshUp() { }
-
-    @Override
-    public void onRefreshDown() {
-        mProgressBar.setVisibility(View.VISIBLE);
-        searchUsersAsync(mQuery, 1);
-        searchTweetsAsync(mQuery, -1);
+    protected void loadMore(String query) {
+        beginSearch();
+        searchUsersAsync(query, 1);
+        searchTweetsAsync(query, -1);
     }
 
     protected void searchUsersAsync(String query, int page) {
@@ -84,8 +38,7 @@ public class SeagullSearchActivity extends Activity
             protected void onPostExecuteSafe(final ListResponse<User> result) {
                 if (result != null && result.getList() != null) {
                     mAdapter.addAll(result.getList());
-                    mSwipeRefreshLayout.setRefreshing(false);
-                    mProgressBar.setVisibility(View.GONE);
+                    setSearchDone();
                 }
             }
         };
@@ -100,8 +53,7 @@ public class SeagullSearchActivity extends Activity
             protected void onPostExecuteSafe(final ListResponse<twitter4j.Status> result) {
                 if (result != null && result.getList() != null) {
                     mAdapter.addAll(result.getList());
-                    mSwipeRefreshLayout.setRefreshing(false);
-                    mProgressBar.setVisibility(View.GONE);
+                    setSearchDone();
                 }
             }
         };

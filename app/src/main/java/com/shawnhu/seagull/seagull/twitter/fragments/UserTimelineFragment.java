@@ -86,6 +86,7 @@ public class UserTimelineFragment extends SwipeRefreshStaggeredGridFragment {
                 Status status = mStatusesAdapter.getItem(mStatusesAdapter.getCount() - 1);
                 max_id = status.getId();
             }
+            mProgressBar.setVisibility(View.VISIBLE);
             getUserTimelineAsync(max_id-1, -1, false);
         } else {
             mSwipeRefreshLayout.setRefreshing(false);
@@ -128,6 +129,7 @@ public class UserTimelineFragment extends SwipeRefreshStaggeredGridFragment {
                 }
 
                 mSwipeRefreshLayout.setRefreshing(false);
+                mProgressBar.setVisibility(View.GONE);
             }
         };
 

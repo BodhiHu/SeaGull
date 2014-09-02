@@ -109,6 +109,7 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
 
     @Override
     public void onRefreshDown() {
+        mProgressBar.setVisibility(View.VISIBLE);
         loadUsersAsync(PAGING_COUNT, mNextCursor, true);
     }
 
@@ -167,6 +168,7 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
                 }
 
                 mSwipeRefreshLayout.setRefreshing(false);
+                mProgressBar.setVisibility(View.GONE);
             }
         };
 
