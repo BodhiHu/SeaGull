@@ -138,7 +138,7 @@ public class BackgroundIntentService extends IntentService {
         final String title = getString(R.string.sending_direct_message);
         final Notification notification =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_stat_send)
+                        .setSmallIcon(R.drawable.ic_send_128)
                         .setProgress(100, 0, true)
                         .setTicker(title)
                         .setContentTitle(title)
@@ -433,7 +433,7 @@ public class BackgroundIntentService extends IntentService {
         if (status != null) {
             builder.setContentText(status.text);
         }
-        builder.setSmallIcon(R.drawable.ic_stat_send);
+        builder.setSmallIcon(R.drawable.ic_send_128);
         builder.setProgress(100, progress, progress >= 100 || progress <= 0);
         builder.setOngoing(true);
         return builder.build();

@@ -63,7 +63,7 @@ public class ComposeFragment extends Fragment {
                 int resCode = intent.getIntExtra(BackgroundIntentService.STATUS_UPDATE_RESULT, -1);
                 if (resCode == BackgroundIntentService.STATUS_UPDATE_SUCCESS) {
                     Notification notification = new NotificationCompat.Builder(getActivity())
-                            .setSmallIcon(R.drawable.ic_stat_send)
+                            .setSmallIcon(R.drawable.ic_send_128)
                             .setTicker(getActivity().getString(R.string.tweet_sent))
                             .setContentTitle(getActivity().getString(R.string.tweet_sent))
                             .setContentText(getActivity().getString(R.string.tweet_sent))
