@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.shawnhu.seagull.R;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
@@ -23,6 +24,7 @@ import com.shawnhu.seagull.seagull.twitter.model.Response;
 import com.shawnhu.seagull.seagull.twitter.tasks.GetUserProfileTask;
 import com.shawnhu.seagull.utils.ImageUtils;
 import com.shawnhu.seagull.utils.gestures.VerticalPinGestureListener;
+import com.shawnhu.seagull.widgets.TouchableFrameLayout;
 import com.viewpagerindicator.CirclePageIndicator;
 import com.viewpagerindicator.TitlePageIndicator;
 
@@ -69,10 +71,11 @@ public class SeagullProfileFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_profile, container, false);
 
         View upperView = v.findViewById(R.id.upperView);
+        TouchableFrameLayout listenerV = (TouchableFrameLayout) v.findViewById(R.id.listenerLayout);
 
         final GestureDetectorCompat mGestureListener =
                 new GestureDetectorCompat(getActivity(), new VerticalPinGestureListener(upperView));
-        v.setOnTouchListener(new View.OnTouchListener() {
+        listenerV.registerOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return mGestureListener.onTouchEvent(event);

@@ -15,21 +15,7 @@ public class VerticalPinGestureListener implements GestureDetector.OnGestureList
     @Override public boolean    onSingleTapUp(MotionEvent e)    { return false; }
     @Override public void       onLongPress(MotionEvent e)      { }
 
-    @Override public boolean    onDown(MotionEvent e) {
-        if (mTargetView == null) return false;
-
-        if (mTargetView.getTop() <= 0 && mTargetView.getBottom() > 0) {
-            return true;
-        }
-
-        if (mTargetView.getBottom() < 0) {
-            mTargetView.offsetTopAndBottom(Math.abs(mTargetView.getBottom()));
-        } else if (mTargetView.getTop() >= mTargetView.getHeight()) {
-            mTargetView.offsetTopAndBottom(-1 * (mTargetView.getTop() - mTargetView.getHeight() + 1));
-        }
-
-        return false;
-    }
+    @Override public boolean    onDown(MotionEvent e)           { return false; }
 
     @Override public boolean    onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         int dir = GestureUtils.getScrollDir(e1, e2);
@@ -39,12 +25,14 @@ public class VerticalPinGestureListener implements GestureDetector.OnGestureList
         switch (dir) {
             case GestureUtils.DIR_DOWN:
                 ydis = ydis <= downable_dis ? ydis : downable_dis;
-                mTargetView.offsetTopAndBottom((int) ydis);
+                mTargetView.scrollBy(0, (int) ydis);
+                //mTargetView.offsetTopAndBottom((int) ydis);
                 return true;
             case GestureUtils.DIR_UP:
                 ydis = ydis <= uppable_dis ? ydis : uppable_dis;
                 ydis *= -1;
-                mTargetView.offsetTopAndBottom((int) ydis);
+                mTargetView.scrollBy(0, (int) ydis);
+                //mTargetView.offsetTopAndBottom((int) ydis);
                 return true;
             default:
                 return false;
