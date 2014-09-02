@@ -18,6 +18,10 @@ public class ShowUserActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_user);
 
+        if (getActionBar() != null) {
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         if (savedInstanceState == null) {
             mAccountId = getIntent().getLongExtra(SeagullTwitterConstants.EXTRA_ACCOUNT_ID, -1);
             mUserId    = getIntent().getLongExtra(SeagullTwitterConstants.EXTRA_USER_ID, -1);
@@ -43,6 +47,9 @@ public class ShowUserActivity extends FragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        if (id == android.R.id.home) {
+            finish();
+        }
         return super.onOptionsItemSelected(item);
     }
 

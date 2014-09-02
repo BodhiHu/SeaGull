@@ -48,11 +48,7 @@
 
         <activity
             android:name=".seagull.activities.ShowUserActivity"
-            android:label="@string/title_activity_show_user"
-            android:parentActivityName=".seagull.activities.SeagullHomeActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.shawnhu.seagull.seagull.activities.SeagullHomeActivity" />
+            android:label="@string/title_activity_show_user" >
         </activity>
         <activity
             android:name=".seagull.activities.SeagullSearchActivity"
