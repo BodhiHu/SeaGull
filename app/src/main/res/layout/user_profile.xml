@@ -12,7 +12,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:background="#ffffab3b">
+            android:background="@android:color/black">
 
             <LinearLayout
                 android:orientation="vertical"

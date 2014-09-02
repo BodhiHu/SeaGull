@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.shawnhu.seagull.R;
+import com.shawnhu.seagull.seagull.Seagull;
 import com.shawnhu.seagull.seagull.activities.ShowUserActivity;
 import com.shawnhu.seagull.seagull.twitter.SeagullTwitterConstants;
 import com.shawnhu.seagull.seagull.twitter.TwitterManager;
@@ -70,12 +71,13 @@ public class StatusViewBuilder {
         buildStatusView(view, account_id, status);
     }
 
-    public void buildStatusView(final View view, final long account_id, final TwitterStatus  status) {
+    public void buildStatusView(final View view, long _account_id, final TwitterStatus  status) {
         if (view == null || status == null) {
             return;
         }
 
         final Context context = getContext();
+        final long account_id = Seagull.sCurrentAccount.sAccountId;
 
         final ImageView   tweetImage = (ImageView)    view.findViewById(R.id.tweetImage);
         final TextView    tweetText  = (TextView)     view.findViewById(R.id.tweetText);

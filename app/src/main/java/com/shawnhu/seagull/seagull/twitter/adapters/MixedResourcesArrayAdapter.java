@@ -45,7 +45,6 @@ public class MixedResourcesArrayAdapter extends ArrayAdapter<Object> {
     static final private String TAG_STATUS = "TAG_STATUS";
 
     protected long mAccountId = -1;
-    protected OnShowUser mOnShowUser;
 
     protected Fragment mHostFragment;
     protected Activity mHostActivity;
@@ -90,17 +89,6 @@ public class MixedResourcesArrayAdapter extends ArrayAdapter<Object> {
         if (user != null && convertView != null && getContext() != null) {
             viewBuilder.buildProfileView(convertView, user);
             viewBuilder.buildSelfieView(convertView, user);
-
-            ImageView profileImage  = (ImageView) convertView.findViewById(R.id.profileImage);
-            profileImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    if (mOnShowUser != null) {
-                        mOnShowUser.onShowUser(user);
-                    }
-                }
-            });
         }
 
         return convertView;
@@ -129,7 +117,4 @@ public class MixedResourcesArrayAdapter extends ArrayAdapter<Object> {
         return convertView;
     }
 
-    public void registerShowUserListener(OnShowUser l) {
-        mOnShowUser = l;
-    }
 }
