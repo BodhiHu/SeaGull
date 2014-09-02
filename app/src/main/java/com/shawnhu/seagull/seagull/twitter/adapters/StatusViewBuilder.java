@@ -179,6 +179,7 @@ public class StatusViewBuilder {
                 ImageButton followBtn = (ImageButton) root.findViewById(R.id.followButn);
                 TextView    followNum = (TextView)    root.findViewById(R.id.followNum);
                 if (!status.user_is_following) {
+                    followBtn.setImageResource(R.drawable.anchor_blue);
                     new LocalCreateFriendshipTask(followBtn, followNum, context, status.account_id, status.user_id)
                             .execute();
                 } else {
@@ -200,6 +201,7 @@ public class StatusViewBuilder {
                 ImageButton likeBtn  = (ImageButton) root.findViewById(R.id.likeButn);
                 TextView    likesNum = (TextView)    root.findViewById(R.id.likesNum);
                 if (!status.is_favorite) {
+                    likeBtn.setImageResource(R.drawable.heart_orange);
                     new LocalCreateFavoriteTask(likeBtn, likesNum, context, status.account_id, status.id)
                             .execute();
                 } else {
@@ -221,6 +223,7 @@ public class StatusViewBuilder {
                 TextView    retwNum = (TextView)    root.findViewById(R.id.retweetsNum);
 
                 if (status.is_retweet && status.user_id != status.account_id) {
+                    retwtBtn.setImageResource(R.drawable.bird_sing_blue);
                     new LocalRetweetStatusTask(retwBtn, retwNum, context, status.account_id, status.id)
                             .execute();
                 }
