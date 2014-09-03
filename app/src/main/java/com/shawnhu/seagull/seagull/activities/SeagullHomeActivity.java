@@ -205,10 +205,6 @@ public class SeagullHomeActivity extends AbstractHomeNavDrawerActivity {
 
                     Seagull.aC.setUpCard(profileDrawable, mUser.getScreenName(), "@" + mUser.getName());
                     mDrawerListArrayAdapter.notifyDataSetChanged();
-                } else {
-                    Toast.makeText(SeagullHomeActivity.this,
-                            "Failed to load profile data from twitter.", Toast.LENGTH_LONG)
-                            .show();
                 }
             }
         };
