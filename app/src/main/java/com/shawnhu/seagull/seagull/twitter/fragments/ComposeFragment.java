@@ -8,6 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -62,8 +64,10 @@ public class ComposeFragment extends Fragment {
             if (intent.getAction() == BROADCAST_STATUS_UPDATED) {
                 int resCode = intent.getIntExtra(BackgroundIntentService.STATUS_UPDATE_RESULT, -1);
                 if (resCode == BackgroundIntentService.STATUS_UPDATE_SUCCESS) {
+                    Bitmap   largeIcon  = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
                     Notification notification = new NotificationCompat.Builder(getActivity())
                             .setSmallIcon(R.drawable.ic_send_128)
+                            .setLargeIcon(largeIcon)
                             .setTicker(getActivity().getString(R.string.tweet_sent))
                             .setContentTitle(getActivity().getString(R.string.tweet_sent))
                             .setContentText(getActivity().getString(R.string.tweet_sent))

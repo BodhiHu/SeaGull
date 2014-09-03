@@ -8,6 +8,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
@@ -260,7 +261,7 @@ public class BackgroundIntentService extends IntentService {
         final Notification notification =
                 buildNotification(
                         title, message,
-                        R.drawable.ic_stat_twitter,
+                        R.drawable.ic_launcher,
                         intent, null);
         mNotificationManager.notify(NOTIFICATION_ID_DRAFTS, notification);
     }
@@ -354,23 +355,27 @@ public class BackgroundIntentService extends IntentService {
                 if (statusUpdate.medias.length == 1 && statusUpdate.medias[0] != null) {
                     final TwitterMediaUpdate media = statusUpdate.medias[0];
                     final String path = getImagePathFromUri(this, Uri.parse(media.uri));
-                    BitmapFactory.decodeFile(path, o);
-                    final File file = new File(path);
-                    final FileInputStream is = new FileInputStream(file);
+                    if (path != null) {
+                        BitmapFactory.decodeFile(path, o);
+                        final File file = new File(path);
+                        final FileInputStream is = new FileInputStream(file);
 
-                    status.setMedia(file.getName(), is, o.outMimeType);
+                        status.setMedia(file.getName(), is, o.outMimeType);
+                    }
                 } else {
                     ArrayList<Long> mediaIds = new ArrayList<Long>();
                     for (int i = 0, j = statusUpdate.medias.length; i < j; i++) {
                         final TwitterMediaUpdate media = statusUpdate.medias[i];
                         if (media != null) {
                             final String path = getImagePathFromUri(this, Uri.parse(media.uri));
-                            BitmapFactory.decodeFile(path, o);
-                            final File file = new File(path);
-                            final FileInputStream is = new FileInputStream(file);
-                            final MediaUploadResponse uploadResp = twitter.uploadMedia(file.getName(), is,
-                                    o.outMimeType);
-                            mediaIds.add(uploadResp.getId());
+                            if (path != null) {
+                                BitmapFactory.decodeFile(path, o);
+                                final File file = new File(path);
+                                final FileInputStream is = new FileInputStream(file);
+                                final MediaUploadResponse uploadResp = twitter.uploadMedia(file.getName(), is,
+                                        o.outMimeType);
+                                mediaIds.add(uploadResp.getId());
+                            }
                         } else {
                             Log.e(TAG, "Got null media, this much likely a bug");
                         }
@@ -434,6 +439,8 @@ public class BackgroundIntentService extends IntentService {
             builder.setContentText(status.text);
         }
         builder.setSmallIcon(R.drawable.ic_send_128);
+        Bitmap largeIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
+        builder.setLargeIcon(largeIcon);
         builder.setProgress(100, progress, progress >= 100 || progress <= 0);
         builder.setOngoing(true);
         return builder.build();
