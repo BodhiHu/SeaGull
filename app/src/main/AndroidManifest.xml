@@ -26,6 +26,7 @@
         </activity>
         <activity
             android:name=".seagull.activities.SeagullHomeActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name" >
             <meta-data
                 android:name="android.app.default_searchable"
@@ -48,6 +49,7 @@
 
         <activity
             android:name=".seagull.activities.ShowUserActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_show_user" >
         </activity>
         <activity
@@ -58,6 +60,7 @@
             android:name=".seagull.activities.SeagullSearchActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:parentActivityName=".seagull.activities.SeagullHomeActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
