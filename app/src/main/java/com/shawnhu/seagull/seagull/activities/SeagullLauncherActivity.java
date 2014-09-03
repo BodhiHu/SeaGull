@@ -12,8 +12,11 @@ public class SeagullLauncherActivity extends LauncherActivity {
 
     protected boolean isUserAlreadyLoggedIn() {
         long ids[] = getAccountIds(this);
-        Seagull.sCurrentAccount.sAccountId = ids[0];
-        return (ids != null && ids.length > 0);
+        if (ids != null && ids.length > 0) {
+            Seagull.sCurrentAccount.sAccountId = ids[0];
+            return true;
+        }
+        return false;
     }
     protected int     getContentView() {
         return R.layout.layout_splash;

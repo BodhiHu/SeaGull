@@ -74,7 +74,7 @@ public class SeagullProfileFragment extends Fragment {
         View bannerView = v.findViewById(R.id.bannerLayout);
 
         final GestureDetectorCompat mGestureListener =
-                new GestureDetectorCompat(getActivity(), new VerticalPinGestureTracker(listenerV, bannerView, 150, TypedValue.COMPLEX_UNIT_DIP));
+                new GestureDetectorCompat(getActivity(), new VerticalPinGestureTracker(listenerV, bannerView, 200, TypedValue.COMPLEX_UNIT_DIP));
         listenerV.registerOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {

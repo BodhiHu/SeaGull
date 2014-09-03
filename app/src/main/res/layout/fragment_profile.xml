@@ -20,7 +20,7 @@
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
+                android:layout_height="200dp"
                 android:layout_gravity="bottom"
                 android:id="@+id/bannerLayout"
                 android:background="@android:color/holo_orange_dark">

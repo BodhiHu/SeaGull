@@ -3,8 +3,10 @@ package com.shawnhu.seagull.utils;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 
@@ -17,53 +19,42 @@ public class AnimationUtils {
     }
 
     static public void animateScroll(final View  scrollView,
-                                     int         fromScrollX,   int         toScrollX,
-                                     int         fromScrollY,   int         toScrollY,
+                                     final int   fromScrollX, final int   toScrollX,
+                                     final int   fromScrollY, final int   toScrollY,
                                      final View  alphaView,
-                                     final float fromAlpha,     final float toAlpha,
-                                     final long duration,
-                                     Animator.AnimatorListener l) {
+                                     final float fromAlpha,   final float toAlpha,
+                                     final long  duration,
+                                     ValueAnimator.AnimatorUpdateListener l) {
         ObjectAnimator xTranslate = ObjectAnimator.ofInt(scrollView, "scrollX", fromScrollX, toScrollX);
         ObjectAnimator yTranslate = ObjectAnimator.ofInt(scrollView, "scrollY", fromScrollY, toScrollY);
         AnimatorSet animators = new AnimatorSet();
         animators.setDuration(duration);
         animators.playTogether(xTranslate, yTranslate);
+        animators.setInterpolator(new AccelerateDecelerateInterpolator());
 
-        Animator.AnimatorListener alphaAnimatorListner =
-            new Animator.AnimatorListener() {
-                long startTimeMillis;
-
-                @Override public void onAnimationStart(Animator animation) {
-                    startTimeMillis = android.view.animation.AnimationUtils.currentAnimationTimeMillis();
-                }
-                @Override public void onAnimationEnd(Animator animation) { }
-                @Override public void onAnimationCancel(Animator animation) { }
-                @Override public void onAnimationRepeat(Animator animation) {
-                    long currentTimeMillis = android.view.animation.AnimationUtils.currentAnimationTimeMillis();
-                    float fraction = ((float) (currentTimeMillis - startTimeMillis) / duration);
+        ValueAnimator.AnimatorUpdateListener alphaAnimatorListner =
+            new ValueAnimator.AnimatorUpdateListener() {
+                @Override public void onAnimationUpdate(ValueAnimator animation) {
+                    long currentTimeMillis = animation.getCurrentPlayTime();
+                    float fraction = ((float) (currentTimeMillis) / duration);
                     fraction = fraction <= 1 ? fraction : 1;
 
                     float alpha = fromAlpha + (toAlpha - fromAlpha) * fraction;
-                    Animation alphaAnima = new AlphaAnimation(fromAlpha, toAlpha);
+                    Animation alphaAnima = new AlphaAnimation(alpha, alpha);
                     alphaAnima.setDuration(0);
                     alphaAnima.setFillAfter(true);
 
                     alphaView.startAnimation(alphaAnima);
                 }
             };
-        Animator.AnimatorListener layoutAnimatorListener =
-            new Animator.AnimatorListener() {
-                int startScrollX, startScrollY;
-                int startHeight , startWidth;
-                @Override public void onAnimationStart(Animator animation) {
-                    startScrollX = scrollView.getScrollX();
-                    startScrollY = scrollView.getScrollY();
-                    startHeight = scrollView.getHeight();
-                    startWidth = scrollView.getWidth();
-                }
-                @Override public void onAnimationEnd(Animator animation) { }
-                @Override public void onAnimationCancel(Animator animation) { }
-                @Override public void onAnimationRepeat(Animator animation) {
+        ValueAnimator.AnimatorUpdateListener layoutAnimatorListener =
+            new ValueAnimator.AnimatorUpdateListener() {
+                int startScrollX = scrollView.getScrollX();
+                int startScrollY = scrollView.getScrollY();
+                int startHeight  = scrollView.getHeight();
+                int startWidth   = scrollView.getWidth();
+
+                @Override public void onAnimationUpdate(ValueAnimator animation) {
                     int nextHeight = startHeight + (scrollView.getScrollY() - startScrollY);
                     int nextWidth = startWidth + (scrollView.getScrollX() - startScrollX);
                     ViewGroup.LayoutParams layout = scrollView.getLayoutParams();
@@ -72,20 +63,46 @@ public class AnimationUtils {
                     scrollView.setLayoutParams(layout);
                 }
             };
+        Animator.AnimatorListener endLayoutFixListener = new Animator.AnimatorListener() {
+            int startScrollX;
+            int startScrollY;
+            int startHeight;
+            int startWidth;
+            @Override public void onAnimationStart(Animator animation) {
+                startScrollX = scrollView.getScrollX();
+                startScrollY = scrollView.getScrollY();
+                startHeight  = scrollView.getHeight();
+                startWidth   = scrollView.getWidth();
+            }
+            @Override public void onAnimationEnd(Animator animation) {
+                int endScrollX = scrollView.getScrollX();
+                int endScrollY = scrollView.getScrollY();
 
-        //for (Animator animator : animators.getChildAnimations()) {
+                ViewGroup.LayoutParams layoutParams = scrollView.getLayoutParams();
+                layoutParams.height = startHeight + (endScrollY - startScrollY);
+                layoutParams.width  = startWidth  + (endScrollX - startScrollX);
+
+                scrollView.setLayoutParams(layoutParams);
+            }
+            @Override public void onAnimationCancel(Animator animation) {  }
+            @Override public void onAnimationRepeat(Animator animation) {  }
+        };
+
+        for (Animator animator : animators.getChildAnimations()) {
+            ValueAnimator valueAnimator = (ValueAnimator) animator;
             if (alphaView != null) {
                 //alpha
-                animators.addListener(alphaAnimatorListner);
+                valueAnimator.addUpdateListener(alphaAnimatorListner);
             }
-            //layout
-            animators.addListener(layoutAnimatorListener);
+            //this will have visible delay
+            valueAnimator.addUpdateListener(layoutAnimatorListener);
             if (l != null) {
                 //custom
-                animators.addListener(l);
+                valueAnimator.addUpdateListener(l);
             }
-        //}
+        }
 
+        animators.addListener(endLayoutFixListener);
         animators.start();
     }
 

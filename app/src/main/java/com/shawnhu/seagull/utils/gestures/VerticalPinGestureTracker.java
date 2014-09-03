@@ -42,6 +42,8 @@ public class VerticalPinGestureTracker implements GestureDetector.OnGestureListe
     @Override public boolean    onDown(MotionEvent e)           { return false; }
 
     @Override public boolean    onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
+/*
         final int dir = GestureUtils.getScrollDir(e1, e2);
         int deltaYDisPixs = (int) distanceY;
         int absDeltaYDisPixs = Math.abs(deltaYDisPixs);
@@ -78,6 +80,7 @@ public class VerticalPinGestureTracker implements GestureDetector.OnGestureListe
                 break;
         }
         return false;
+*/
     }
 
     @Override public boolean    onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -97,7 +100,7 @@ public class VerticalPinGestureTracker implements GestureDetector.OnGestureListe
                         mContainerView.getScrollX(), mContainerView.getScrollX(),
                         mContainerView.getScrollY(), 0,
                         mUperView,
-                        mUperView.getAlpha(),        1f,
+                        0f,                          1f,
                         (int) duration, null);
                 break;
             case GestureUtils.DIR_UP:
@@ -106,7 +109,7 @@ public class VerticalPinGestureTracker implements GestureDetector.OnGestureListe
                         mContainerView.getScrollX(), mContainerView.getScrollX(),
                         mContainerView.getScrollY(), mScrollableYDisPixs,
                         mUperView,
-                        mUperView.getAlpha(),        0f,
+                        1f,                          0f,
                         (int) duration, null);
                 break;
             default:
