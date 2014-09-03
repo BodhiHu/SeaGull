@@ -367,6 +367,7 @@ public class BackgroundIntentService extends IntentService {
                     for (int i = 0, j = statusUpdate.medias.length; i < j; i++) {
                         final TwitterMediaUpdate media = statusUpdate.medias[i];
                         if (media != null) {
+                            //FIXME
                             final String path = getImagePathFromUri(this, Uri.parse(media.uri));
                             if (path != null) {
                                 BitmapFactory.decodeFile(path, o);
