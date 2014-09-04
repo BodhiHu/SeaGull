@@ -1,7 +1,5 @@
 SeaGull
 =======
+Framework in progress.
 
-A twitter client for Android, as a demonstration of the Seagull framework.
-
-TODO:
-  lots of stuff
+Including a twitter client for Android, this is an app developed as developing Seagull, which aims to be a fully powerful Android app development framework.
