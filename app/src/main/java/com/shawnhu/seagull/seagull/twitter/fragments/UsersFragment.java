@@ -97,6 +97,7 @@ public class UsersFragment extends SwipeRefreshStaggeredGridFragment {
             }
         });
 
+        mSwipeRefreshLayout.setEnableScrollUpDown(false, true);
         loadUsersAsync(PAGING_COUNT, -1, true);
 
         return v;

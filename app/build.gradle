@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 20
-    buildToolsVersion "20.0.0"
+    buildToolsVersion '20.0.0'
 
     defaultConfig {
         applicationId "com.shawnhu.home"
         minSdkVersion 14 //ICE_CREAM_SANDWICH
         targetSdkVersion 20
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.1.1"
     }
     buildTypes {
         release {
@@ -37,10 +37,8 @@ dependencies {
     // You must install or update the Support Repository through the SDK manager to use this dependency.
     compile 'com.android.support:support-v4:20.+'
     compile 'com.google.android.gms:play-services:4.2.42'
-
     compile 'org.apache.commons:commons-lang3:3.+'
     compile 'com.mcxiaoke.volley:library:1.0.+'
-
     //compile 'org.twitter4j:twitter4j:4.0.+'
     //compile 'org.twitter4j:twitter4j-core:3.0.3'
     //compile 'org.twitter4j:twitter4j-stream:.3.0.3'
@@ -48,14 +46,10 @@ dependencies {
     //compile 'org.twitter4j:twitter4j-async:3.0.3'
     //compile 'org.twitter4j:twitter4j-examples:3.0.3'
     compile 'com.twitter:twitter-text:1.9.5'
-
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.2'
     compile 'com.etsy.android.grid:library:1.0.5'
-
     compile 'org.apache.httpcomponents:httpclient-android:4.3.3'
     compile 'org.apache.httpcomponents:httpmime:4.3.3'
-
     compile fileTree(dir: 'libs', include: ['*.jar'])
-
     compile 'com.viewpagerindicator:library:2.4.1@aar'
 }

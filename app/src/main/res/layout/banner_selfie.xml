@@ -11,7 +11,10 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="......................................................"
         android:id="@+id/selfie"
-        android:autoLink="all" />
+        android:autoLink="all"
+        android:layout_gravity="center"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -19,7 +22,10 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="......."
         android:id="@+id/location"
-        android:textStyle="italic" />
+        android:textStyle="italic"
+        android:layout_gravity="center"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -28,5 +34,8 @@
         android:text="..........."
         android:id="@+id/webSite"
         android:textStyle="italic"
-        android:autoLink="all" />
+        android:autoLink="all"
+        android:layout_gravity="center"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp" />
 </LinearLayout>
