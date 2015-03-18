@@ -1,8 +1,6 @@
 SeaGull
 =======
-Framework in progress.
-
-Including a twitter client for Android, this is an app developed as developing Seagull, which aims to be a fully powerful Android app development framework.
+A twitter client for Android.
 
 You can try the apk under app/, targetted ICE_CREAM_SANWIDCH or above.
 
